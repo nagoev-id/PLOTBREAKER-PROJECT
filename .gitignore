@@ -1,50 +1,409 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ============================================
+# ОБЩИЕ ФАЙЛЫ
+# ============================================
 
-# dependencies
-/node_modules
-/.pnp
+# Операционные системы
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Временные файлы
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Архивы
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ============================================
+# NEXT.JS + PAYLOADCMS (apps/web/)
+# ============================================
+
+# Зависимости
+node_modules/
+.pnp
 .pnp.js
-.yarn/install-state.gz
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
-/.idea/*
-!/.idea/runConfigurations
+# Кэш пакетных менеджеров
+.npm
+.eslintcache
+.node_repl_history
+.yarn-integrity
 
-# testing
-/coverage
+# Сборка Next.js
+.next/
+out/
+build/
+dist/
 
-# next.js
-/.next/
-/out/
-
-# production
+# Production
 /build
 
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
-.env*.local
-
-# vercel
-.vercel
-
-# typescript
+# Next.js TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
+# Turbopack
+.turbopack
+
+# Тестирование
+coverage/
+.nyc_output
+*.lcov
+.jest-cache/
+
+# PayloadCMS специфичные файлы
+/db/*
+/uploads/*
+/media/*
+/public/media/*
+/src/docs
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
+
+# Логи
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================
+# ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+# ============================================
+
+# Все файлы с переменными окружения
 .env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env*.local
 
-/media
+# Бэкапы конфигов
+*.env.backup
+.env.*.backup
 
-# Playwright
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+# ============================================
+# PYTHON (apps/telegram-bot/)
+# ============================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+#lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Логи установки
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytestdebug.log
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff (если вдруг будете использовать)
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Scrapy stuff
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+doc/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+#Pipfile.lock
+
+# poetry
+#poetry.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Ruff
+.ruff_cache/
+
+# ============================================
+# DOCKER
+# ============================================
+
+# Docker volumes
+docker-compose.override.yml
+.dockerignore
+docker-compose.local.yml
+*.dockerignore
+
+# ============================================
+# IDE / РЕДАКТОРЫ
+# ============================================
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+*.code-workspace
+.history/
+
+# JetBrains (WebStorm, PyCharm, IntelliJ IDEA)
+.idea/*
+!.idea/runConfigurations
+!.idea/*.iml
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# ============================================
+# DEPLOYMENT / CI/CD
+# ============================================
+
+# Vercel
+.vercel
+.vercel.json
+
+# Railway
+.railway
+
+# Netlify
+.netlify
+
+# Sentry
+.sentryclirc
+
+# GitHub Actions
+.github/workflows/*.local.yml
+
+# ============================================
+# БАЗЫ ДАННЫХ
+# ============================================
+
+# PostgreSQL
+*.sql
+*.dump
+postgres-data/
+
+# MongoDB
+mongo-data/
+
+# Redis
+redis-data/
+dump.rdb
+
+# ============================================
+# ЛОГИ И ВРЕМЕННЫЕ ДАННЫЕ
+# ============================================
+
+# Все логи
+*.log
+logs/
+*.log.*
+
+# Временные данные бота
+bot_data/
+sessions/
+downloads/
+temp/
+tmp/
+
+# ============================================
+# БЕЗОПАСНОСТЬ
+# ============================================
+
+# Приватные ключи
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# SSH ключи
+id_rsa
+id_rsa.pub
+*.ppk
+
+# Секреты
+secrets/
+.secrets/
+credentials.json
+
+# ============================================
+# МОНОРЕПО / WORKSPACE
+# ============================================
+
+# Turborepo
+.turbo
+
+# Nx
+.nx/cache
+
+# Rush
+common/temp/
+
+# ============================================
+# МЕДИАФАЙЛЫ (опционально)
+# ============================================
+
+# Если не хотите хранить загруженные медиа в репо
+# uploads/
+# media/
+# public/uploads/
+# static/uploads/
+
+# ============================================
+# ПРОЧЕЕ
+# ============================================
+
+# Lock файлы (раскомментируйте если нужно)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Бэкапы
+*.backup
+*.bak
+*.old
+
+# Дампы
+*.dump
+
+# Certificates
+*.csr
+*.der

@@ -1,59 +1,52 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
-import { getPayload } from 'payload'
-import React from 'react'
-import { fileURLToPath } from 'url'
+import { METADATA, PAGE_SLUGS, REVALIDATE_TIME } from '@/utilities/constants';
+import { Metadata } from 'next';
+import { getPageBySlug } from '@/utilities/getPageBySlug';
+import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import { Spinner } from '@/components/ui';
+import { RenderBlocks } from '@/blocks/RenderBlocks';
 
-import config from '@/payload.config'
-import './styles.css'
+// Настройки кэширования главной страницы.
+export const revalidate = REVALIDATE_TIME;
 
-export default async function HomePage() {
-  const headers = await getHeaders()
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
+/**
+ * Генерация метаданных для страницы
+ * @returns Заголовок и описание страницы для SEO.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: METADATA.aboutPage.title,
+    description: METADATA.aboutPage.description,
+  };
+}
 
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+/**
+ * Основной компонент страницы (Server Component).
+ * @returns Орендеренная клиентская страница с данными.
+ */
+const HomePage = async () => {
+  // Запрашиваем данные разметки с главной страницы
+  const page = await getPageBySlug(PAGE_SLUGS.home);
+
+  // Проверяем, что данные получены
+  if (!page || !page.layout) {
+    return notFound();
+  }
 
   return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
-          <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Go to admin panel
-          </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
-          </a>
-        </div>
-      </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
-    </div>
-  )
-}
+    <>
+      {/* Отображаем динамические блоки из макета Payload CMS */}
+      <RenderBlocks blocks={page.layout} />
+      {/* Отображаем спиннер загрузки */}
+      <Suspense
+        fallback={
+          <div className="flex min-h-[400px] items-center justify-center">
+            <Spinner className="h-10 w-10" />
+          </div>
+        }
+      />
+    </>
+  );
+};
+
+export default HomePage;
