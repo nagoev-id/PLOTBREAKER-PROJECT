@@ -1,8 +1,9 @@
-import type { CollectionConfig } from 'payload'
-import { protectRoles, admin } from '@/access'
+import type { CollectionConfig } from 'payload';
+import { protectRoles, admin } from '@/access';
+import { COLLECTION_SLUGS } from '@/utilities/constants';
 
 export const Users: CollectionConfig = {
-  slug: 'users',
+  slug: COLLECTION_SLUGS.users,
   labels: {
     singular: 'Пользователь',
     plural: 'Пользователи',
@@ -18,8 +19,8 @@ export const Users: CollectionConfig = {
     update: admin,
     delete: admin,
     admin: async ({ req }) => {
-      const result = await admin({ req })
-      return result === true
+      const result = await admin({ req });
+      return result === true;
     },
   },
   auth: {
@@ -67,4 +68,4 @@ export const Users: CollectionConfig = {
       },
     },
   ],
-}
+};

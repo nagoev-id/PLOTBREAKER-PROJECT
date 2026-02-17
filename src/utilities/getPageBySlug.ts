@@ -1,7 +1,7 @@
 import configPromise from '@payload-config';
 import { getPayload } from 'payload';
 import { unstable_cache } from 'next/cache';
-import { PageCollection } from '@/types';
+import { PageCollection } from '@/utilities/types';
 
 /**
  * Получает страницу из базы данных по указанному slug.

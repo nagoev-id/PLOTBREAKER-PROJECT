@@ -2,6 +2,7 @@ import { CollectionConfig } from 'payload';
 import { adminOnly } from '@/access';
 import { slugField } from '@/fields/slug';
 import { Hero } from '@/blocks/Hero/config';
+import { COLLECTION_SLUGS } from '@/utilities/constants';
 
 /**
  * Коллекция "Страницы" для создания произвольных посадочных страниц.
@@ -10,7 +11,7 @@ import { Hero } from '@/blocks/Hero/config';
  * и управлять их URL через слаги.
  */
 export const Pages: CollectionConfig = {
-  slug: 'pages',
+  slug: COLLECTION_SLUGS.pages,
   labels: {
     singular: 'Страница',
     plural: 'Страницы',
@@ -44,5 +45,4 @@ export const Pages: CollectionConfig = {
       },
     },
   ],
-  timestamps: true,
 };

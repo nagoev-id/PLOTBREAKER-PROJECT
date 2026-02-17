@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import React, { FC, useMemo } from 'react'
-import Link from 'next/link'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
-import type { Footer } from '@/payload-types'
+import React, { FC, useMemo } from 'react';
+import Link from 'next/link';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { FooterGlobal } from '@/utilities/types';
 
 /** Данные подвала из Payload CMS */
 type FooterClientProps = {
-  data: Footer
-}
+  data: FooterGlobal;
+};
 
 /**
  * Клиентский компонент подвала сайта.
@@ -24,7 +24,7 @@ type FooterClientProps = {
  * @returns Отрендеренный подвал сайта
  */
 export const FooterClient: FC<FooterClientProps> = ({ data }) => {
-  const currentYear = useMemo(() => new Date().getFullYear(), [])
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   return (
     <footer className="border-t-3 bg-zinc-950 py-12 text-white">
@@ -54,5 +54,5 @@ export const FooterClient: FC<FooterClientProps> = ({ data }) => {
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};

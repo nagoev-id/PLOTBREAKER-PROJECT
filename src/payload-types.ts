@@ -70,6 +70,9 @@ export interface Config {
     users: User;
     media: Media;
     pages: Page;
+    collections: Collection;
+    'media-contents': MediaContent;
+    posts: Post;
     'payload-kv': PayloadKv;
     'payload-folders': FolderInterface;
     'payload-locked-documents': PayloadLockedDocument;
@@ -85,6 +88,9 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    collections: CollectionsSelect<false> | CollectionsSelect<true>;
+    'media-contents': MediaContentsSelect<false> | MediaContentsSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -281,6 +287,193 @@ export interface HeroBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections".
+ */
+export interface Collection {
+  id: number;
+  title: string;
+  slug?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Если включено, список будет виден всем посетителям сайта.
+   */
+  isPublic?: boolean | null;
+  /**
+   * Обновляется автоматически при сохранении.
+   */
+  itemCount?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-contents".
+ */
+export interface MediaContent {
+  id: number;
+  /**
+   * Название фильма или сериала на русском языке
+   */
+  title: string;
+  /**
+   * Название на языке оригинала
+   */
+  originalTitle?: string | null;
+  slug?: string | null;
+  /**
+   * Краткое описание фильма или сериала
+   */
+  synopsis?: string | null;
+  /**
+   * Мой отзыв о фильме или сериале
+   */
+  review?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  seasons?:
+    | {
+        seasonNumber: number;
+        review?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        personalOpinion?: ('liked' | 'okay' | 'wasted') | null;
+        startDate?: string | null;
+        endDate?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  visualTags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Тип контента (фильм, сериал и т.д.)
+   */
+  type: 'film' | 'series' | 'cartoon';
+  /**
+   * Статус просмотра фильма или сериала
+   */
+  status?: ('planned' | 'watching' | 'watched' | 'abandoned') | null;
+  /**
+   * Постер фильма или сериала
+   */
+  poster?: (number | null) | Media;
+  /**
+   * Используется, если файл не загружен в Медиа
+   */
+  posterUrl?: string | null;
+  personalOpinion?: ('like' | 'neutral' | 'dislike') | null;
+  tmdbRating?: number | null;
+  kpRating?: number | null;
+  watchDate?: string | null;
+  /**
+   * Автоматически заполняется из даты просмотра
+   */
+  watchYear?: number | null;
+  /**
+   * Жанры фильма или сериала
+   */
+  genres?:
+    | (
+        | 'biography'
+        | 'action'
+        | 'western'
+        | 'war'
+        | 'mystery'
+        | 'documentary'
+        | 'drama'
+        | 'history'
+        | 'comedy'
+        | 'short'
+        | 'crime'
+        | 'romance'
+        | 'mystic'
+        | 'music'
+        | 'musical'
+        | 'adventure'
+        | 'family'
+        | 'sport'
+        | 'thriller'
+        | 'horror'
+        | 'sci-fi'
+        | 'fantasy'
+        | 'animation'
+      )[]
+    | null;
+  /**
+   * Режиссёр фильма или сериала
+   */
+  director?: string | null;
+  /**
+   * Месяц и день релиза (если известно)
+   */
+  releaseDate?: string | null;
+  /**
+   * Автоматически заполняется из даты выхода
+   */
+  releaseYear?: number | null;
+  duration?: number | null;
+  seasonCount?: number | null;
+  episodeCount?: number | null;
+  kinopoiskId?: string | null;
+  kinoriumId?: string | null;
+  collections?: (number | Collection)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -314,6 +507,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'collections';
+        value: number | Collection;
+      } | null)
+    | ({
+        relationTo: 'media-contents';
+        value: number | MediaContent;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
       } | null)
     | ({
         relationTo: 'payload-folders';
@@ -483,6 +688,77 @@ export interface HeroBlockSelect<T extends boolean = true> {
       };
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_select".
+ */
+export interface CollectionsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  isPublic?: T;
+  itemCount?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-contents_select".
+ */
+export interface MediaContentsSelect<T extends boolean = true> {
+  title?: T;
+  originalTitle?: T;
+  slug?: T;
+  synopsis?: T;
+  review?: T;
+  seasons?:
+    | T
+    | {
+        seasonNumber?: T;
+        review?: T;
+        personalOpinion?: T;
+        startDate?: T;
+        endDate?: T;
+        id?: T;
+      };
+  visualTags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  type?: T;
+  status?: T;
+  poster?: T;
+  posterUrl?: T;
+  personalOpinion?: T;
+  tmdbRating?: T;
+  kpRating?: T;
+  watchDate?: T;
+  watchYear?: T;
+  genres?: T;
+  director?: T;
+  releaseDate?: T;
+  releaseYear?: T;
+  duration?: T;
+  seasonCount?: T;
+  episodeCount?: T;
+  kinopoiskId?: T;
+  kinoriumId?: T;
+  collections?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

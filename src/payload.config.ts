@@ -9,7 +9,14 @@ import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 import { s3Storage } from '@payloadcms/storage-s3';
 
-import { Users, Media, Pages } from '@/collections';
+import {
+  Users,
+  Media,
+  Pages,
+  Collections,
+  Posts,
+  MediaContents,
+} from '@/collections';
 import { HeaderGlobalConfig } from '@/globals/Header/config';
 import { FooterGlobalConfig } from '@/globals/Footer/config';
 
@@ -53,7 +60,7 @@ export default buildConfig({
       payload.logger.info('✅ Seed admin user created');
     }
   },
-  collections: [Users, Media, Pages],
+  collections: [Users, Media, Pages, Collections, MediaContents, Posts],
   globals: [HeaderGlobalConfig, FooterGlobalConfig],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
@@ -78,15 +85,15 @@ export default buildConfig({
           prefix: 'media',
         },
       },
-      bucket: process.env.S3_BUCKET,
+      bucket: process.env.S3_BUCKET || '',
       config: {
         forcePathStyle: true,
         credentials: {
-          accessKeyId: process.env.S3_ACCESS_KEY_ID,
-          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+          accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
         },
-        region: process.env.S3_REGION,
-        endpoint: process.env.S3_ENDPOINT,
+        region: process.env.S3_REGION || '',
+        endpoint: process.env.S3_ENDPOINT || '',
       },
     }),
   ],

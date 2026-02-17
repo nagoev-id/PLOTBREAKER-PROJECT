@@ -1,8 +1,8 @@
-import { GlobalConfig } from 'payload'
-import { adminOnly } from '@/access'
-import { revalidateHeader } from '@/globals/Header/hooks/revalidateHeader'
-import { link } from '@/fields/link'
-import { METADATA } from '@/utilities/constants'
+import { GlobalConfig } from 'payload';
+import { adminOnly } from '@/access';
+import { revalidateHeader } from '@/globals/Header/hooks/revalidateHeader';
+import { link } from '@/fields/link';
+import { METADATA } from '@/utilities/constants';
 
 /**
  * Конфигурация глобальной настройки "Шапка сайта" для CMS Payload
@@ -11,24 +11,12 @@ import { METADATA } from '@/utilities/constants'
  * Автоматически кешируется и инвалидировается при изменениях.
  */
 export const HeaderGlobalConfig: GlobalConfig = {
-  /** Уникальный идентификатор глобальной настройки */
   slug: 'header',
-
-  /** Отображаемое название в админ-панели */
   label: 'Шапка',
-
-  /** Правила доступа к настройкам шапки */
   access: {
-    /** Разрешить чтение настроек всем пользователям */
     read: adminOnly,
   },
-
-  /** Поля конфигурации шапки сайта */
   fields: [
-    /**
-     * Группа полей для настройки логотипа
-     * Содержит иконку и текст логотипа
-     */
     {
       name: 'logo',
       label: 'Логотип',
@@ -88,4 +76,4 @@ export const HeaderGlobalConfig: GlobalConfig = {
     /** Выполняется после сохранения изменений для инвалидации кеша */
     afterChange: [revalidateHeader],
   },
-}
+};

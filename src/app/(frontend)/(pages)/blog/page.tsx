@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
+import { LoadingSpinner } from '@/components/shared/loading-spinner';
 
 // Настройки кэширования главной страницы.
-export const revalidate = REVALIDATE_TIME;
+export const revalidate = 60;
 
 /**
  * Генерация метаданных для страницы
@@ -35,16 +36,10 @@ const BlogPage = async () => {
 
   return (
     <>
+      {/* Отображаем спиннер загрузки */}
+      <Suspense fallback={<LoadingSpinner />} />
       {/* Отображаем динамические блоки из макета Payload CMS */}
       <RenderBlocks blocks={page.layout} />
-      {/* Отображаем спиннер загрузки */}
-      <Suspense
-        fallback={
-          <div className="flex min-h-[400px] items-center justify-center">
-            <Spinner className="h-10 w-10" />
-          </div>
-        }
-      />
     </>
   );
 };

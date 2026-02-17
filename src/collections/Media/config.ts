@@ -1,13 +1,14 @@
-import { adminOnly } from '@/access'
-import type { CollectionConfig } from 'payload'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { adminOnly } from '@/access';
+import type { CollectionConfig } from 'payload';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { COLLECTION_SLUGS } from '@/utilities/constants';
 
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 export const Media: CollectionConfig = {
-  slug: 'media',
+  slug: COLLECTION_SLUGS.media,
   labels: {
     singular: 'Медиа',
     plural: 'Медиа',
@@ -35,9 +36,9 @@ export const Media: CollectionConfig = {
       ({ doc }) => {
         // Ensure url is populated for local uploads if missing
         if (!doc.url && doc.filename) {
-          doc.url = `/media/${doc.filename}`
+          doc.url = `/media/${doc.filename}`;
         }
-        return doc
+        return doc;
       },
     ],
   },
@@ -75,4 +76,4 @@ export const Media: CollectionConfig = {
       },
     ],
   },
-}
+};

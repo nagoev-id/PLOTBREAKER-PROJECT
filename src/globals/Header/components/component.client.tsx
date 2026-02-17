@@ -1,19 +1,17 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import React, { FC, useEffect, useState } from 'react'
-import { usePathname } from 'next/navigation'
-import { Menu, Search, ShieldUser, SquarePlus, X } from 'lucide-react'
-import { CMSLink } from '@/components/shared/link'
-import { Header } from '@/payload-types'
+import Link from 'next/link';
+import React, { FC, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { Menu, Search, ShieldUser, SquarePlus, X } from 'lucide-react';
+import { CMSLink } from '@/components/shared/link';
+import { getURL } from '@/utilities/getURL';
+import { HeaderGlobal, NavItemCollection } from '@/utilities/types';
 
-/**
- * Свойства компонента HeaderClient
- */
+// Тип свойств компонента HeaderClient
 type HeaderClientProps = {
-  /** Данные шапки сайта из CMS Payload */
-  data: Header
-}
+  data: HeaderGlobal;
+};
 
 /**
  * Клиентский компонент шапки сайта с адаптивным меню
@@ -22,17 +20,17 @@ type HeaderClientProps = {
  * Поддерживает мобильную версию с бургер-меню и блокировкой прокрутки.
  */
 export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
-  const pathname = usePathname()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const navItems = (data?.navItems || []) as NonNullable<Header['navItems']>
+  const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navItems = (data?.navItems || []) as NavItemCollection[];
 
   /**
    * Закрывает мобильное меню при изменении маршрута
    * Это обеспечивает корректное поведение при навигации
    */
   useEffect(() => {
-    setIsMenuOpen(false)
-  }, [pathname])
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   /**
    * Управляет блокировкой прокрутки страницы при открытом мобильном меню
@@ -40,21 +38,21 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
    */
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset'
+      document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset';
     }
 
     // Очистка стиля при размонтировании компонента
     return () => {
       if (typeof document !== 'undefined') {
-        document.body.style.overflow = 'unset'
+        document.body.style.overflow = 'unset';
       }
-    }
-  }, [isMenuOpen])
+    };
+  }, [isMenuOpen]);
 
   /**
    * Обработчик переключения мобильного меню
    */
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
     <>
@@ -91,9 +89,22 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
             className="text-muted-foreground hidden items-center gap-4 text-sm font-medium md:flex"
             aria-label="Основная навигация"
           >
-            {navItems.map(({ link }, i) => (
-              <CMSLink key={`nav-${i}`} {...link} appearance="inline" />
-            ))}
+            {navItems.map(({ link }, i) => {
+              const href = getURL(link.type, link.url, link.reference as any);
+              const isActive =
+                href &&
+                (pathname === href ||
+                  (href !== '/' && pathname?.startsWith(href)));
+
+              return (
+                <CMSLink
+                  key={`nav-${i}`}
+                  {...link}
+                  appearance="inline"
+                  className={isActive ? 'text-foreground' : ''}
+                />
+              );
+            })}
           </nav>
 
           {/* Кнопки поиска и мобильного меню */}
@@ -114,17 +125,32 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
       {/* Мобильное навигационное меню */}
       <div
         className={`bg-background/95 fixed inset-0 z-40 backdrop-blur-sm transition-all duration-300 md:hidden ${
-          isMenuOpen ? 'visible opacity-100' : 'pointer-events-none invisible opacity-0'
+          isMenuOpen
+            ? 'visible opacity-100'
+            : 'pointer-events-none invisible opacity-0'
         }`}
         role="navigation"
         aria-label="Мобильное меню"
       >
-        <nav className="flex h-full flex-col items-center justify-center gap-8 text-xl font-medium">
-          {navItems.map(({ link }, i) => (
-            <CMSLink key={`mobile-nav-${i}`} {...link} appearance="inline" />
-          ))}
+        <nav className="text-muted-foreground flex h-full flex-col items-center justify-center gap-4 md:text-xl font-medium">
+          {navItems.map(({ link }, i) => {
+            const href = getURL(link.type, link.url, link.reference as any);
+            const isActive =
+              href &&
+              (pathname === href ||
+                (href !== '/' && pathname?.startsWith(href)));
+
+            return (
+              <CMSLink
+                key={`nav-${i}`}
+                {...link}
+                appearance="inline"
+                className={isActive ? 'text-foreground' : ''}
+              />
+            );
+          })}
         </nav>
       </div>
     </>
-  )
-}
+  );
+};

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import React, { FC } from 'react';
 import { cn } from '@/lib';
 import { Button, ButtonProps } from '@/components/ui';
+import { getURL } from '@/utilities/getURL';
 
 type CMSLinkType = {
   /** Внешний вид ссылки ("inline" или варианты Button) */
@@ -48,16 +49,7 @@ export const CMSLink: FC<CMSLinkType> = (props) => {
     onClick,
   } = props;
 
-  const href =
-    type === 'reference' &&
-    typeof reference?.value === 'object' &&
-    reference.value.slug
-      ? reference.value.slug === 'home' && reference?.relationTo === 'pages'
-        ? '/'
-        : `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
-            reference.value.slug
-          }`
-      : url;
+  const href = getURL(type, url, reference);
 
   if (!href) return null;
 
