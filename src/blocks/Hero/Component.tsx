@@ -1,9 +1,9 @@
 'use client';
 import { FC } from 'react';
 import { PageCollection } from '@/utilities/types';
-import { motion, Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CMSLink } from '@/components/shared/link';
-import { BLOCK_TYPES } from '@/utilities/constants';
+import { BLOCK_TYPES, ANIMATIONS } from '@/utilities/constants';
 
 /**
  * Типизация для пропсов блока "Hero".
@@ -13,29 +13,6 @@ type HeroBlockProps = Extract<
   NonNullable<PageCollection['layout']>[number],
   { blockType: typeof BLOCK_TYPES.hero }
 >;
-
-/**
- * Варианты анимации для плавного появления контента.
- */
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-  },
-};
 
 /**
  * Главный блок страницы (HeroBlock).
@@ -52,31 +29,34 @@ export const HeroBlock: FC<HeroBlockProps> = ({
     <motion.section
       initial="hidden"
       animate="visible"
-      variants={containerVariants}
-      className="border-border container mx-auto grid place-items-center items-center space-y-6 border-b px-4 py-20 text-center md:py-32 xl:space-y-10"
+      variants={ANIMATIONS.containerVariants}
+      className="container mx-auto grid place-items-center text-center space-y-6 xl:space-y-10 px-6 py-4 md:py-8 xl:py-18"
     >
       <div className="max-w-4xl space-y-6">
+        {/* Заголовок */}
         {heroTitle && (
           <motion.h1
-            variants={itemVariants}
-            className="text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+            variants={ANIMATIONS.itemVariants}
+            className="text-3xl leading-[1.1] font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
           >
             {heroTitle}
           </motion.h1>
         )}
 
+        {/* Подзаголовок */}
         {heroText && (
           <motion.p
-            variants={itemVariants}
+            variants={ANIMATIONS.itemVariants}
             className="text-muted-foreground mx-auto max-w-2xl text-lg leading-relaxed md:text-xl"
           >
             {heroText}
           </motion.p>
         )}
 
+        {/* Кнопки */}
         {Array.isArray(links) && links.length > 0 && (
           <motion.div
-            variants={itemVariants}
+            variants={ANIMATIONS.itemVariants}
             className="flex flex-wrap items-center justify-center gap-4 pt-4"
           >
             {links.map(({ link }, i) => (

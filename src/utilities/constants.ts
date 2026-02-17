@@ -1,3 +1,36 @@
+import { Variants } from 'framer-motion';
+import { Film, LucideIcon, Palette, Tv, ListIcon } from 'lucide-react';
+
+// ============================================================================
+// Анимации
+// ============================================================================
+
+// Анимации для контейнера и элементов.
+export const ANIMATIONS = {
+  containerVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  } as Variants,
+  itemVariants: {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: 'easeOut' },
+    },
+  } as Variants,
+};
+
+// ============================================================================
+//
+// ============================================================================
+
 /**
  * Метаданные сайта.
  * Используется для фильтрации и классификации.
@@ -59,6 +92,7 @@ export const PAGE_SLUGS = {
  */
 export const BLOCK_TYPES = {
   hero: 'hero',
+  about: 'about',
 } as const;
 
 /**
@@ -169,3 +203,48 @@ export const GENRE_MAPPING_TMDB: Record<string, string> = {
   спорт: 'sport',
   короткометражка: 'short',
 };
+
+// ============================================================================
+// Константы для коллекций - Collections
+// ============================================================================
+
+// Фильтры для коллекций.
+export const FILTERS_COLLECTIONS = [
+  {
+    label: 'Тип контента',
+    placeholder: 'Все',
+    options: [
+      { value: 'all_type', label: 'Все' },
+      ...MEDIA_CONTENT_TYPES.select,
+    ],
+  },
+];
+
+// Конфигурация отображения типов контента в карточках.
+export const TYPE_CONFIG: Record<
+  string,
+  { label: string; icon: LucideIcon; bg: string; color: string }
+> = {
+  film: {
+    label: 'Фильм',
+    icon: Film,
+    bg: 'bg-blue-50 dark:bg-blue-950/30',
+    color: 'text-blue-500',
+  },
+  series: {
+    label: 'Сериал',
+    icon: Tv,
+    bg: 'bg-purple-50 dark:bg-purple-950/30',
+    color: 'text-purple-500',
+  },
+  cartoon: {
+    label: 'Мультфильм',
+    icon: Palette,
+    bg: 'bg-rose-50 dark:bg-rose-950/30',
+    color: 'text-rose-500',
+  },
+};
+
+// ============================================================================
+// Константы для коллекций - AboutBlock
+// ============================================================================

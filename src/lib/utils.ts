@@ -1,13 +1,13 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-import localFont from 'next/font/local'
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import localFont from 'next/font/local';
 
 /**
  * Объединяет CSS классы с помощью Tailwind CSS.
  * @param inputs - CSS классы для объединения.
  * @returns Объединенные CSS классы.
  */
-export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs))
+export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
 /**
  * Конфигурация локального шрифта Euclid Circular B.
@@ -44,7 +44,7 @@ export const euclid = localFont({
   ],
   display: 'swap',
   variable: '--font-euclid',
-})
+});
 
 /**
  * Форматирует дату.
@@ -56,4 +56,16 @@ export const formatDate = (date: string) =>
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
+  });
+
+/**
+ * Определяет тип контента по заголовку коллекции.
+ * @param title - Заголовок коллекции.
+ * @returns Тип контента ('film', 'series', 'cartoon').
+ */
+export const getTypeKey = (title: string): string => {
+  const lower = title.toLowerCase();
+  if (lower.includes('мультфильм')) return 'cartoon';
+  if (lower.includes('сериал')) return 'series';
+  return 'film';
+};

@@ -80,6 +80,9 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    collections: {
+      items: 'media-contents';
+    };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
     };
@@ -245,7 +248,7 @@ export interface Page {
   id: number;
   title: string;
   slug?: string | null;
-  layout?: HeroBlock[] | null;
+  layout?: (HeroBlock | AboutBlock)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -287,6 +290,72 @@ export interface HeroBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutBlock".
+ */
+export interface AboutBlock {
+  featuresSection: {
+    /**
+     * Отображается крупным шрифтом в начале блока
+     */
+    title: string;
+    /**
+     * Краткое описание под заголовком
+     */
+    text?: string | null;
+    items?:
+      | {
+          /**
+           * Вставьте SVG-код иконки (без обертки, только содержимое тега <svg> или весь тег)
+           */
+          icon: string;
+          title: string;
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  usefulLinksSection: {
+    /**
+     * Отображается в начале секции
+     */
+    title: string;
+    /**
+     * Пояснительный текст под заголовком
+     */
+    text?: string | null;
+    items?:
+      | {
+          title: string;
+          links?:
+            | {
+                title: string;
+                text?: string | null;
+                link?: {
+                  type?: ('reference' | 'custom') | null;
+                  newTab?: boolean | null;
+                  reference?: {
+                    relationTo: 'pages';
+                    value: number | Page;
+                  } | null;
+                  url?: string | null;
+                  /**
+                   * Выберите, как ссылка должна отображаться на сайте.
+                   */
+                  appearance?: ('default' | 'outline') | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'about';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections".
  */
 export interface Collection {
@@ -316,6 +385,11 @@ export interface Collection {
    * Обновляется автоматически при сохранении.
    */
   itemCount?: number | null;
+  items?: {
+    docs?: (number | MediaContent)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -374,7 +448,7 @@ export interface MediaContent {
           };
           [k: string]: unknown;
         } | null;
-        personalOpinion?: ('liked' | 'okay' | 'wasted') | null;
+        personalOpinion?: ('like' | 'neutral' | 'dislike') | null;
         startDate?: string | null;
         endDate?: string | null;
         id?: string | null;
@@ -469,6 +543,24 @@ export interface Post {
   id: number;
   title: string;
   slug?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  heroImage?: (number | null) | Media;
+  tags?: ('review' | 'news' | 'collection' | 'opinion' | 'guide')[] | null;
+  publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -660,6 +752,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        about?: T | AboutBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -691,6 +784,56 @@ export interface HeroBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutBlock_select".
+ */
+export interface AboutBlockSelect<T extends boolean = true> {
+  featuresSection?:
+    | T
+    | {
+        title?: T;
+        text?: T;
+        items?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              text?: T;
+              id?: T;
+            };
+      };
+  usefulLinksSection?:
+    | T
+    | {
+        title?: T;
+        text?: T;
+        items?:
+          | T
+          | {
+              title?: T;
+              links?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    link?:
+                      | T
+                      | {
+                          type?: T;
+                          newTab?: T;
+                          reference?: T;
+                          url?: T;
+                          appearance?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_select".
  */
 export interface CollectionsSelect<T extends boolean = true> {
@@ -699,6 +842,7 @@ export interface CollectionsSelect<T extends boolean = true> {
   description?: T;
   isPublic?: T;
   itemCount?: T;
+  items?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -757,6 +901,10 @@ export interface MediaContentsSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  content?: T;
+  heroImage?: T;
+  tags?: T;
+  publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

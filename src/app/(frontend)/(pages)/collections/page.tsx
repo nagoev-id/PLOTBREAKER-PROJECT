@@ -3,9 +3,10 @@ import { Metadata } from 'next';
 import { getPageBySlug } from '@/utilities/getPageBySlug';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { Spinner } from '@/components/ui';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
+import { getCachedCollectionsLists } from '@/utilities/getCollectionsLists';
+import CollectionsPageClient from '@/app/(frontend)/(pages)/collections/page.client';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
@@ -28,6 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const CollectionsPage = async () => {
   // Запрашиваем данные разметки с главной страницы
   const page = await getPageBySlug(PAGE_SLUGS.collections);
+  const collectionsLists = await getCachedCollectionsLists()();
 
   // Проверяем, что данные получены
   if (!page || !page.layout) {
@@ -40,6 +42,8 @@ const CollectionsPage = async () => {
       <Suspense fallback={<LoadingSpinner />} />
       {/* Отображаем динамические блоки из макета Payload CMS */}
       <RenderBlocks blocks={page.layout} />
+      {/* Отображаем список коллекций */}
+      <CollectionsPageClient data={collectionsLists} />
     </>
   );
 };

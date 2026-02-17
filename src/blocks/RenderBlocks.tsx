@@ -2,6 +2,7 @@
 import React, { FC } from 'react';
 import { PageCollection } from '@/utilities/types';
 import { HeroBlock } from '@/blocks/Hero/Component';
+import { AboutBlock } from '@/blocks/About/Component';
 
 /**
  * Типизация для массива блоков из макета страницы (Page["layout"]).
@@ -31,6 +32,8 @@ export const RenderBlocks: FC<RenderBlocksProps> = ({ blocks }) => {
         switch (blockType) {
           case 'hero':
             return <HeroBlock key={index} {...block} />;
+          case 'about':
+            return <AboutBlock key={index} {...block} />;
           default:
             return null;
         }

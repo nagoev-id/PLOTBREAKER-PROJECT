@@ -2,6 +2,7 @@ import { CollectionConfig } from 'payload';
 import { adminOnly } from '@/access';
 import { slugField } from '@/fields/slug';
 import { Hero } from '@/blocks/Hero/config';
+import { About } from '@/blocks/About/config';
 import { COLLECTION_SLUGS } from '@/utilities/constants';
 
 /**
@@ -39,7 +40,7 @@ export const Pages: CollectionConfig = {
       name: 'layout',
       label: 'Структура страницы',
       type: 'blocks',
-      blocks: [Hero],
+      blocks: [Hero, About],
       admin: {
         initCollapsed: true,
       },

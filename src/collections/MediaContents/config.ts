@@ -115,11 +115,8 @@ export const MediaContents: CollectionConfig = {
           name: 'personalOpinion',
           type: 'select',
           label: 'Впечатление',
-          options: [
-            { label: 'Понравилось', value: 'liked' },
-            { label: 'Пойдёт', value: 'okay' },
-            { label: 'Потрачено', value: 'wasted' },
-          ],
+          defaultValue: 'neutral',
+          options: [...MEDIA_CONTENT_PERSONAL_OPINION.select],
           admin: {
             condition: (data) => data.status !== 'planned',
           },

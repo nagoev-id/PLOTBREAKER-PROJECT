@@ -63,6 +63,13 @@ export const Collections: CollectionConfig = {
         description: 'Обновляется автоматически при сохранении.',
       },
     },
+    {
+      name: 'items',
+      type: 'join',
+      collection: COLLECTION_SLUGS.mediaContents,
+      on: 'collections',
+      label: 'Медиа контент в списке',
+    },
   ],
   hooks: {
     beforeChange: [updateItemCount],
