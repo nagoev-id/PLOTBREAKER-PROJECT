@@ -5,45 +5,16 @@ import {
   CollectionCollection,
   MediaContentCollection,
 } from '@/utilities/types';
-import { TYPE_CONFIG } from '@/utilities/constants';
-import { GENRES } from '@/utilities/constants';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { cn, getTypeKey } from '@/lib/utils';
-import {
-  ArrowLeft,
-  Calendar,
-  Clock,
-  ListIcon,
-  Star,
-  ThumbsDown,
-  ThumbsUp,
-  Minus,
-} from 'lucide-react';
-import Image from 'next/image';
+import { cn, configCollection } from '@/lib/utils';
+import { ArrowLeft } from 'lucide-react';
 
-/**
- * Маппинг впечатлений на иконки и цвета.
- */
-const OPINION_CONFIG: Record<
-  string,
-  { icon: typeof ThumbsUp; label: string; color: string }
-> = {
-  like: { icon: ThumbsUp, label: 'Понравилось', color: 'text-green-500' },
-  neutral: { icon: Minus, label: 'Пойдет', color: 'text-yellow-500' },
-  dislike: { icon: ThumbsDown, label: 'Потрачено', color: 'text-red-500' },
-};
+import { Badge } from '@/components/ui';
+import { MovieCard } from '@/components/shared/movie-card';
 
-/**
- * Получить label жанра по его value.
- */
-const getGenreLabel = (value: string): string => {
-  const genre = GENRES.find((g) => g.value === value);
-  return genre?.label ?? value;
-};
-
+// Типы пропсов компонента
 type CollectionDetailClientProps = {
   collection: CollectionCollection;
 };
@@ -55,60 +26,58 @@ type CollectionDetailClientProps = {
 const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
   collection,
 }): JSX.Element => {
-  const typeKey = getTypeKey(collection.title);
-  const type = TYPE_CONFIG[typeKey] ?? {
-    label: 'Контент',
-    icon: ListIcon,
-    bg: 'bg-zinc-100',
-    color: 'text-zinc-500',
-  };
-  const TypeIcon = type.icon;
+  const { type, TypeIcon } = configCollection(collection.title);
 
-  // Join-поле items: { docs: MediaContent[] }
+  // Получаем медиа-контент из коллекции
   const items: MediaContentCollection[] =
     collection.items?.docs?.filter(
       (item): item is MediaContentCollection => typeof item !== 'number'
     ) ?? [];
 
   return (
-    <section className="container mx-auto space-y-8 px-4 py-8 lg:py-11">
+    <section className="space-y-4 py-8 lg:py-11">
       {/* Навигация назад */}
-      <Link
-        href="/collections"
-        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
-      >
-        <ArrowLeft size={16} />
-        Все коллекции
-      </Link>
+      <div className="container mx-auto">
+        <Link
+          href="/collections"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Все коллекции
+        </Link>
+      </div>
 
       {/* Заголовок */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="space-y-4"
+        className="space-y-4 container mx-auto"
       >
         <div className="flex items-center gap-3">
+          {/* Иконка */}
           <div
             className={cn(
-              'flex h-12 w-12 items-center justify-center rounded-lg',
+              'flex h-10 w-10 grid place-items-center rounded-none border shrink-0',
               type.bg
             )}
           >
-            <TypeIcon size={24} className={type.color} />
+            <TypeIcon size={20} className={type.color} />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold lg:text-3xl">
+
+          {/* Заголовок */}
+          <div className="space-y-1">
+            <h1 className="text-xl font-bold lg:text-2xl">
               {collection.title}
             </h1>
-            <p className="text-muted-foreground text-sm">
+            <Badge className="text-sm font-medium">
               {items.length}{' '}
               {items.length === 1
                 ? 'запись'
                 : items.length < 5
                   ? 'записи'
                   : 'записей'}
-            </p>
+            </Badge>
           </div>
         </div>
       </motion.div>
@@ -116,20 +85,9 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
       <Separator />
 
       {/* Карточки контента */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="container mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {items.length > 0 ? (
           items.map((item, index) => {
-            const opinion = item.personalOpinion
-              ? OPINION_CONFIG[item.personalOpinion]
-              : null;
-            const OpinionIcon = opinion?.icon;
-
-            // Получаем URL постера
-            const posterSrc =
-              item.poster && typeof item.poster === 'object'
-                ? item.poster.url
-                : item.posterUrl;
-
             return (
               <motion.div
                 key={item.id}
@@ -137,88 +95,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.4 }}
               >
-                <Card className="group overflow-hidden rounded-sm border-2 shadow-none transition-all hover:shadow-md">
-                  {/* Постер */}
-                  {posterSrc && (
-                    <div className="relative aspect-[2/3] w-full overflow-hidden">
-                      <Image
-                        src={posterSrc}
-                        alt={item.title}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
-                    </div>
-                  )}
-
-                  {/* Контент карточки */}
-                  <div className="space-y-2 p-3">
-                    {/* Заголовок */}
-                    <h3 className="line-clamp-2 text-sm font-bold leading-tight">
-                      {item.title}
-                    </h3>
-
-                    {/* Оригинальное название */}
-                    {item.originalTitle && (
-                      <p className="text-muted-foreground line-clamp-1 text-xs">
-                        {item.originalTitle}
-                      </p>
-                    )}
-
-                    {/* Жанры */}
-                    {item.genres && item.genres.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {item.genres.slice(0, 3).map((genre) => (
-                          <span
-                            key={genre}
-                            className="bg-muted rounded px-1.5 py-0.5 text-[10px]"
-                          >
-                            {getGenreLabel(genre)}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <Separator />
-
-                    {/* Метаданные */}
-                    <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-                      <div className="flex items-center gap-2">
-                        {/* Год */}
-                        {item.releaseYear && (
-                          <span className="flex items-center gap-1">
-                            <Calendar size={12} className="opacity-60" />
-                            {item.releaseYear}
-                          </span>
-                        )}
-                        {/* Длительность */}
-                        {item.duration && (
-                          <span className="flex items-center gap-1">
-                            <Clock size={12} className="opacity-60" />
-                            {item.duration} мин
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {/* Рейтинг KP */}
-                        {item.kpRating && (
-                          <span className="flex items-center gap-1">
-                            <Star
-                              size={12}
-                              className="fill-amber-400 text-amber-400"
-                            />
-                            {item.kpRating.toFixed(1)}
-                          </span>
-                        )}
-                        {/* Впечатление */}
-                        {OpinionIcon && opinion && (
-                          <OpinionIcon size={14} className={opinion.color} />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                <MovieCard item={item} />
               </motion.div>
             );
           })
