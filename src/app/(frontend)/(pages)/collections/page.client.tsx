@@ -2,15 +2,15 @@
 
 import { FC, JSX, useMemo, useState } from 'react';
 import { CollectionCollection } from '@/utilities/types';
-import { FILTERS_COLLECTIONS, TYPE_CONFIG } from '@/utilities/constants';
+import { FILTERS_COLLECTIONS } from '@/utilities/constants';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { cn, getTypeKey } from '@/lib/utils';
-import { ListIcon } from 'lucide-react';
+import { cn, configCollection, getTypeKey } from '@/lib/utils';
 
+// Тип пропсов компонента
 type CollectionsPageClientProps = {
   data: CollectionCollection[];
 };
@@ -24,6 +24,11 @@ const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
 }): JSX.Element => {
   const [typeFilter, setTypeFilter] = useState<string>('all_type');
 
+  /**
+   * Фильтрует списки на основе выбранного типа.
+   * Если выбран "all_type", возвращаются все списки.
+   * Иначе возвращаются только списки с выбранным типом.
+   */
   const filteredLists = useMemo(() => {
     return data.filter((list) => {
       const typeKey = getTypeKey(list.title);
@@ -32,79 +37,84 @@ const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
   }, [data, typeFilter]);
 
   return (
-    <section className="container mx-auto space-y-6 px-4 py-8 lg:py-11">
-      {/* Фильтры */}
-      <div className="grid gap-3 md:flex md:items-end md:justify-between">
-        <div className="flex flex-col gap-2">
-          <h3 className="text-2xl font-bold xl:text-3xl">Список коллекции</h3>
-          <div className="text-muted-foreground text-sm">
-            Найдено списков:{' '}
-            <span className="font-bold text-foreground">
-              {filteredLists.length}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-4 md:flex-row md:gap-6">
-          {FILTERS_COLLECTIONS.map((filter) => (
-            <div className="flex flex-col gap-2" key={filter.label}>
-              <span className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
-                {filter.label}
+    <section className="border-t">
+      <div className="container mx-auto space-y-6 px-4 py-6">
+        {/* Фильтры */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="grid place-items-center"
+        >
+          {/* Заголовок */}
+          <div className="grid place-items-center gap-2 ">
+            <h3 className="text-2xl font-bold">Список коллекции</h3>
+            <div className="text-muted-foreground text-sm">
+              Найдено списков:{' '}
+              <span className="font-bold text-foreground">
+                {filteredLists.length}
               </span>
-              <ToggleGroup
-                type="single"
-                value={typeFilter}
-                onValueChange={(val: string) => val && setTypeFilter(val)}
-                variant="outline"
-                size="sm"
-                className="flex-wrap justify-start"
-              >
-                {filter.options.map((option) => (
-                  <ToggleGroupItem
-                    key={option.value}
-                    value={option.value}
-                    className="text-xs"
-                  >
-                    {option.label}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
             </div>
-          ))}
-        </div>
-      </div>
+            {/* Фильтры */}
+            <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+              {FILTERS_COLLECTIONS.map((filter) => (
+                <div className="grid space-y-2" key={filter.label}>
+                  <span className="sr-only text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
+                    {filter.label}
+                  </span>
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={typeFilter}
+                    onValueChange={(val: string) => val && setTypeFilter(val)}
+                    className="flex flex-wrap items-center justify-center bg-muted p-2 rounded-md"
+                  >
+                    {filter.options.map((option) => (
+                      <ToggleGroupItem
+                        key={option.value}
+                        value={option.value}
+                        className="cursor-pointer text-xs sm:text-sm transition-all hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-white data-[state=on]:text-foreground dark:data-[state=on]:bg-zinc-600 dark:data-[state=on]:text-zinc-50 shadow-sm"
+                      >
+                        {option.label}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
 
-      {/* Сетка карточек */}
-      <AnimatePresence mode="popLayout">
+        {/* Сетка карточек */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredLists.length > 0 ? (
-            filteredLists.map((list, index) => {
-              const typeKey = getTypeKey(list.title);
-              const type = TYPE_CONFIG[typeKey] ?? {
-                label: 'Контент',
-                icon: ListIcon,
-                bg: 'bg-zinc-100',
-                color: 'text-zinc-500',
-              };
-              const TypeIcon = type.icon;
+            filteredLists.map((list) => {
+              const { type, TypeIcon } = configCollection(list.title);
 
               return (
                 <motion.div
                   key={list.id}
-                  layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: index * 0.05, duration: 0.4 }}
-                  className="group"
+                  transition={{ duration: 0.3 }}
+                  className="group h-full"
                 >
-                  <Link href={`/collections/${list.slug}`}>
-                    <Card className="hover:bg-muted-foreground/5 rounded-sm border-2 shadow-none transition-all hover:shadow-sm">
-                      <div className="flex items-center justify-between p-2 pb-0 sm:p-4 sm:pb-0">
+                  <Link
+                    href={`/collections/${list.slug}`}
+                    className="block h-full"
+                  >
+                    <Card
+                      className={cn(
+                        'hover:bg-muted-foreground/2 h-full rounded-none border shadow-none transition-all hover:shadow-sm',
+                        type.border
+                      )}
+                    >
+                      <div className="flex items-center justify-between p-3">
                         {/* Иконка типа */}
                         <div
                           className={cn(
-                            'flex h-10 w-10 items-center justify-center rounded-lg',
+                            'h-10 w-10 grid place-items-center border',
                             type.bg
                           )}
                         >
@@ -114,7 +124,7 @@ const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
                         {/* Бейдж типа контента */}
                         <div
                           className={cn(
-                            'flex items-center gap-1.5 rounded-full border px-3 py-1',
+                            'flex items-center gap-1.5 rounded-sm border px-3 py-1',
                             type.bg
                           )}
                         >
@@ -128,15 +138,20 @@ const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
                       </div>
 
                       {/* Заголовок */}
-                      <h3 className="p-2 text-lg font-bold sm:p-4 lg:text-xl">
-                        {list.title}
-                      </h3>
+                      <h3 className="p-3 text-lg font-bold">{list.title}</h3>
 
                       {/* Разделитель */}
-                      <Separator />
+                      <Separator
+                        className={cn('bg-transparent border-b', type.border)}
+                      />
 
                       {/* Футер */}
-                      <div className="flex items-center gap-3 p-2 text-sm text-zinc-500 sm:p-4 dark:text-zinc-400">
+                      <div
+                        className={cn(
+                          'flex items-center justify-between gap-3 p-3 text-sm text-zinc-500 dark:text-zinc-400',
+                          type.bg
+                        )}
+                      >
                         <div className="flex items-center gap-2">
                           <TypeIcon size={16} className="opacity-60" />
                           <span>{type.label}</span>
@@ -154,17 +169,12 @@ const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
               );
             })
           ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="col-span-full py-20 text-center"
-            >
+            <div className="col-span-full py-20 text-center">
               <div className="text-muted-foreground">Списков не найдено</div>
-            </motion.div>
+            </div>
           )}
         </div>
-      </AnimatePresence>
+      </div>
     </section>
   );
 };

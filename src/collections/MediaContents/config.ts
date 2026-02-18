@@ -101,16 +101,6 @@ export const MediaContents: CollectionConfig = {
           type: 'richText',
           label: 'Отзыв о сезоне',
         },
-        // {
-        //   name: 'personalRating',
-        //   type: 'number',
-        //   label: 'Оценка сезона (0-10)',
-        //   min: 0,
-        //   max: 10,
-        //   admin: {
-        //     step: 0.5,
-        //   },
-        // },
         {
           name: 'personalOpinion',
           type: 'select',
@@ -203,7 +193,12 @@ export const MediaContents: CollectionConfig = {
       options: [...MEDIA_CONTENT_PERSONAL_OPINION.select],
       admin: {
         position: 'sidebar',
-        condition: (data) => data.status !== 'planned',
+        condition: (data) => {
+          if (data.type === 'series') {
+            return data.status !== 'planned' && data.status !== 'watching';
+          }
+          return data.status !== 'planned' && data.status !== 'watching';
+        },
       },
     },
     {

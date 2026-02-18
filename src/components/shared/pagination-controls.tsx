@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import React, { FC } from 'react'
-import { motion } from 'framer-motion'
+import React, { FC } from 'react';
+import { motion } from 'framer-motion';
 import {
   Pagination,
   PaginationContent,
@@ -10,114 +10,167 @@ import {
   PaginationNext,
   PaginationPrevious,
   PaginationEllipsis,
-} from '@/components/ui'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui';
+
+const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
 type PaginationControlsProps = {
-  currentPage: number
-  totalPages: number
-  onPageChange: (page: number) => void
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  /** Количество записей на странице */
+  pageSize?: number;
+  /** Callback при смене количества записей на странице */
+  onPageSizeChange?: (size: number) => void;
   /** Прокручивать к верху при смене страницы */
-  scrollToTop?: boolean
-}
+  scrollToTop?: boolean;
+};
 
 /**
  * Генерация номеров страниц с эллипсисами.
  */
-const getPageNumbers = (currentPage: number, totalPages: number): (number | 'ellipsis')[] => {
+const getPageNumbers = (
+  currentPage: number,
+  totalPages: number
+): (number | 'ellipsis')[] => {
   if (totalPages <= 5) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1)
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
 
-  const pages: (number | 'ellipsis')[] = [1]
+  const pages: (number | 'ellipsis')[] = [1];
 
   if (currentPage > 3) {
-    pages.push('ellipsis')
+    pages.push('ellipsis');
   }
 
-  const start = Math.max(2, currentPage - 1)
-  const end = Math.min(totalPages - 1, currentPage + 1)
+  const start = Math.max(2, currentPage - 1);
+  const end = Math.min(totalPages - 1, currentPage + 1);
 
   for (let i = start; i <= end; i++) {
-    pages.push(i)
+    pages.push(i);
   }
 
   if (currentPage < totalPages - 2) {
-    pages.push('ellipsis')
+    pages.push('ellipsis');
   }
 
-  pages.push(totalPages)
-  return pages
-}
+  pages.push(totalPages);
+  return pages;
+};
 
 /**
- * Универсальный компонент пагинации.
+ * Универсальный компонент пагинации с выбором количества записей на странице.
  */
 export const PaginationControls: FC<PaginationControlsProps> = ({
   currentPage,
   totalPages,
   onPageChange,
+  pageSize,
+  onPageSizeChange,
   scrollToTop = false,
 }) => {
-  if (totalPages <= 1) return null
+  if (totalPages <= 1 && !onPageSizeChange) return null;
 
   const handlePageChange = (page: number) => {
-    onPageChange(page)
+    onPageChange(page);
     if (scrollToTop) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }
+  };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e: React.MouseEvent) => {
-                e.preventDefault()
-                if (currentPage > 1) handlePageChange(currentPage - 1)
-              }}
-              className={currentPage <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-            />
-          </PaginationItem>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.3 }}
+      className="grid place-items-center gap-2 md:flex md:items-center md:justify-between"
+    >
+      {/* Селектор количества записей на странице */}
+      {onPageSizeChange && pageSize != null && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground md:shrink-0">
+          <span>Показывать по</span>
+          <Select
+            value={String(pageSize)}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
+          >
+            <SelectTrigger className="h-8 w-[70px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
-          {getPageNumbers(currentPage, totalPages).map((pageNum, idx) =>
-            pageNum === 'ellipsis' ? (
-              <PaginationItem key={`ellipsis-${idx}`}>
-                <PaginationEllipsis />
-              </PaginationItem>
-            ) : (
-              <PaginationItem key={pageNum}>
-                <PaginationLink
-                  href="#"
-                  isActive={currentPage === pageNum}
-                  onClick={(e: React.MouseEvent) => {
-                    e.preventDefault()
-                    handlePageChange(pageNum)
-                  }}
-                  className="cursor-pointer"
-                >
-                  {pageNum}
-                </PaginationLink>
-              </PaginationItem>
-            ),
-          )}
+      {/* Навигация по страницам */}
+      {totalPages > 1 && (
+        <Pagination className="md:justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  if (currentPage > 1) handlePageChange(currentPage - 1);
+                }}
+                className={
+                  currentPage <= 1
+                    ? 'pointer-events-none opacity-50'
+                    : 'cursor-pointer'
+                }
+              />
+            </PaginationItem>
 
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e: React.MouseEvent) => {
-                e.preventDefault()
-                if (currentPage < totalPages) handlePageChange(currentPage + 1)
-              }}
-              className={
-                currentPage >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            {getPageNumbers(currentPage, totalPages).map((pageNum, idx) =>
+              pageNum === 'ellipsis' ? (
+                <PaginationItem key={`ellipsis-${idx}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={pageNum}>
+                  <PaginationLink
+                    href="#"
+                    isActive={currentPage === pageNum}
+                    onClick={(e: React.MouseEvent) => {
+                      e.preventDefault();
+                      handlePageChange(pageNum);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {pageNum}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages)
+                    handlePageChange(currentPage + 1);
+                }}
+                className={
+                  currentPage >= totalPages
+                    ? 'pointer-events-none opacity-50'
+                    : 'cursor-pointer'
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </motion.div>
-  )
-}
+  );
+};

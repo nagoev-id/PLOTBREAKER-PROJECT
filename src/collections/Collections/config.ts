@@ -9,7 +9,8 @@ import { updateItemCount } from '@/collections/Collections/hooks/updateItemCount
 import { COLLECTION_SLUGS } from '@/utilities/constants';
 
 /**
- * Коллекция "Коллекции"
+ * Коллекция "Коллекции" (Collections).
+ * Используется для группировки медиа-контента в именованные списки (например, "Избранное", "Посмотреть позже").
  */
 export const Collections: CollectionConfig = {
   slug: COLLECTION_SLUGS.collections,
@@ -23,12 +24,14 @@ export const Collections: CollectionConfig = {
     group: 'Контент',
   },
   access: {
+    // В данный момент доступ на все операции ограничен только администраторами
     read: adminOnly,
     create: adminOnly,
     update: adminOnly,
     delete: adminOnly,
   },
   fields: [
+    // Поле для названия списка
     {
       name: 'title',
       type: 'text',
@@ -36,12 +39,15 @@ export const Collections: CollectionConfig = {
       required: true,
       unique: true,
     },
+    // Поле для генерации URL-адреса списка на основе названия
     slugField('title'),
+    // Поле для описания списка
     {
       name: 'description',
       type: 'richText',
       label: 'Описание списка',
     },
+    // Поле для определения, является ли список общедоступным
     {
       name: 'isPublic',
       type: 'checkbox',
@@ -53,6 +59,8 @@ export const Collections: CollectionConfig = {
           'Если включено, список будет виден всем посетителям сайта.',
       },
     },
+    // Поле для отображения количества элементов в списке
+    // Поле обновляется автоматически через хук beforeChange
     {
       name: 'itemCount',
       type: 'number',
@@ -60,9 +68,11 @@ export const Collections: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Обновляется автоматически при сохранении.',
+        description:
+          'Обновляется автоматически при сохранении на основе связанных элементов.',
       },
     },
+    // Поле для отображения связанных элементов медиа-контента
     {
       name: 'items',
       type: 'join',
@@ -72,9 +82,12 @@ export const Collections: CollectionConfig = {
     },
   ],
   hooks: {
+    // Хук для пересчета количества элементов перед сохранением
     beforeChange: [updateItemCount],
+    // Хуки для сброса кеша (revalidation) после изменения или удаления
     afterChange: [revalidateList],
     afterDelete: [revalidateDelete],
   },
+  // Поле для хранения времени создания и обновления записи
   timestamps: true,
 };

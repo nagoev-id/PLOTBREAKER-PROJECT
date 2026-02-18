@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import localFont from 'next/font/local';
+import { FALLBACK_CINFIG, GENRES, TYPE_CONFIG } from '@/utilities/constants';
 
 /**
  * Объединяет CSS классы с помощью Tailwind CSS.
@@ -58,6 +59,10 @@ export const formatDate = (date: string) =>
     day: 'numeric',
   });
 
+// ============================================================================
+// Collections
+// ============================================================================
+
 /**
  * Определяет тип контента по заголовку коллекции.
  * @param title - Заголовок коллекции.
@@ -68,4 +73,27 @@ export const getTypeKey = (title: string): string => {
   if (lower.includes('мультфильм')) return 'cartoon';
   if (lower.includes('сериал')) return 'series';
   return 'film';
+};
+
+/**
+ * Получить label жанра по его value.
+ * @param value - Значение жанра.
+ * @returns Label жанра.
+ */
+export const getGenreLabel = (value: string): string => {
+  const genre = GENRES.find((g) => g.value === value);
+  return genre?.label ?? value;
+};
+
+/**
+ * Конфигурация коллекции.
+ * @param title - Заголовок коллекции.
+ * @returns Конфигурация коллекции.
+ */
+export const configCollection = (title: string) => {
+  const typeKey = getTypeKey(title);
+  const type = TYPE_CONFIG[typeKey] ?? FALLBACK_CINFIG;
+  const TypeIcon = type.icon;
+
+  return { type, TypeIcon };
 };

@@ -1,5 +1,14 @@
 import { Variants } from 'framer-motion';
-import { Film, LucideIcon, Palette, Tv, ListIcon } from 'lucide-react';
+import {
+  Film,
+  LucideIcon,
+  Palette,
+  Tv,
+  ListIcon,
+  ThumbsUp,
+  Minus,
+  ThumbsDown,
+} from 'lucide-react';
 
 // ============================================================================
 // Анимации
@@ -52,6 +61,10 @@ export const METADATA = {
   reviewsPage: {
     title: 'Отзывы',
     description: 'Описание страницы отзывов',
+  },
+  collectionsPage: {
+    title: 'Коллекции',
+    description: 'Кураторские подборки фильмов, сериалов и анимации.',
   },
 };
 
@@ -223,28 +236,50 @@ export const FILTERS_COLLECTIONS = [
 // Конфигурация отображения типов контента в карточках.
 export const TYPE_CONFIG: Record<
   string,
-  { label: string; icon: LucideIcon; bg: string; color: string }
+  { label: string; icon: LucideIcon; bg: string; color: string; border: string }
 > = {
   film: {
     label: 'Фильм',
     icon: Film,
     bg: 'bg-blue-50 dark:bg-blue-950/30',
     color: 'text-blue-500',
+    border: 'border-blue-500',
   },
   series: {
     label: 'Сериал',
     icon: Tv,
     bg: 'bg-purple-50 dark:bg-purple-950/30',
     color: 'text-purple-500',
+    border: 'border-purple-500',
   },
   cartoon: {
     label: 'Мультфильм',
     icon: Palette,
     bg: 'bg-rose-50 dark:bg-rose-950/30',
     color: 'text-rose-500',
+    border: 'border-rose-500',
   },
 };
 
+/**
+ * Маппинг впечатлений на иконки и цвета.
+ */
+export const OPINION_CONFIG: Record<
+  string,
+  { icon: typeof ThumbsUp; label: string; color: string }
+> = {
+  like: { icon: ThumbsUp, label: 'Понравилось', color: 'text-green-500' },
+  neutral: { icon: Minus, label: 'Пойдет', color: 'text-yellow-500' },
+  dislike: { icon: ThumbsDown, label: 'Потрачено', color: 'text-red-500' },
+};
+
+export const FALLBACK_CINFIG = {
+  label: 'Контент',
+  icon: ListIcon,
+  bg: 'bg-zinc-100',
+  color: 'text-zinc-500',
+  border: 'border-zinc-200',
+};
 // ============================================================================
 // Константы для коллекций - AboutBlock
 // ============================================================================

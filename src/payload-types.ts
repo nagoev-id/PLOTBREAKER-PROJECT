@@ -382,7 +382,7 @@ export interface Collection {
    */
   isPublic?: boolean | null;
   /**
-   * Обновляется автоматически при сохранении.
+   * Обновляется автоматически при сохранении на основе связанных элементов.
    */
   itemCount?: number | null;
   items?: {

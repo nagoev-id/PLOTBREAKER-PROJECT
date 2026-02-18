@@ -17,8 +17,8 @@ export const revalidate = 60;
  */
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: METADATA.aboutPage.title,
-    description: METADATA.aboutPage.description,
+    title: METADATA.collectionsPage.title,
+    description: METADATA.collectionsPage.description,
   };
 }
 
