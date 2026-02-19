@@ -17,10 +17,12 @@ import {
   HOMEPAGE_FILTERS,
 } from '@/utilities/constants';
 import { PaginationControls } from '@/components/shared/pagination-controls';
+import { User } from '@/payload-types';
 
 // Тип пропсов
 type HomePageClientProps = {
   items: MediaContent[];
+  user: User | null;
 };
 
 /**
@@ -29,7 +31,10 @@ type HomePageClientProps = {
  * @param items - Массив медиа-контента
  * @returns {JSX.Element}
  */
-const HomePageClient: FC<HomePageClientProps> = ({ items }): JSX.Element => {
+const HomePageClient: FC<HomePageClientProps> = ({
+  items,
+  user,
+}): JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
@@ -416,7 +421,7 @@ const HomePageClient: FC<HomePageClientProps> = ({ items }): JSX.Element => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.03, duration: 0.4 }}
                   >
-                    <MovieCard item={item} />
+                    <MovieCard item={item} user={user} />
                   </motion.div>
                 ))
               ) : (

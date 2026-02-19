@@ -1,9 +1,8 @@
-import { METADATA, PAGE_SLUGS, REVALIDATE_TIME } from '@/utilities/constants';
+import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
 import { Metadata } from 'next';
 import { getPageBySlug } from '@/utilities/getPageBySlug';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { Spinner } from '@/components/ui';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
 

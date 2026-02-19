@@ -3,15 +3,17 @@
 import Link from 'next/link';
 import React, { FC, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, Search, ShieldUser, SquarePlus, X } from 'lucide-react';
+import { Menu, Search, ShieldUser, X } from 'lucide-react';
 import { CMSLink } from '@/components/shared/link';
 import { getURL } from '@/utilities/getURL';
 import { HeaderGlobal, NavItemCollection } from '@/utilities/types';
+import { User } from '@/payload-types';
 import { SearchModal } from '@/components/shared/searchModal';
 
 // Тип свойств компонента HeaderClient
 type HeaderClientProps = {
   data: HeaderGlobal;
+  user: User | null;
 };
 
 /**
@@ -20,7 +22,7 @@ type HeaderClientProps = {
  * Компонент отображает логотип, навигационное меню и поиск.
  * Поддерживает мобильную версию с бургер-меню и блокировкой прокрутки.
  */
-export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
+export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navItems = (data?.navItems || []) as NavItemCollection[];
@@ -94,6 +96,7 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
             aria-label="Основная навигация"
           >
             {navItems.map(({ link }, i) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const href = getURL(link.type, link.url, link.reference as any);
               const isActive =
                 href &&
@@ -109,6 +112,16 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
                 />
               );
             })}
+            {user && (
+              <Link
+                href="/admin"
+                aria-label="Перейти в панель управления"
+                target="_blank"
+                className="hover:bg-accent rounded-full p-2 transition-colors"
+              >
+                <ShieldUser size={18} />
+              </Link>
+            )}
           </nav>
 
           {/* Кнопки поиска и мобильного меню */}
@@ -146,6 +159,7 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
       >
         <nav className="text-muted-foreground flex h-full flex-col items-center justify-center gap-4 md:text-xl font-medium">
           {navItems.map(({ link }, i) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const href = getURL(link.type, link.url, link.reference as any);
             const isActive =
               href &&

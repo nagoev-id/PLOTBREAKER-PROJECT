@@ -1,12 +1,28 @@
 {
-  "name": "Kinopoisk → Payload CMS",
-  "description": "Парсит страницу фильма на Кинопоиске и отправляет данные в Payload CMS по API.",
+  "name": "Кинопоиск → ПРОСМОТРЕНО",
+  "description": "Парсит страницу фильма на Кинопоиске и отправляет данные в ПРОСМОТРЕНО по API.",
   "version": "1.1.0",
   "manifest_version": 3,
   "permissions": ["storage", "tabs"],
-  "host_permissions": ["*://www.kinopoisk.ru/*", "http://localhost:3000/*"],
+  "host_permissions": [
+    "*://www.kinopoisk.ru/*",
+    "http://localhost:3000/*",
+    "https://plotbreakers.vercel.app/*"
+  ],
   "action": {
-    "default_popup": "index.html"
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "images/favicon-dark.png",
+      "32": "images/favicon-dark.png",
+      "48": "images/favicon-dark.png",
+      "128": "images/favicon-dark.png"
+    }
+  },
+  "icons": {
+    "16": "images/favicon-dark.png",
+    "32": "images/favicon-dark.png",
+    "48": "images/favicon-dark.png",
+    "128": "images/favicon-dark.png"
   },
   "background": {
     "service_worker": "background.js",
@@ -14,7 +30,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://www.kinopoisk.ru/*"],
+      "matches": ["*://www.kinopoisk.ru/*", "*://m.kinopoisk.ru/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }

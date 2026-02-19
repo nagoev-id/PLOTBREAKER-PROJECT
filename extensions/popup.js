@@ -136,9 +136,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       tmdbRating: parseFloat(tmdbRatingInput.value) || null,
       watchDate: watchDateInput.value || null,
       watchYear: parseInt(watchYearInput.value) || null,
-      collections: Array.from(collectionsSelect.selectedOptions).map((opt) =>
-        parseInt(opt.value, 10)
-      ),
+      collections: collectionsSelect.value
+        ? [parseInt(collectionsSelect.value, 10)]
+        : [],
       review: reviewInput.value || null,
     };
   }
@@ -266,9 +266,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   deleteBtn.addEventListener('click', () => {
     if (!existingRecordId) return;
 
-    const title = titleInput.value || 'эту запись';
-    if (!confirm(`Удалить "${title}" из Payload CMS?`)) return;
+    // First click: ask for confirmation
+    if (deleteBtn.dataset.confirm !== 'true') {
+      deleteBtn.dataset.confirm = 'true';
+      deleteBtn.textContent = 'Точно удалить?';
+      deleteBtn.style.backgroundColor = '#991b1b'; // Darker red
 
+      // Auto-reset after 3 seconds
+      setTimeout(() => {
+        deleteBtn.dataset.confirm = 'false';
+        deleteBtn.textContent = 'Удалить запись';
+        deleteBtn.style.backgroundColor = '';
+      }, 3000);
+      return;
+    }
+
+    // Second click: perform delete
     deleteBtn.disabled = true;
     deleteBtn.textContent = 'Удаление...';
     clearStatus();
@@ -278,6 +291,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       (response) => {
         deleteBtn.disabled = false;
         deleteBtn.textContent = 'Удалить запись';
+        deleteBtn.dataset.confirm = 'false';
+        deleteBtn.style.backgroundColor = '';
 
         if (chrome.runtime.lastError) {
           showStatus('Ошибка: ' + chrome.runtime.lastError.message, 'error');
@@ -432,13 +447,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (response && response.success && Array.isArray(response.data)) {
         collectionsSelect.innerHTML = '';
 
+        // Добавляем placeholder "Не выбрано"
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Не выбрано';
+        collectionsSelect.appendChild(defaultOption);
+
         // IDs коллекций, которые уже были привязаны
-        const selectedIds = new Set();
+        let selectedId = null;
         if (existingRecord && Array.isArray(existingRecord.collections)) {
-          existingRecord.collections.forEach((col) => {
-            const id = typeof col === 'object' ? col.id : col;
-            selectedIds.add(Number(id));
-          });
+          const firstCol = existingRecord.collections[0];
+          if (firstCol) {
+            selectedId = typeof firstCol === 'object' ? firstCol.id : firstCol;
+          }
         }
 
         response.data.forEach((col) => {
@@ -446,7 +467,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           option.value = col.id;
           option.textContent =
             col.title || col.name || col.slug || `ID: ${col.id}`;
-          if (selectedIds.has(Number(col.id))) {
+
+          if (selectedId && Number(col.id) === Number(selectedId)) {
             option.selected = true;
           }
           collectionsSelect.appendChild(option);

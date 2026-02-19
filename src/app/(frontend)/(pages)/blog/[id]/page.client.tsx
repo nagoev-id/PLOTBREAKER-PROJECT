@@ -149,7 +149,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
 
       {/* ── Контент ─────────────────────────────────────────────── */}
       <section className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -157,7 +157,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
           >
             <RichText
               content={post.content}
-              className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-p:text-base prose-p:leading-relaxed prose-p:text-justify"
+              className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-2 prose-p:text-base prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-li:my-0.5 prose-hr:my-4"
             />
           </motion.div>
 

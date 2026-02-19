@@ -1,4 +1,4 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * Утилита для глубокого слияния объектов.
@@ -14,7 +14,7 @@
  * @returns true, если значение является объектом (не массивом и не null)
  */
 export function isObject(item: unknown): boolean {
-  return Boolean(item && typeof item === "object" && !Array.isArray(item));
+  return Boolean(item && typeof item === 'object' && !Array.isArray(item));
 }
 
 /**
@@ -28,10 +28,7 @@ export function isObject(item: unknown): boolean {
  * @param source - Исходный объект, свойства которого будут добавлены в target
  * @returns Новый объект с объединенными свойствами
  */
-export const deepMerge = <T, R>(
-  target: T,
-  source: R
-): T => {
+export const deepMerge = <T, R>(target: T, source: R): T => {
   // Создаем копию целевого объекта для иммутабельности
   const output = { ...target } as any;
 
@@ -47,10 +44,7 @@ export const deepMerge = <T, R>(
           Object.assign(output, { [key]: sourceValue });
         } else {
           // Если свойство есть в обоих объектах, рекурсивно сливаем
-          output[key] = deepMerge(
-            targetValue,
-            sourceValue
-          );
+          output[key] = deepMerge(targetValue, sourceValue);
         }
       } else {
         // Для примитивов и массивов просто перезаписываем значение

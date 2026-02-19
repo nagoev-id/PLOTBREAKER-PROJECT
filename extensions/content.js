@@ -141,6 +141,11 @@ function parseJsonLd(data, kinopoiskId) {
     }
   }
 
+  // Fallback на DOM
+  if (!duration) {
+    duration = extractDurationFromDom();
+  }
+
   // Год
   let year = null;
   if (data.datePublished) {
@@ -286,6 +291,9 @@ function extractFromDom(kinopoiskId) {
   const rating = parseFloat(ratingRaw.replace(',', '.')) || null;
   const description = descriptionEl ? descriptionEl.textContent.trim() : '';
 
+  // Длительность
+  const duration = extractDurationFromDom();
+
   if (!title) {
     console.warn('[KP → Payload] Не удалось найти заголовок фильма');
     return null;
@@ -301,5 +309,34 @@ function extractFromDom(kinopoiskId) {
     tmdbRating: extractImdbRatingFromDom(),
     releaseDate: extractReleaseDateFromDom(),
     description,
+    duration,
   };
+}
+
+/**
+ * Извлекает длительность из DOM Кинопоиска.
+ * Ищет блок [data-test-id="duration"] и парсит текст вида "2 ч 22 мин" или "116 мин".
+ */
+function extractDurationFromDom() {
+  const durationEl = document.querySelector('[data-test-id="duration"]');
+  if (!durationEl) return null;
+
+  const text = durationEl.textContent.trim();
+  let totalMinutes = 0;
+
+  // Формат "2 ч 22 мин"
+  const hoursMatch = text.match(/(\d+)\s*ч/);
+  if (hoursMatch) {
+    totalMinutes += parseInt(hoursMatch[1], 10) * 60;
+  }
+
+  const minutesMatch = text.match(/(\d+)\s*мин/);
+  if (minutesMatch) {
+    totalMinutes += parseInt(minutesMatch[1], 10);
+  }
+
+  // Если формат просто "116 мин" (без часов), то minutesMatch уже сработает.
+  // Но если формат "116 минут", то регулярка тоже должна сработать (\d+)\s*мин
+
+  return totalMinutes > 0 ? totalMinutes : null;
 }

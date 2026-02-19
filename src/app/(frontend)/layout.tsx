@@ -1,27 +1,36 @@
-import React, { FC, JSX, ReactNode } from 'react'
-import '@/app/(frontend)/globals.css'
-import { METADATA } from '@/utilities/constants'
-import { cn, euclid } from '@/lib'
-import { Toaster } from '@/components/ui'
-import { Header } from '@/globals/Header'
-import { Footer } from '@/globals/Footer'
-import { ThemeProvider } from '@/components/shared/theme-provider'
+import React, { FC, JSX, ReactNode } from 'react';
+import '@/app/(frontend)/globals.css';
+import { METADATA } from '@/utilities/constants';
+import { cn, euclid } from '@/lib';
+import { Toaster } from '@/components/ui';
+import { Header } from '@/globals/Header';
+import { Footer } from '@/globals/Footer';
+import { ThemeProvider } from '@/components/shared/theme-provider';
 
 export const metadata = {
   description: METADATA.siteDescription,
   title: METADATA.siteName,
   keywords: METADATA.siteKeywords,
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      {
+        media: '(prefers-color-scheme: light)',
+        url: '/favicon/favicon-white.svg',
+      },
+      {
+        media: '(prefers-color-scheme: dark)',
+        url: '/favicon/favicon-dark.svg',
+      },
+    ],
   },
-}
+};
 
 /**
  * Тип пропсов для корневого макета
  */
 type Props = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 /**
  * Корневой макет приложения
@@ -38,7 +47,7 @@ const RootLayout: FC<Props> = ({ children }): JSX.Element => {
       <body
         className={cn(
           euclid.variable,
-          'flex min-h-full w-full flex-auto flex-col antialiased font-sans',
+          'flex min-h-full w-full flex-auto flex-col antialiased font-sans'
         )}
         suppressHydrationWarning
       >
@@ -49,7 +58,7 @@ const RootLayout: FC<Props> = ({ children }): JSX.Element => {
           disableTransitionOnChange
           storageKey={METADATA.siteKey}
         >
-          <div className="flex min-h-screen flex-col selection:bg-black selection:text-white">
+          <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
             <Header />
             <main className="animate-fade-in w-full flex-1">{children}</main>
             <Footer />
@@ -58,7 +67,7 @@ const RootLayout: FC<Props> = ({ children }): JSX.Element => {
         <Toaster />
       </body>
     </html>
-  )
-}
+  );
+};
 
-export default RootLayout
+export default RootLayout;

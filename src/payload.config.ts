@@ -57,7 +57,7 @@ export default buildConfig({
           email: process.env.CMS_SEED_ADMIN_EMAIL || 'admin@example.com',
           password: process.env.CMS_SEED_ADMIN_PASSWORD || 'changeme',
           role: 'admin',
-        } as any,
+        } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
       });
       payload.logger.info('✅ Seed admin user created');
     }

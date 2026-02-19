@@ -27,7 +27,7 @@ export type AboutBlockProps = Extract<
 export const AboutBlock: FC<AboutBlockProps> = ({
   featuresSection,
   usefulLinksSection,
-  blockType,
+  blockType: _blockType,
 }): JSX.Element => {
   return (
     <>

@@ -5,8 +5,11 @@ import { getMediaContents } from '@/utilities/getMediaContents';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
-import { LoadingSpinner } from '@/components/shared/loading-spinner';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
+import { headers } from 'next/headers';
 import HomePageClient from './page.client';
+import { LoadingSpinner } from '@/components/shared/loading-spinner';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
@@ -28,6 +31,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * @returns Орендеренная клиентская страница с данными.
  */
 const HomePage = async () => {
+  const payload = await getPayload({ config: configPromise });
+  const { user } = await payload.auth({ headers: await headers() });
+
   // Параллельная загрузка данных страницы и медиа-контента
   const [page, items] = await Promise.all([
     getPageBySlug(PAGE_SLUGS.home),
@@ -45,7 +51,7 @@ const HomePage = async () => {
       <RenderBlocks blocks={page.layout} />
       {/* Отображаем список записей с фильтрами и пагинацией */}
       <Suspense fallback={<LoadingSpinner />}>
-        <HomePageClient items={items} />
+        <HomePageClient items={items} user={user} />
       </Suspense>
     </>
   );

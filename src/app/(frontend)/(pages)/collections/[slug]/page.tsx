@@ -4,6 +4,9 @@ import { Suspense } from 'react';
 import { getCachedCollectionBySlug } from '@/utilities/getCollectionBySlug';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
 import CollectionDetailClient from '@/app/(frontend)/(pages)/collections/[slug]/page.client';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
+import { headers } from 'next/headers';
 
 // Настройки кэширования страницы коллекции.
 export const revalidate = 60;
@@ -45,6 +48,9 @@ export const generateMetadata = async ({
  */
 const CollectionDetailPage = async ({ params }: Props) => {
   const { slug } = await params;
+  const payload = await getPayload({ config: configPromise });
+  const { user } = await payload.auth({ headers: await headers() });
+
   const collection = await getCachedCollectionBySlug(slug)();
 
   if (!collection) {
@@ -52,7 +58,7 @@ const CollectionDetailPage = async ({ params }: Props) => {
   }
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <CollectionDetailClient collection={collection} />
+      <CollectionDetailClient collection={collection} user={user} />
     </Suspense>
   );
 };

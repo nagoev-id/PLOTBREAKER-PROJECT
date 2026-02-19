@@ -1,8 +1,11 @@
-import { getCachedGlobal } from '@/utilities/getGlobals'
-import { FC } from 'react'
-import { HeaderClient } from '@/globals/Header/components/component.client'
-import type { Header as HeaderType } from '@/payload-types'
-import { METADATA } from '@/utilities/constants'
+import { getCachedGlobal } from '@/utilities/getGlobals';
+import { FC } from 'react';
+import { HeaderClient } from '@/globals/Header/components/component.client';
+import type { Header as HeaderType } from '@/payload-types';
+import { METADATA } from '@/utilities/constants';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
+import { headers } from 'next/headers';
 
 /**
  * Серверный компонент шапки сайта
@@ -16,14 +19,20 @@ import { METADATA } from '@/utilities/constants'
  */
 export const Header: FC = async () => {
   try {
+    const payload = await getPayload({ config: configPromise });
+    const { user } = await payload.auth({ headers: await headers() });
+
     // Загружаем данные шапки из кешированного глобального объекта
     // getCachedGlobal обеспечивает оптимальную производительность через кеширование
-    const headerData: HeaderType = (await getCachedGlobal('header', 1)()) as unknown as HeaderType
+    const headerData: HeaderType = (await getCachedGlobal(
+      'header',
+      1
+    )()) as unknown as HeaderType;
 
     // Передаем данные в клиентский компонент для интерактивной функциональности
-    return <HeaderClient data={headerData} />
+    return <HeaderClient data={headerData} user={user} />;
   } catch (error) {
-    console.error('Error loading header data:', error)
+    console.error('Error loading header data:', error);
 
     // В случае ошибки возвращаем шапку с данными по умолчанию
     // Это обеспечивает отказоустойчивость компонента
@@ -33,8 +42,8 @@ export const Header: FC = async () => {
         logoIcon: null,
       },
       navItems: [],
-    }
+    };
 
-    return <HeaderClient data={fallbackData as HeaderType} />
+    return <HeaderClient data={fallbackData as HeaderType} user={null} />;
   }
-}
+};

@@ -1,7 +1,13 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import localFont from 'next/font/local';
-import { FALLBACK_CINFIG, GENRES, TYPE_CONFIG } from '@/utilities/constants';
+import {
+  ALL_VALUE,
+  FALLBACK_CINFIG,
+  GENRES,
+  TYPE_CONFIG,
+} from '@/utilities/constants';
+import { MediaContentCollection } from '@/utilities/types';
 
 /**
  * Объединяет CSS классы с помощью Tailwind CSS.
@@ -96,4 +102,66 @@ export const configCollection = (title: string) => {
   const TypeIcon = type.icon;
 
   return { type, TypeIcon };
+};
+
+/**
+ * Извлекает уникальные годы из записей, сортирует по убыванию
+ * @param items - Массив записей
+ * @param getter - Функция для получения года
+ * @returns Массив уникальных годов
+ */
+export const extractYears = (
+  items: MediaContentCollection[],
+  getter: (item: MediaContentCollection) => number | null | undefined
+): number[] => {
+  const years = new Set<number>();
+  items.forEach((item) => {
+    const y = getter(item);
+    if (y) years.add(y);
+  });
+  return Array.from(years).sort((a, b) => b - a);
+};
+
+/**
+ * Проверяет, попадает ли рейтинг в указанный диапазон
+ * @param rating - Рейтинг
+ * @param range - Диапазон (например, '9-10')
+ * @returns true, если рейтинг попадает в диапазон
+ */
+export const matchesRating = (
+  rating: number | null | undefined,
+  range: string
+): boolean => {
+  if (range === ALL_VALUE || !rating) {
+    return range === ALL_VALUE;
+  }
+  const [min, max] = range.split('-').map(Number);
+  return rating >= min && rating <= max;
+};
+
+/**
+ * Форматирует длительность из минут в «Xч Yм»
+ * @param minutes - Длительность в минутах
+ * @returns Форматированная длительность
+ */
+export const formatDuration = (minutes: number): string => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}м`;
+  if (m === 0) return `${h}ч`;
+  return `${h}ч ${m}м`;
+};
+
+/**
+ * Получает URL постера из объекта изображения
+ * @param item - Объект MediaContentCollection
+ * @returns URL постера или null
+ */
+export const getPosterUrl = (item: MediaContentCollection) => {
+  const posterSrc =
+    item.poster && typeof item.poster === 'object'
+      ? item.poster.url
+      : item.posterUrl;
+
+  return posterSrc || null;
 };

@@ -1,18 +1,11 @@
 'use client';
 
-import { FC, JSX, useCallback, useState } from 'react';
+import { FC, JSX } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import {
-  ArrowLeft,
-  Star,
-  Clock,
-  ExternalLink,
-  Share2,
-  Check,
-} from 'lucide-react';
+import { ArrowLeft, Star, Clock, ExternalLink } from 'lucide-react';
 import {
   Badge,
   Accordion,
@@ -29,8 +22,7 @@ import {
   getPosterUrl,
 } from '@/utilities/constants';
 import { MediaContentCollection } from '@/utilities/types';
-import { toast } from 'sonner';
-import { SharedLink } from '@/app/(frontend)/(pages)/reviews/[id]/components';
+import { SharedLink } from '@/app/(frontend)/(pages)/reviews/[slug]/components';
 
 // Тип пропсов
 type ReviewDetailClientProps = {
@@ -159,7 +151,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             {item.review && (
               <RichText
                 content={item.review}
-                className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-headings:uppercase prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-p:text-base prose-p:leading-relaxed prose-p:text-justify"
+                className="prose-hr:my-4 prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-headings:uppercase prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-2 prose-p:text-base prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-li:my-0.5"
               />
             )}
 
@@ -204,7 +196,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                             {season.review ? (
                               <RichText
                                 content={season.review}
-                                className="prose prose-zinc dark:prose-invert max-w-none prose-p:text-base prose-p:leading-relaxed prose-p:text-justify"
+                                className="prose prose-zinc dark:prose-invert max-w-none prose-p:text-base prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-headings:my-2 prose-li:my-0.5"
                               />
                             ) : (
                               <p className="text-muted-foreground text-sm">

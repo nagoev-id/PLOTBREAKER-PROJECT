@@ -1,5 +1,5 @@
 // === Настройки ===
-const PAYLOAD_BASE_URL = 'http://localhost:3000';
+const PAYLOAD_BASE_URL = 'https://plotbreakers.vercel.app';
 const PAYLOAD_COLLECTION_SLUG = 'media-contents';
 const PAYLOAD_AUTH_HEADER =
   'users API-Key 694062b0-a277-45ac-b53e-f0adc1679ac4';

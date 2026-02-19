@@ -19,9 +19,12 @@ import { PaginationControls } from '@/components/shared/pagination-controls';
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
+import { User } from '@/payload-types';
+
 // Типы пропсов компонента
 type CollectionDetailClientProps = {
   collection: CollectionCollection;
+  user: User | null;
 };
 
 /**
@@ -30,6 +33,7 @@ type CollectionDetailClientProps = {
  */
 const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
   collection,
+  user,
 }): JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -156,7 +160,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.4 }}
               >
-                <MovieCard item={item} />
+                <MovieCard item={item} user={user} />
               </motion.div>
             );
           })

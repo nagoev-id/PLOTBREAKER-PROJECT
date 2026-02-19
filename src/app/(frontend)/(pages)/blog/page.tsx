@@ -9,6 +9,7 @@ import { getPayload } from 'payload';
 import configPromise from '@payload-config';
 import BlogPageClient from './page.client';
 import { Post } from '@/payload-types';
+import { headers } from 'next/headers';
 
 // Настройки кэширования
 export const revalidate = 60;
@@ -29,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 const BlogPage = async () => {
   const payload = await getPayload({ config: configPromise });
+  const { user } = await payload.auth({ headers: await headers() });
 
   const [page, postsResult] = await Promise.all([
     getPageBySlug(PAGE_SLUGS.blog),
@@ -50,7 +52,7 @@ const BlogPage = async () => {
     <>
       <Suspense fallback={<LoadingSpinner />} />
       <RenderBlocks blocks={page.layout} />
-      <BlogPageClient posts={posts} />
+      <BlogPageClient posts={posts} user={user} />
     </>
   );
 };
