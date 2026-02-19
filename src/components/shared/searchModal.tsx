@@ -14,6 +14,7 @@ const contentTypeIcons: Record<string, typeof Film> = {
   cartoon: Palette,
 };
 
+// Описание пропсов
 type SearchModalProps = {
   isSearchOpen: boolean;
   setIsSearchOpen: (open: boolean) => void;
