@@ -26,6 +26,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'ru-images-s.kinorium.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'ru-images.kinorium.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'kinopoisk-ru.clstorage.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.mds.yandex.net',
+      },
     ],
   },
   webpack: (webpackConfig) => {

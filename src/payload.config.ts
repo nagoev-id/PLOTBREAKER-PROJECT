@@ -19,6 +19,8 @@ import {
 } from '@/collections';
 import { HeaderGlobalConfig } from '@/globals/Header/config';
 import { FooterGlobalConfig } from '@/globals/Footer/config';
+import { COLLECTION_SLUGS } from '@/utilities/constants';
+import { searchPlugin } from '@payloadcms/plugin-search';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -94,6 +96,42 @@ export default buildConfig({
         },
         region: process.env.S3_REGION || '',
         endpoint: process.env.S3_ENDPOINT || '',
+      },
+    }),
+    searchPlugin({
+      collections: [COLLECTION_SLUGS.mediaContents, COLLECTION_SLUGS.posts],
+      defaultPriorities: {
+        [COLLECTION_SLUGS.mediaContents]: 10,
+        [COLLECTION_SLUGS.posts]: 5,
+      },
+      beforeSync: ({ originalDoc, searchDoc }) => ({
+        ...searchDoc,
+        title: originalDoc.title || searchDoc.title,
+        keywords: [
+          originalDoc.title,
+          originalDoc.originalTitle,
+          originalDoc.director,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      }),
+      searchOverrides: {
+        slug: 'search-results',
+        labels: {
+          singular: 'Результат поиска',
+          plural: 'Результаты поиска',
+        },
+        admin: {
+          group: 'Система',
+        },
+        fields: ({ defaultFields }) => [
+          ...defaultFields,
+          {
+            name: 'keywords',
+            type: 'text',
+            admin: { readOnly: true },
+          },
+        ],
       },
     }),
   ],

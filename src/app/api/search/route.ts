@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     // Фильтр по типу контента (фильм/сериал)
     if (type) {
       andConditions.push({
-        contentType: { equals: type },
+        type: { equals: type },
       });
     }
 

@@ -10,6 +10,8 @@ import {
 } from '@/utilities/constants';
 import { populateList } from '@/collections/MediaContents/hooks/populateList';
 import { syncDates } from '@/collections/MediaContents/hooks/syncDates';
+import { syncCollectionCounts } from '@/collections/MediaContents/hooks/syncCollectionCounts';
+import { convertMarkdownReview } from '@/collections/MediaContents/hooks/convertMarkdownReview';
 
 export const MediaContents: CollectionConfig = {
   slug: COLLECTION_SLUGS.mediaContents,
@@ -64,7 +66,16 @@ export const MediaContents: CollectionConfig = {
         description: 'Название на языке оригинала',
       },
     },
-    slugField('originalTitle'),
+    {
+      name: 'copyPrompt',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/fields/CopyPromptButton.tsx#CopyPromptButton',
+        },
+      },
+    },
+    slugField('originalTitle', { unique: true }),
     {
       name: 'synopsis',
       type: 'textarea',
@@ -79,6 +90,9 @@ export const MediaContents: CollectionConfig = {
       label: 'Мой отзыв',
       admin: {
         description: 'Мой отзыв о фильме или сериале',
+      },
+      hooks: {
+        beforeChange: [convertMarkdownReview],
       },
     },
     {
@@ -100,6 +114,9 @@ export const MediaContents: CollectionConfig = {
           name: 'review',
           type: 'richText',
           label: 'Отзыв о сезоне',
+          hooks: {
+            beforeChange: [convertMarkdownReview],
+          },
         },
         {
           name: 'personalOpinion',
@@ -344,7 +361,7 @@ export const MediaContents: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [syncDates],
-    afterChange: [populateList],
+    afterChange: [populateList, syncCollectionCounts],
   },
   timestamps: true,
   indexes: [

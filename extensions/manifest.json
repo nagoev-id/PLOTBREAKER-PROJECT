@@ -1,0 +1,22 @@
+{
+  "name": "Kinopoisk → Payload CMS",
+  "description": "Парсит страницу фильма на Кинопоиске и отправляет данные в Payload CMS по API.",
+  "version": "1.1.0",
+  "manifest_version": 3,
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["*://www.kinopoisk.ru/*", "http://localhost:3000/*"],
+  "action": {
+    "default_popup": "index.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.kinopoisk.ru/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

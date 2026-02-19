@@ -9,6 +9,8 @@ import {
   Minus,
   ThumbsDown,
 } from 'lucide-react';
+import { MediaContentCollection } from './types';
+import { MediaContent } from '@/payload-types';
 
 // ============================================================================
 // Анимации
@@ -65,6 +67,10 @@ export const METADATA = {
   collectionsPage: {
     title: 'Коллекции',
     description: 'Кураторские подборки фильмов, сериалов и анимации.',
+  },
+  blogPage: {
+    title: 'Блог',
+    description: 'Статьи и заметки о кино, сериалах и анимации.',
   },
 };
 
@@ -281,5 +287,108 @@ export const FALLBACK_CINFIG = {
   border: 'border-zinc-200',
 };
 // ============================================================================
-// Константы для коллекций - AboutBlock
+// Константы - Пагинация
 // ============================================================================
+export const PAGINATION_CONFIG = {
+  defaultPageSize: 10,
+  pageSizeOptions: [10, 20, 50],
+};
+
+// ============================================================================
+// Константы - Фильтры
+// ============================================================================
+export const ALL_VALUE = '__all__';
+
+// Фильтры для главной страницы
+export const HOMEPAGE_FILTERS = {
+  // Вкладки по типу контента
+  types: [
+    { label: 'Все', value: ALL_VALUE },
+    ...MEDIA_CONTENT_TYPES.select.map((t) => ({
+      label: t.label,
+      value: t.value,
+    })),
+  ],
+  // Опции для фильтра впечатления
+  opinions: [
+    { label: 'Все', value: ALL_VALUE },
+    ...MEDIA_CONTENT_PERSONAL_OPINION.select.map((o) => ({
+      label: o.label,
+      value: o.value,
+    })),
+  ],
+  // Диапазоны рейтинга
+  ratings: [
+    { label: 'Все', value: ALL_VALUE },
+    { label: '9–10', value: '9-10' },
+    { label: '7–8.9', value: '7-8.9' },
+    { label: '5–6.9', value: '5-6.9' },
+    { label: '< 5', value: '0-4.9' },
+  ],
+};
+
+/**
+ * Извлекает уникальные годы из записей, сортирует по убыванию
+ * @param items - Массив записей
+ * @param getter - Функция для получения года
+ * @returns Массив уникальных годов
+ */
+export const extractYears = (
+  items: MediaContentCollection[],
+  getter: (item: MediaContentCollection) => number | null | undefined
+): number[] => {
+  const years = new Set<number>();
+  items.forEach((item) => {
+    const y = getter(item);
+    if (y) years.add(y);
+  });
+  return Array.from(years).sort((a, b) => b - a);
+};
+
+/**
+ * Проверяет, попадает ли рейтинг в указанный диапазон
+ * @param rating - Рейтинг
+ * @param range - Диапазон (например, '9-10')
+ * @returns true, если рейтинг попадает в диапазон
+ */
+export const matchesRating = (
+  rating: number | null | undefined,
+  range: string
+): boolean => {
+  if (range === ALL_VALUE || !rating) {
+    return range === ALL_VALUE;
+  }
+  const [min, max] = range.split('-').map(Number);
+  return rating >= min && rating <= max;
+};
+
+// ============================================================================
+// Константы для коллекций - MediaContents
+// ============================================================================
+
+/**
+ * Форматирует длительность из минут в «Xч Yм»
+ * @param minutes - Длительность в минутах
+ * @returns Форматированная длительность
+ */
+export const formatDuration = (minutes: number): string => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}м`;
+  if (m === 0) return `${h}ч`;
+  return `${h}ч ${m}м`;
+};
+
+/**
+ * Получает URL постера из объекта изображения
+ * @param item - Объект MediaContentCollection
+ * @returns URL постера или null
+ */
+export const getPosterUrl = (item: MediaContentCollection) => {
+  const posterSrc =
+    item.poster && typeof item.poster === 'object'
+      ? item.poster.url
+      : item.posterUrl;
+
+  return posterSrc || null;
+};

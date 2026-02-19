@@ -3,7 +3,7 @@
 import { FC, JSX, useMemo, useState } from 'react';
 import { CollectionCollection } from '@/utilities/types';
 import { FILTERS_COLLECTIONS } from '@/utilities/constants';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
@@ -62,24 +62,18 @@ const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
                   <span className="sr-only text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
                     {filter.label}
                   </span>
-                  <ToggleGroup
-                    type="single"
-                    variant="outline"
-                    size="sm"
+                  <Tabs
                     value={typeFilter}
-                    onValueChange={(val: string) => val && setTypeFilter(val)}
-                    className="flex flex-wrap items-center justify-center bg-muted p-2 rounded-md"
+                    onValueChange={(val) => val && setTypeFilter(val)}
                   >
-                    {filter.options.map((option) => (
-                      <ToggleGroupItem
-                        key={option.value}
-                        value={option.value}
-                        className="cursor-pointer text-xs sm:text-sm transition-all hover:bg-black/5 dark:hover:bg-white/10 data-[state=on]:bg-white data-[state=on]:text-foreground dark:data-[state=on]:bg-zinc-600 dark:data-[state=on]:text-zinc-50 shadow-sm"
-                      >
-                        {option.label}
-                      </ToggleGroupItem>
-                    ))}
-                  </ToggleGroup>
+                    <TabsList className="flex h-auto justify-center max-w-max">
+                      {filter.options.map((option) => (
+                        <TabsTrigger key={option.value} value={option.value}>
+                          {option.label}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </Tabs>
                 </div>
               ))}
             </div>

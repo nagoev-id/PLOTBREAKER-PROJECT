@@ -1,45 +1,56 @@
-import { METADATA, PAGE_SLUGS, REVALIDATE_TIME } from '@/utilities/constants';
+import { COLLECTION_SLUGS, METADATA, PAGE_SLUGS } from '@/utilities/constants';
 import { Metadata } from 'next';
 import { getPageBySlug } from '@/utilities/getPageBySlug';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { Spinner } from '@/components/ui';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
+import BlogPageClient from './page.client';
+import { Post } from '@/payload-types';
 
-// Настройки кэширования главной страницы.
+// Настройки кэширования
 export const revalidate = 60;
 
 /**
- * Генерация метаданных для страницы
- * @returns Заголовок и описание страницы для SEO.
+ * Генерация метаданных для страницы блога
  */
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: METADATA.aboutPage.title,
-    description: METADATA.aboutPage.description,
+    title: METADATA.blogPage.title,
+    description: METADATA.blogPage.description,
   };
 }
 
 /**
- * Основной компонент страницы (Server Component).
- * @returns Орендеренная клиентская страница с данными.
+ * Серверный компонент страницы блога.
+ * Загружает layout и список постов, передаёт в клиентский компонент.
  */
 const BlogPage = async () => {
-  // Запрашиваем данные разметки с главной страницы
-  const page = await getPageBySlug(PAGE_SLUGS.blog);
+  const payload = await getPayload({ config: configPromise });
 
-  // Проверяем, что данные получены
+  const [page, postsResult] = await Promise.all([
+    getPageBySlug(PAGE_SLUGS.blog),
+    payload.find({
+      collection: COLLECTION_SLUGS.posts,
+      sort: '-publishedAt',
+      limit: 0,
+      depth: 1,
+    }),
+  ]);
+
   if (!page || !page.layout) {
     return notFound();
   }
 
+  const posts = postsResult.docs as Post[];
+
   return (
     <>
-      {/* Отображаем спиннер загрузки */}
       <Suspense fallback={<LoadingSpinner />} />
-      {/* Отображаем динамические блоки из макета Payload CMS */}
       <RenderBlocks blocks={page.layout} />
+      <BlogPageClient posts={posts} />
     </>
   );
 };

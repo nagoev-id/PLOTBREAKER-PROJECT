@@ -73,6 +73,7 @@ export interface Config {
     collections: Collection;
     'media-contents': MediaContent;
     posts: Post;
+    'search-results': SearchResult;
     'payload-kv': PayloadKv;
     'payload-folders': FolderInterface;
     'payload-locked-documents': PayloadLockedDocument;
@@ -94,6 +95,7 @@ export interface Config {
     collections: CollectionsSelect<false> | CollectionsSelect<true>;
     'media-contents': MediaContentsSelect<false> | MediaContentsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    'search-results': SearchResultsSelect<false> | SearchResultsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -565,6 +567,29 @@ export interface Post {
   createdAt: string;
 }
 /**
+ * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-results".
+ */
+export interface SearchResult {
+  id: number;
+  title?: string | null;
+  priority?: number | null;
+  doc:
+    | {
+        relationTo: 'media-contents';
+        value: number | MediaContent;
+      }
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      };
+  keywords?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -611,6 +636,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'search-results';
+        value: number | SearchResult;
       } | null)
     | ({
         relationTo: 'payload-folders';
@@ -905,6 +934,18 @@ export interface PostsSelect<T extends boolean = true> {
   heroImage?: T;
   tags?: T;
   publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-results_select".
+ */
+export interface SearchResultsSelect<T extends boolean = true> {
+  title?: T;
+  priority?: T;
+  doc?: T;
+  keywords?: T;
   updatedAt?: T;
   createdAt?: T;
 }

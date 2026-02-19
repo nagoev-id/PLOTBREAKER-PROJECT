@@ -7,6 +7,7 @@ import {
 } from '@/collections/Collections/hooks/revalidateList';
 import { updateItemCount } from '@/collections/Collections/hooks/updateItemCount';
 import { COLLECTION_SLUGS } from '@/utilities/constants';
+import { convertMarkdownReview } from '@/collections/Collections/hooks/convertMarkdownReview';
 
 /**
  * Коллекция "Коллекции" (Collections).
@@ -46,6 +47,9 @@ export const Collections: CollectionConfig = {
       name: 'description',
       type: 'richText',
       label: 'Описание списка',
+      hooks: {
+        beforeChange: [convertMarkdownReview],
+      },
     },
     // Поле для определения, является ли список общедоступным
     {

@@ -7,6 +7,7 @@ import { Menu, Search, ShieldUser, SquarePlus, X } from 'lucide-react';
 import { CMSLink } from '@/components/shared/link';
 import { getURL } from '@/utilities/getURL';
 import { HeaderGlobal, NavItemCollection } from '@/utilities/types';
+import { SearchModal } from '@/components/shared/searchModal';
 
 // Тип свойств компонента HeaderClient
 type HeaderClientProps = {
@@ -23,6 +24,7 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navItems = (data?.navItems || []) as NavItemCollection[];
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   /**
    * Закрывает мобильное меню при изменении маршрута
@@ -53,6 +55,8 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
    * Обработчик переключения мобильного меню
    */
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
 
   return (
     <>
@@ -110,6 +114,14 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
           {/* Кнопки поиска и мобильного меню */}
           <div className="flex items-center gap-4">
             <button
+              onClick={toggleSearch}
+              className="hover:bg-accent rounded-full p-2 transition-colors"
+              aria-label="Поиск по сайту"
+              type="button"
+            >
+              <Search size={18} />
+            </button>
+            <button
               onClick={toggleMenu}
               className="hover:bg-accent relative z-50 rounded-full p-2 transition-colors md:hidden"
               aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
@@ -151,6 +163,10 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data }) => {
           })}
         </nav>
       </div>
+      <SearchModal
+        isSearchOpen={isSearchOpen}
+        setIsSearchOpen={setIsSearchOpen}
+      />
     </>
   );
 };
