@@ -1,22 +1,26 @@
-import { COLLECTION_SLUGS, METADATA } from '@/utilities/constants';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
-import ReviewDetailClient from '@/app/(frontend)/(pages)/reviews/[slug]/page.client';
-import { MediaContentCollection } from '@/utilities/types';
 
-// Настройки кэширования страницы
+import { COLLECTION_SLUGS, METADATA } from '@/utilities/constants';
+import { MediaContentCollection } from '@/utilities/types';
+import ReviewDetailClient from '@/app/(frontend)/(pages)/reviews/[slug]/page.client';
+
+// Настройка времени повторной валидации (ISR) — 60 секунд.
 export const revalidate = 60;
 
+// Описание типов пропсов
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 /**
- * Генерация метаданных для страницы детальной записи.
- * @param params - Промис со slug записи.
- * @returns Метаданные страницы.
+ * Функция для динамической генерации метаданных страницы (SEO).
+ * Извлекает данные о фильме/сериале по slug для формирования title и description.
+ *
+ * @param params - Объект параметров маршрута.
+ * @returns Метаданные (заголовок, описание и т.д.).
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -42,10 +46,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Серверный компонент детальной страницы записи.
- * Загружает MediaContent по slug и передаёт данные в клиентский компонент.
- * @param params - Промис со slug записи.
- * @returns Страница детальной записи.
+ * Серверный компонент детальной страницы обзора (Media Content).
+ * Отвечает за получение данных с сервера и их передачу в клиентский интерактивный компонент.
+ *
+ * @param params - Объект параметров маршрута.
+ * @returns Контент страницы или вызов сотояния 'не найдено'.
  */
 const ReviewDetailPage = async ({ params }: Props) => {
   const { slug } = await params;

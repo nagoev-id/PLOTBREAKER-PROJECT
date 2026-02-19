@@ -1,13 +1,14 @@
 'use client';
 
 import { FC, JSX, useCallback, useState } from 'react';
-import { Post, Media } from '@/payload-types';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Share2, Check, Tag } from 'lucide-react';
+
 import { Badge } from '@/components/ui';
-import { RichText } from '@/components/shared/rich-text';
+import { RichText } from '@/components/shared';
+import { PostCollection, MediaCollection } from '@/utilities/types';
 
 // Маппинг тегов
 const TAG_LABELS: Record<string, string> = {
@@ -20,7 +21,7 @@ const TAG_LABELS: Record<string, string> = {
 
 // Тип пропсов
 type BlogDetailClientProps = {
-  post: Post;
+  post: PostCollection;
 };
 
 /**
@@ -43,7 +44,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
 
   const heroImage =
     post.heroImage && typeof post.heroImage === 'object'
-      ? (post.heroImage as Media)
+      ? (post.heroImage as MediaCollection)
       : null;
 
   const handleShare = useCallback(async () => {

@@ -1,5 +1,6 @@
+import type { CollectionConfig } from 'payload';
+
 import { adminOnly } from '@/access';
-import { CollectionConfig } from 'payload';
 import { slugField } from '@/fields/slug';
 import {
   revalidateDelete,

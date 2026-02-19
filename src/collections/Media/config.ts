@@ -1,7 +1,8 @@
-import { adminOnly } from '@/access';
 import type { CollectionConfig } from 'payload';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+import { adminOnly } from '@/access';
 import { COLLECTION_SLUGS } from '@/utilities/constants';
 
 const filename = fileURLToPath(import.meta.url);

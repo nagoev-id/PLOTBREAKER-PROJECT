@@ -1,8 +1,9 @@
-import { ANIMATIONS } from '@/utilities/constants';
 import { FC, JSX } from 'react';
 import { motion } from 'framer-motion';
-import { AboutBlockProps } from '../Component';
-import { CMSLink } from '@/components/shared/link';
+
+import { ANIMATIONS } from '@/utilities/constants';
+import { AboutBlockProps } from '@/blocks/About/Component';
+import { CMSLink } from '@/components/shared';
 
 // Типизация для пропсов компонента
 type UsefulLinksColumn = NonNullable<

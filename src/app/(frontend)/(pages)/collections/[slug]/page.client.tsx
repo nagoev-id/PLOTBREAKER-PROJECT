@@ -1,30 +1,25 @@
 'use client';
 
 import { FC, JSX, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { Badge, Separator } from '@/components/ui';
+
 import {
   CollectionCollection,
   MediaContentCollection,
+  UserCollection,
 } from '@/utilities/types';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Separator } from '@/components/ui/separator';
-import { cn, configCollection } from '@/lib/utils';
-import { ArrowLeft } from 'lucide-react';
+import { cn, configCollection } from '@/utilities/utils';
+import { PaginationControls, MovieCard } from '@/components/shared';
+import { PAGINATION_CONFIG } from '@/utilities/constants';
 
-import { Badge } from '@/components/ui';
-import { MovieCard } from '@/components/shared/movie-card';
-import { PaginationControls } from '@/components/shared/pagination-controls';
-
-const DEFAULT_PAGE_SIZE = 10;
-const PAGE_SIZE_OPTIONS = [10, 20, 50];
-
-import { User } from '@/payload-types';
-
-// Типы пропсов компонента
+// Описание типов пропсов
 type CollectionDetailClientProps = {
   collection: CollectionCollection;
-  user: User | null;
+  user: UserCollection | null;
 };
 
 /**
@@ -41,9 +36,11 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
 
   // Читаем состояние пагинации из URL
   const currentPage = Number(searchParams.get('page')) || 1;
-  const pageSize = PAGE_SIZE_OPTIONS.includes(Number(searchParams.get('size')))
+  const pageSize = PAGINATION_CONFIG.pageSizeOptions.includes(
+    Number(searchParams.get('size'))
+  )
     ? Number(searchParams.get('size'))
-    : DEFAULT_PAGE_SIZE;
+    : PAGINATION_CONFIG.defaultPageSize;
 
   // Обновление URL с новыми параметрами пагинации
   const updateParams = useCallback(
@@ -54,7 +51,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
       } else {
         params.set('page', String(page));
       }
-      if (size === DEFAULT_PAGE_SIZE) {
+      if (size === PAGINATION_CONFIG.defaultPageSize) {
         params.delete('size');
       } else {
         params.set('size', String(size));
@@ -65,11 +62,14 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
     [router, searchParams]
   );
 
-  // Получаем медиа-контент из коллекции
-  const allItems: MediaContentCollection[] =
-    collection.items?.docs?.filter(
-      (item): item is MediaContentCollection => typeof item !== 'number'
-    ) ?? [];
+  // Получаем медиа-контент из коллекции (мемоизируем для стабильности ссылки)
+  const allItems = useMemo<MediaContentCollection[]>(
+    () =>
+      collection.items?.docs?.filter(
+        (item): item is MediaContentCollection => typeof item !== 'number'
+      ) ?? [],
+    [collection.items?.docs]
+  );
 
   // Подсчёт общего количества страниц
   const totalPages = Math.ceil(allItems.length / pageSize);

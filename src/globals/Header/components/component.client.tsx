@@ -1,19 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, Search, ShieldUser, X } from 'lucide-react';
-import { CMSLink } from '@/components/shared/link';
-import { getURL } from '@/utilities/getURL';
-import { HeaderGlobal, NavItemCollection } from '@/utilities/types';
-import { User } from '@/payload-types';
-import { SearchModal } from '@/components/shared/searchModal';
+
+import { getURL } from '@/utilities/utils';
+import {
+  HeaderGlobal,
+  NavItemCollection,
+  UserCollection,
+} from '@/utilities/types';
+import { SearchModal, CMSLink } from '@/components/shared';
 
 // Тип свойств компонента HeaderClient
 type HeaderClientProps = {
   data: HeaderGlobal;
-  user: User | null;
+  user: UserCollection | null;
 };
 
 /**

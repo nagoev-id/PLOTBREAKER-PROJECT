@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import React, { FC } from 'react';
-import { cn } from '@/lib';
 import { Button, ButtonProps } from '@/components/ui';
-import { getURL } from '@/utilities/getURL';
+
+import { cn, getURL } from '@/utilities/utils';
 
 type CMSLinkType = {
   /** Внешний вид ссылки ("inline" или варианты Button) */

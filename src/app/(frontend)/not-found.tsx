@@ -1,12 +1,17 @@
 'use client';
 
+import { FC, JSX } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function NotFound() {
+/**
+ * Страница 404
+ * @returns {JSX.Element} - Элемент страницы 404
+ */
+const NotFound: FC = (): JSX.Element => {
   const router = useRouter();
 
   return (
@@ -71,4 +76,6 @@ export default function NotFound() {
       </motion.div>
     </div>
   );
-}
+};
+
+export default NotFound;

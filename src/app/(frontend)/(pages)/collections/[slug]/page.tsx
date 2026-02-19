@@ -1,17 +1,18 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { getCachedCollectionBySlug } from '@/utilities/getCollectionBySlug';
-import { LoadingSpinner } from '@/components/shared/loading-spinner';
-import CollectionDetailClient from '@/app/(frontend)/(pages)/collections/[slug]/page.client';
 import { getPayload } from 'payload';
-import configPromise from '@payload-config';
 import { headers } from 'next/headers';
+import configPromise from '@payload-config';
+
+import { LoadingSpinner } from '@/components/shared';
+import CollectionDetailClient from '@/app/(frontend)/(pages)/collections/[slug]/page.client';
+import { getCachedCollectionBySlug } from '@/utilities/helpers';
 
 // Настройки кэширования страницы коллекции.
 export const revalidate = 60;
 
-// Типы параметров страницы коллекции.
+// Описание типов пропсов
 type Props = {
   params: Promise<{ slug: string }>;
 };

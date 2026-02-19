@@ -1,12 +1,15 @@
 import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
 import { Metadata } from 'next';
-import { getPageBySlug } from '@/utilities/getPageBySlug';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+import { headers } from 'next/headers';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
+
 import { RenderBlocks } from '@/blocks/RenderBlocks';
-import { LoadingSpinner } from '@/components/shared/loading-spinner';
-import { getCachedCollectionsLists } from '@/utilities/getCollectionsLists';
+import { LoadingSpinner } from '@/components/shared';
 import CollectionsPageClient from '@/app/(frontend)/(pages)/collections/page.client';
+import { getCachedCollectionsLists, getPageBySlug } from '@/utilities/helpers';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
@@ -27,23 +30,20 @@ export async function generateMetadata(): Promise<Metadata> {
  * @returns Орендеренная клиентская страница с данными.
  */
 const CollectionsPage = async () => {
-  // Запрашиваем данные разметки с главной страницы
+  const payload = await getPayload({ config: configPromise });
+  const { user } = await payload.auth({ headers: await headers() });
   const page = await getPageBySlug(PAGE_SLUGS.collections);
   const collectionsLists = await getCachedCollectionsLists()();
 
-  // Проверяем, что данные получены
   if (!page || !page.layout) {
     return notFound();
   }
 
   return (
     <>
-      {/* Отображаем спиннер загрузки */}
       <Suspense fallback={<LoadingSpinner />} />
-      {/* Отображаем динамические блоки из макета Payload CMS */}
       <RenderBlocks blocks={page.layout} />
-      {/* Отображаем список коллекций */}
-      <CollectionsPageClient data={collectionsLists} />
+      <CollectionsPageClient data={collectionsLists} user={user} />
     </>
   );
 };

@@ -1,28 +1,33 @@
 'use client';
 
 import { FC, JSX, useCallback, useMemo, useState } from 'react';
-import { MediaContent } from '@/payload-types';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, X } from 'lucide-react';
 import { Badge, Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
-import { CustomSelect } from '@/components/shared/custom-select';
-import { MovieCard } from '@/components/shared/movie-card';
+import { Search, X } from 'lucide-react';
+
 import {
-  GENRES,
+  CustomSelect,
+  MovieCard,
+  PaginationControls,
+} from '@/components/shared';
+import {
   PAGINATION_CONFIG,
   ALL_VALUE,
-  extractYears,
-  matchesRating,
   HOMEPAGE_FILTERS,
 } from '@/utilities/constants';
-import { PaginationControls } from '@/components/shared/pagination-controls';
-import { User } from '@/payload-types';
+import { MediaContentCollection, UserCollection } from '@/utilities/types';
+import {
+  genreOptions,
+  matchesRating,
+  releaseYearOptions,
+  watchYearOptions,
+} from '@/utilities/utils';
 
 // Тип пропсов
 type HomePageClientProps = {
-  items: MediaContent[];
-  user: User | null;
+  items: MediaContentCollection[];
+  user: UserCollection | null;
 };
 
 /**
@@ -71,64 +76,6 @@ const HomePageClient: FC<HomePageClientProps> = ({
   );
 
   /**
-   * Извлекает уникальные годы из массива медиа-контента
-   * @param items - Массив медиа-контента
-   * @param getter - Функция для извлечения года
-   * @returns {number[]} - Массив уникальных годов
-   */
-  const releaseYears = useMemo(
-    () => extractYears(items, (i) => i.releaseYear),
-    [items]
-  );
-
-  /**
-   * Извлекает уникальные годы из массива медиа-контента
-   * @param items - Массив медиа-контента
-   * @param getter - Функция для извлечения года
-   * @returns {number[]} - Массив уникальных годов
-   */
-  const watchYears = useMemo(
-    () => extractYears(items, (i) => i.watchYear),
-    [items]
-  );
-
-  /**
-   * Создает массив опций для года просмотра
-   * @returns {Array<{ label: string; value: string }>} - Массив опций
-   */
-  const watchYearOptions = useMemo(
-    () => [
-      { label: 'Все годы', value: ALL_VALUE },
-      ...watchYears.map((y) => ({ label: String(y), value: String(y) })),
-    ],
-    [watchYears]
-  );
-
-  /**
-   * Создает массив опций для года выхода
-   * @returns {Array<{ label: string; value: string }>} - Массив опций
-   */
-  const releaseYearOptions = useMemo(
-    () => [
-      { label: 'Все годы', value: ALL_VALUE },
-      ...releaseYears.map((y) => ({ label: String(y), value: String(y) })),
-    ],
-    [releaseYears]
-  );
-
-  /**
-   * Создает массив опций для жанров
-   * @returns {Array<{ label: string; value: string }>} - Массив опций
-   */
-  const genreOptions = useMemo(
-    () => [
-      { label: 'Все жанры', value: ALL_VALUE },
-      ...GENRES.map((g) => ({ label: g.label, value: g.value })),
-    ],
-    []
-  );
-
-  /**
    * Фильтрует медиа-контент по заданным критериям
    * @returns {MediaContent[]} - Отфильтрованный массив медиа-контента
    */
@@ -151,7 +98,9 @@ const HomePageClient: FC<HomePageClientProps> = ({
       if (
         selectedGenre !== ALL_VALUE &&
         !item.genres?.includes(
-          selectedGenre as MediaContent['genres'] extends (infer U)[] | null
+          selectedGenre as MediaContentCollection['genres'] extends
+            | (infer U)[]
+            | null
             ? U
             : never
         )
@@ -329,7 +278,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                   setSelectedGenre(v);
                   updateParams(1, pageSize);
                 }}
-                options={genreOptions}
+                options={genreOptions()}
                 placeholder="Все жанры"
               />
 
@@ -341,7 +290,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                   setSelectedReleaseYear(v);
                   updateParams(1, pageSize);
                 }}
-                options={releaseYearOptions}
+                options={releaseYearOptions(items)}
                 placeholder="Год выхода"
               />
 
@@ -377,7 +326,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                   setSelectedWatchYear(v);
                   updateParams(1, pageSize);
                 }}
-                options={watchYearOptions}
+                options={watchYearOptions(items)}
                 placeholder="Год просмотра"
               />
             </motion.div>

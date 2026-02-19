@@ -1,4 +1,5 @@
 import { CollectionAfterChangeHook } from 'payload';
+
 import { MediaContentCollection } from '@/utilities/types';
 import { COLLECTION_SLUGS } from '@/utilities/constants';
 

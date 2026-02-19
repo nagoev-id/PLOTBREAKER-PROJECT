@@ -1,7 +1,8 @@
 'use client';
 
+import type { FC, JSX } from 'react';
 import { RowLabelProps, useRowLabel } from '@payloadcms/ui';
-import { FC, JSX } from 'react';
+
 import { HeaderGlobal } from '@/utilities/types';
 
 /**

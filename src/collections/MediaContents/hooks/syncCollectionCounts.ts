@@ -1,6 +1,7 @@
 import { CollectionAfterChangeHook } from 'payload';
+
 import { COLLECTION_SLUGS } from '@/utilities/constants';
-import type { MediaContent } from '@/payload-types';
+import { MediaContentCollection } from '@/utilities/types';
 
 /**
  * Хук afterChange для MediaContents.
@@ -8,7 +9,7 @@ import type { MediaContent } from '@/payload-types';
  * (как в новых, так и в старых, из которых запись была убрана).
  */
 export const syncCollectionCounts: CollectionAfterChangeHook<
-  MediaContent
+  MediaContentCollection
 > = async ({ doc, previousDoc, req: { payload } }) => {
   const currentIds = extractIds(doc.collections);
   const previousIds = extractIds(previousDoc?.collections);
@@ -46,7 +47,7 @@ export const syncCollectionCounts: CollectionAfterChangeHook<
  * Извлекает массив ID коллекций из поля collections
  */
 const extractIds = (
-  collections: MediaContent['collections'] | undefined
+  collections: MediaContentCollection['collections'] | undefined
 ): number[] => {
   if (!collections || !Array.isArray(collections)) return [];
   return collections.map((c) => (typeof c === 'object' ? c.id : c));

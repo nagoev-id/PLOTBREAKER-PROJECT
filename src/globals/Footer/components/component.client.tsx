@@ -2,7 +2,7 @@
 
 import React, { FC, useMemo } from 'react';
 import Link from 'next/link';
-import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { ThemeToggle } from '@/components/shared';
 import { FooterGlobal } from '@/utilities/types';
 
 /** Данные подвала из Payload CMS */

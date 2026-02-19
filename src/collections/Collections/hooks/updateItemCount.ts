@@ -1,6 +1,7 @@
-import { CollectionBeforeChangeHook } from 'payload';
-import { CollectionCollection } from '@/utilities/types';
+import type { CollectionBeforeChangeHook } from 'payload';
+
 import { COLLECTION_SLUGS } from '@/utilities/constants';
+import type { CollectionCollection } from '@/utilities/types';
 
 /**
  * Хук для пересчёта itemCount при сохранении коллекции.

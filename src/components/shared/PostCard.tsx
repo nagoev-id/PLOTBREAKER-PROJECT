@@ -4,30 +4,15 @@ import { Card } from '@/components/ui/card';
 import { FC, JSX, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Post, User, Media } from '@/payload-types'; // Added Media type
-import {
-  Calendar,
-  Tag,
-  Pencil,
-  Trash2,
-  ArrowUpRight,
-  Loader2,
-} from 'lucide-react';
+import { Post, User, Media } from '@/payload-types';
+import { Calendar, Tag, ArrowUpRight } from 'lucide-react';
 import { Badge } from '@/components/ui';
 
 import { useRouter } from 'next/navigation';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+
+import { AdminActions } from './AdminActions';
+import { formatDate } from '@/utilities/utils';
 
 // Маппинг тегов на русские названия
 const TAG_LABELS: Record<string, string> = {
@@ -36,17 +21,6 @@ const TAG_LABELS: Record<string, string> = {
   collection: 'Подборка',
   opinion: 'Мнение',
   guide: 'Гайд',
-};
-
-/**
- * Форматирует дату в читаемый вид
- */
-const formatDate = (dateStr: string): string => {
-  return new Date(dateStr).toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
 };
 
 type Props = {
@@ -90,8 +64,8 @@ export const PostCard: FC<Props> = ({ post, user }): JSX.Element => {
 
   return (
     <div className="relative h-full group/card">
-      <Link href={`/blog/${post.id}`} className="block h-full">
-        <Card className="group flex h-full flex-col overflow-hidden rounded-none border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+      <Card className="group flex h-full flex-col overflow-hidden rounded-none border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+        <Link href={`/blog/${post.id}`} className="flex flex-col flex-1">
           {/* Hero-изображение */}
           <div className="relative aspect-[16/10] w-full h-[200px] lg:h-[300px] overflow-hidden bg-muted">
             {heroImage?.url ? (
@@ -153,61 +127,18 @@ export const PostCard: FC<Props> = ({ post, user }): JSX.Element => {
               {formatDate(post.publishedAt || post.createdAt)}
             </div>
           </div>
-        </Card>
-      </Link>
-
-      {/* Admin Actions */}
-      {user && (
-        <div className="absolute top-2 left-2 p-2 opacity-0 transition-opacity group-hover/card:opacity-100 flex gap-2 justify-center z-10">
-          <Link
-            href={`/admin/collections/posts/${post.id}`}
-            target="_blank"
-            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md"
-            onClick={(e) => e.stopPropagation()}
-            title="Редактировать"
-          >
-            <Pencil size={14} />
-          </Link>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button
-                className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-md"
-                onClick={(e) => e.stopPropagation()}
-                title="Удалить"
-              >
-                <Trash2 size={14} />
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Удалить пост?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Это действие нельзя отменить. Пост {`"${post.title}"`} будет
-                  удалена навсегда.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Отмена</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDelete();
-                  }}
-                  className="bg-red-500 hover:bg-red-600"
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? (
-                    <Loader2 className="animate-spin h-4 w-4" />
-                  ) : (
-                    'Удалить'
-                  )}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      )}
+        </Link>
+        {/* Admin Actions */}
+        {user && (
+          <AdminActions
+            editUrl={`/admin/collections/posts/${post.id}`}
+            onDelete={handleDelete}
+            isDeleting={isDeleting}
+            title={post.title}
+            typeName="Пост"
+          />
+        )}
+      </Card>
     </div>
   );
 };

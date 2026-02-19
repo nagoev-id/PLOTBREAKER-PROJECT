@@ -13,18 +13,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui';
-import { RichText } from '@/components/shared/rich-text';
-import { getGenreLabel } from '@/lib/utils';
-import {
-  OPINION_CONFIG,
-  TYPE_CONFIG,
-  formatDuration,
-  getPosterUrl,
-} from '@/utilities/constants';
-import { MediaContentCollection } from '@/utilities/types';
-import { SharedLink } from '@/app/(frontend)/(pages)/reviews/[slug]/components';
 
-// Тип пропсов
+import { OPINION_CONFIG, TYPE_CONFIG } from '@/utilities/constants';
+import { MediaContentCollection } from '@/utilities/types';
+import { formatDuration, getGenreLabel, getPosterUrl } from '@/utilities/utils';
+import { RichText, SharedLink } from '@/components/shared';
+
+// Описание типов пропсов
 type ReviewDetailClientProps = {
   item: MediaContentCollection;
 };
@@ -48,7 +43,6 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
   return (
     <article>
-      {/* ── Hero-секция ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b">
         {/* Фоновый постер (размытый) */}
         {posterSrc && (
@@ -132,7 +126,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
         </div>
       </section>
 
-      {/* ── Контент: Обзор + Сайдбар ──────────────────────────── */}
+      {/* Контент: Обзор + Сайдбар */}
       <section className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_340px]">
           {/* Левая колонка — обзор */}

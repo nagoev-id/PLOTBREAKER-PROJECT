@@ -1,7 +1,7 @@
-import type { Field } from 'payload'
+import type { Field } from 'payload';
 
-import { deepMerge } from '@/utilities/deepMerge'
-import { formatSlug } from '@/utilities/formatSlug'
+import { formatSlug } from '@/utilities/utils';
+import { deepMerge } from '@/utilities/utils';
 
 /**
  * Тип функции для создания slug-поля.
@@ -10,7 +10,7 @@ import { formatSlug } from '@/utilities/formatSlug'
  * @param overrides - Дополнительные настройки для переопределения стандартных параметров поля
  * @returns Сконфигурированное поле slug для Payload CMS
  */
-type Slug = (fieldToUse?: string, overrides?: Partial<Field>) => Field
+type Slug = (fieldToUse?: string, overrides?: Partial<Field>) => Field;
 
 /**
  * Создает конфигурацию slug-поля для Payload CMS.
@@ -39,5 +39,5 @@ export const slugField: Slug = (fieldToUse = 'title', overrides = {}) =>
         beforeValidate: [formatSlug(fieldToUse)],
       },
     },
-    overrides,
-  )
+    overrides
+  );

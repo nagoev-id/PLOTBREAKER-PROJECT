@@ -1,8 +1,9 @@
-import type { Footer as FooterType } from '@/payload-types'
-import { getCachedGlobal } from '@/utilities/getGlobals'
-import type { FC } from 'react'
-import { FooterClient } from '@/globals/Footer/components/component.client'
-import { METADATA } from '@/utilities/constants'
+import type { FC } from 'react';
+
+import { METADATA } from '@/utilities/constants';
+import { getCachedGlobal } from '@/utilities/helpers';
+import { FooterClient } from '@/globals/Footer/components/component.client';
+import { FooterGlobal } from '@/utilities/types';
 
 /**
  * Серверный компонент подвала сайта
@@ -18,22 +19,25 @@ export const Footer: FC = async () => {
   try {
     // Загружаем данные подвала из кешированного глобального объекта
     // getCachedGlobal обеспечивает оптимальную производительность через кеширование
-    const footerData: FooterType = (await getCachedGlobal('footer', 1)()) as unknown as FooterType
+    const footerData: FooterGlobal = (await getCachedGlobal(
+      'footer',
+      1
+    )()) as unknown as FooterGlobal;
 
     // Передаем данные в клиентский компонент для интерактивной функциональности
-    return <FooterClient data={footerData} />
+    return <FooterClient data={footerData} />;
   } catch (error) {
-    console.error('Error loading footer data:', error)
+    console.error('Error loading footer data:', error);
 
     // В случае ошибки возвращаем подвал с данными по умолчанию
     // Это обеспечивает отказоустойчивость компонента
-    const fallbackData: Partial<FooterType> = {
+    const fallbackData: Partial<FooterGlobal> = {
       logo: {
         logoText: METADATA.siteName,
         logoIcon: null,
       },
-    }
+    };
 
-    return <FooterClient data={fallbackData as FooterType} />
+    return <FooterClient data={fallbackData as FooterGlobal} />;
   }
-}
+};

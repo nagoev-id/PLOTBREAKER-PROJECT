@@ -1,31 +1,20 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
 import { FC, JSX, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getGenreLabel } from '@/lib/utils';
-import { Calendar, Clock, Star, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { MediaContent, User } from '@/payload-types';
-import { getPosterUrl, OPINION_CONFIG } from '@/utilities/constants';
-import { Badge } from '@/components/ui';
 import { useRouter } from 'next/navigation';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { Calendar, Clock, Star } from 'lucide-react';
+import { Card, Badge } from '@/components/ui';
 import { toast } from 'sonner';
+import { OPINION_CONFIG } from '@/utilities/constants';
+import { getGenreLabel, getPosterUrl } from '@/utilities/utils';
+import { MediaContentCollection, UserCollection } from '@/utilities/types';
+import { AdminActions } from './AdminActions';
 
 type Props = {
-  item: MediaContent;
-  user?: User | null;
+  item: MediaContentCollection;
+  user?: UserCollection | null;
 };
 
 export const MovieCard: FC<Props> = ({ item, user }): JSX.Element => {
@@ -61,8 +50,8 @@ export const MovieCard: FC<Props> = ({ item, user }): JSX.Element => {
 
   return (
     <div className="relative h-full group/card">
-      <Link href={`/reviews/${item.slug}`} className="block h-full">
-        <Card className="group flex h-full flex-col overflow-hidden rounded-none border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+      <Card className="group flex h-full flex-col overflow-hidden rounded-none border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+        <Link href={`/reviews/${item.slug}`} className="flex flex-col flex-1">
           {/* Постер с overlay-бейджами */}
           {posterSrc && (
             <div className="relative aspect-[2/3] w-full overflow-hidden">
@@ -140,61 +129,18 @@ export const MovieCard: FC<Props> = ({ item, user }): JSX.Element => {
               )}
             </div>
           </div>
-        </Card>
-      </Link>
-
-      {/* Admin Actions */}
-      {user && (
-        <div className="absolute bottom-0 left-0 right-0 p-2 opacity-0 transition-opacity group-hover/card:opacity-100 flex gap-2 justify-center bg-black/60 backdrop-blur-sm translate-y-full group-hover/card:translate-y-0 z-10">
-          <Link
-            href={`/admin/collections/media-contents/${item.id}`}
-            target="_blank"
-            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-            onClick={(e) => e.stopPropagation()}
-            title="Редактировать"
-          >
-            <Pencil size={16} />
-          </Link>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button
-                className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                onClick={(e) => e.stopPropagation()}
-                title="Удалить"
-              >
-                <Trash2 size={16} />
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Удалить запись?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Это действие нельзя отменить. Запись {`"${item.title}"`} будет
-                  удалена навсегда.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Отмена</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDelete();
-                  }}
-                  className="bg-red-500 hover:bg-red-600"
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? (
-                    <Loader2 className="animate-spin h-4 w-4" />
-                  ) : (
-                    'Удалить'
-                  )}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      )}
+        </Link>
+        {/* Admin Actions */}
+        {user && (
+          <AdminActions
+            editUrl={`/admin/collections/media-contents/${item.id}`}
+            onDelete={handleDelete}
+            isDeleting={isDeleting}
+            title={item.title}
+            typeName="Запись"
+          />
+        )}
+      </Card>
     </div>
   );
 };

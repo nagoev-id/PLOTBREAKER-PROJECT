@@ -1,7 +1,8 @@
 'use client';
 import { FC, JSX } from 'react';
-import { PageCollection } from '@/utilities/types';
+
 import { BLOCK_TYPES } from '@/utilities/constants';
+import { PageCollection } from '@/utilities/types';
 import {
   FeatureCards,
   LinkGroups,

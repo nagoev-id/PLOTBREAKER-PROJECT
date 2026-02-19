@@ -1,6 +1,7 @@
-import type { GlobalConfig } from 'payload'
-import { revalidateFooter } from '@/globals/Footer/hooks/revalidateFooter'
-import { METADATA } from '@/utilities/constants'
+import type { GlobalConfig } from 'payload';
+
+import { METADATA } from '@/utilities/constants';
+import { revalidateFooter } from '@/globals/Footer/hooks/revalidateFooter';
 
 /**
  * Конфигурация глобального объекта Footer для CMS Payload.
@@ -53,4 +54,4 @@ export const FooterGlobalConfig: GlobalConfig = {
     /** Выполняет ревалидацию кеша после изменения подвала */
     afterChange: [revalidateFooter],
   },
-}
+};

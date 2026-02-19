@@ -1,11 +1,12 @@
-import { getCachedGlobal } from '@/utilities/getGlobals';
-import { FC } from 'react';
-import { HeaderClient } from '@/globals/Header/components/component.client';
-import type { Header as HeaderType } from '@/payload-types';
-import { METADATA } from '@/utilities/constants';
-import { getPayload } from 'payload';
+import type { FC } from 'react';
 import configPromise from '@payload-config';
+import { getPayload } from 'payload';
 import { headers } from 'next/headers';
+
+import { METADATA } from '@/utilities/constants';
+import { getCachedGlobal } from '@/utilities/helpers';
+import { HeaderClient } from '@/globals/Header/components/component.client';
+import { HeaderGlobal } from '@/utilities/types';
 
 /**
  * Серверный компонент шапки сайта
@@ -24,10 +25,10 @@ export const Header: FC = async () => {
 
     // Загружаем данные шапки из кешированного глобального объекта
     // getCachedGlobal обеспечивает оптимальную производительность через кеширование
-    const headerData: HeaderType = (await getCachedGlobal(
+    const headerData: HeaderGlobal = (await getCachedGlobal(
       'header',
       1
-    )()) as unknown as HeaderType;
+    )()) as unknown as HeaderGlobal;
 
     // Передаем данные в клиентский компонент для интерактивной функциональности
     return <HeaderClient data={headerData} user={user} />;
@@ -36,7 +37,7 @@ export const Header: FC = async () => {
 
     // В случае ошибки возвращаем шапку с данными по умолчанию
     // Это обеспечивает отказоустойчивость компонента
-    const fallbackData: Partial<HeaderType> = {
+    const fallbackData: Partial<HeaderGlobal> = {
       logo: {
         logoText: METADATA.siteName,
         logoIcon: null,
@@ -44,6 +45,6 @@ export const Header: FC = async () => {
       navItems: [],
     };
 
-    return <HeaderClient data={fallbackData as HeaderType} user={null} />;
+    return <HeaderClient data={fallbackData as HeaderGlobal} user={null} />;
   }
 };

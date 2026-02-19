@@ -1,6 +1,7 @@
 import type { Block } from 'payload';
-import { BLOCK_TYPES } from '@/utilities/constants';
+
 import { link } from '@/fields/link';
+import { BLOCK_TYPES } from '@/utilities/constants';
 
 /**
  * Конфигурация блока "О проекте" (About).

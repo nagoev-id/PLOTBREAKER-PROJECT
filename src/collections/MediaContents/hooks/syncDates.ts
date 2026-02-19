@@ -1,4 +1,5 @@
 import { CollectionBeforeChangeHook } from 'payload';
+
 import { MediaContentCollection } from '@/utilities/types';
 
 /**

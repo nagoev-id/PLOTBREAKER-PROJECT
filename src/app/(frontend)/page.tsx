@@ -1,15 +1,15 @@
-import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
-import { Metadata } from 'next';
-import { getPageBySlug } from '@/utilities/getPageBySlug';
-import { getMediaContents } from '@/utilities/getMediaContents';
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { RenderBlocks } from '@/blocks/RenderBlocks';
-import { getPayload } from 'payload';
-import configPromise from '@payload-config';
+import { Metadata } from 'next';
 import { headers } from 'next/headers';
-import HomePageClient from './page.client';
-import { LoadingSpinner } from '@/components/shared/loading-spinner';
+import { notFound } from 'next/navigation';
+import configPromise from '@payload-config';
+import { getPayload } from 'payload';
+
+import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
+import { getMediaContents, getPageBySlug } from '@/utilities/helpers';
+import { RenderBlocks } from '@/blocks/RenderBlocks';
+import { LoadingSpinner } from '@/components/shared';
+import HomePageClient from '@/app/(frontend)/page.client';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
@@ -51,7 +51,10 @@ const HomePage = async () => {
       <RenderBlocks blocks={page.layout} />
       {/* Отображаем список записей с фильтрами и пагинацией */}
       <Suspense fallback={<LoadingSpinner />}>
-        <HomePageClient items={items} user={user} />
+        <HomePageClient
+          items={items.filter((item) => item.status !== 'planned')}
+          user={user}
+        />
       </Suspense>
     </>
   );

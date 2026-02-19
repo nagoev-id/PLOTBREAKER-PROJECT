@@ -1,7 +1,8 @@
-import { ANIMATIONS } from '@/utilities/constants';
 import { FC, JSX } from 'react';
 import { motion } from 'framer-motion';
-import { AboutBlockProps } from '../Component';
+
+import { ANIMATIONS } from '@/utilities/constants';
+import { AboutBlockProps } from '@/blocks/About/Component';
 
 // Типизация для пропсов компонента
 type FeaturesItem = NonNullable<

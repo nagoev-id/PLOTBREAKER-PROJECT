@@ -1,15 +1,16 @@
-import { COLLECTION_SLUGS, METADATA, PAGE_SLUGS } from '@/utilities/constants';
 import { Metadata } from 'next';
-import { getPageBySlug } from '@/utilities/getPageBySlug';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { RenderBlocks } from '@/blocks/RenderBlocks';
-import { LoadingSpinner } from '@/components/shared/loading-spinner';
+import { headers } from 'next/headers';
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
-import BlogPageClient from './page.client';
-import { Post } from '@/payload-types';
-import { headers } from 'next/headers';
+
+import { COLLECTION_SLUGS, METADATA, PAGE_SLUGS } from '@/utilities/constants';
+import { RenderBlocks } from '@/blocks/RenderBlocks';
+import { LoadingSpinner } from '@/components/shared';
+import BlogPageClient from '@/app/(frontend)/(pages)/blog/page.client';
+import { getPageBySlug } from '@/utilities/helpers';
+import { PostCollection } from '@/utilities/types';
 
 // Настройки кэширования
 export const revalidate = 60;
@@ -46,7 +47,7 @@ const BlogPage = async () => {
     return notFound();
   }
 
-  const posts = postsResult.docs as Post[];
+  const posts = postsResult.docs as PostCollection[];
 
   return (
     <>

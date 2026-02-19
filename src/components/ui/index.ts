@@ -17,6 +17,7 @@ export * from './popover';
 export * from './radio-group';
 export * from './select';
 export * from './skeleton';
+export * from './separator';
 export * from './sonner';
 export * from './spinner';
 export * from './switch';

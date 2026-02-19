@@ -1,19 +1,18 @@
 'use client';
 
 import { FC, JSX, useMemo, useState, useCallback } from 'react';
-import { Post } from '@/payload-types';
 import { motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
-import { Badge, Input } from '@/components/ui';
-import { PaginationControls } from '@/components/shared/pagination-controls';
-import { PostCard } from '@/components/shared/post-card';
-import { PAGINATION_CONFIG } from '@/utilities/constants';
-import { User } from '@/payload-types';
 
-// Тип пропсов
+import { Badge, Input } from '@/components/ui';
+import { PaginationControls, PostCard } from '@/components/shared';
+import { PAGINATION_CONFIG } from '@/utilities/constants';
+import { PostCollection, UserCollection } from '@/utilities/types';
+
+// Описание типов пропсов
 type BlogPageClientProps = {
-  posts: Post[];
-  user: User | null;
+  posts: PostCollection[];
+  user: UserCollection | null;
 };
 
 /**

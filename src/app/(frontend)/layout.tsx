@@ -1,11 +1,12 @@
 import React, { FC, JSX, ReactNode } from 'react';
 import '@/app/(frontend)/globals.css';
 import { METADATA } from '@/utilities/constants';
-import { cn, euclid } from '@/lib';
-import { Toaster } from '@/components/ui';
+import { cn } from '@/utilities/utils';
+import { euclid } from '@/utilities/fonts';
 import { Header } from '@/globals/Header';
 import { Footer } from '@/globals/Footer';
-import { ThemeProvider } from '@/components/shared/theme-provider';
+import { Preloader, ThemeProvider } from '@/components/shared';
+import { Toaster } from '@/components/ui';
 
 export const metadata = {
   description: METADATA.siteDescription,
@@ -58,6 +59,7 @@ const RootLayout: FC<Props> = ({ children }): JSX.Element => {
           disableTransitionOnChange
           storageKey={METADATA.siteKey}
         >
+          <Preloader />
           <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
             <Header />
             <main className="animate-fade-in w-full flex-1">{children}</main>

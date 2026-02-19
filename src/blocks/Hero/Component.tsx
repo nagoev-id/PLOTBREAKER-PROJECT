@@ -2,8 +2,8 @@
 import { FC } from 'react';
 import { PageCollection } from '@/utilities/types';
 import { motion } from 'framer-motion';
-import { CMSLink } from '@/components/shared/link';
 import { BLOCK_TYPES, ANIMATIONS } from '@/utilities/constants';
+import { CMSLink } from '@/components/shared';
 
 /**
  * Типизация для пропсов блока "Hero".

@@ -1,8 +1,12 @@
 import { adminOnly } from '@/access';
-import { COLLECTION_SLUGS } from '@/utilities/constants';
 import { CollectionConfig } from 'payload';
+
 import { slugField } from '@/fields/slug';
-import { revalidatePost, revalidateDelete } from './hooks/revalidatePost';
+import {
+  revalidatePost,
+  revalidateDelete,
+} from '@/collections/Posts/hooks/revalidatePost';
+import { COLLECTION_SLUGS } from '@/utilities/constants';
 
 export const Posts: CollectionConfig = {
   slug: COLLECTION_SLUGS.posts,

@@ -1,10 +1,11 @@
-import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
 import { Metadata } from 'next';
-import { getPageBySlug } from '@/utilities/getPageBySlug';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+
+import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
+import { getPageBySlug } from '@/utilities/helpers';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
-import { LoadingSpinner } from '@/components/shared/loading-spinner';
+import { LoadingSpinner } from '@/components/shared';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;

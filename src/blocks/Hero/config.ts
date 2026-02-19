@@ -1,6 +1,7 @@
 import type { Block } from 'payload';
-import { link } from '@/fields/link';
+
 import { BLOCK_TYPES } from '@/utilities/constants';
+import { link } from '@/fields/link';
 
 /**
  * Конфигурация блока "Hero".

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+
 import { protectRoles, admin } from '@/access';
 import { COLLECTION_SLUGS } from '@/utilities/constants';
 

@@ -1,7 +1,8 @@
 import { FC, JSX } from 'react';
 import { motion } from 'framer-motion';
+
 import { ANIMATIONS } from '@/utilities/constants';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utilities/utils';
 
 // Типизация для пропсов компонента
 type Props = {

@@ -1,4 +1,5 @@
 import { CollectionConfig } from 'payload';
+
 import { adminOnly } from '@/access';
 import { slugField } from '@/fields/slug';
 import {

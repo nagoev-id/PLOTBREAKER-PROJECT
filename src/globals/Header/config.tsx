@@ -1,8 +1,9 @@
-import { GlobalConfig } from 'payload';
-import { adminOnly } from '@/access';
-import { revalidateHeader } from '@/globals/Header/hooks/revalidateHeader';
-import { link } from '@/fields/link';
+import type { GlobalConfig } from 'payload';
+
 import { METADATA } from '@/utilities/constants';
+import { adminOnly } from '@/access';
+import { link } from '@/fields/link';
+import { revalidateHeader } from '@/globals/Header/hooks/revalidateHeader';
 
 /**
  * Конфигурация глобальной настройки "Шапка сайта" для CMS Payload

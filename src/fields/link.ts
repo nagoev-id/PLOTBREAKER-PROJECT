@@ -1,15 +1,18 @@
-import type { Field, GroupField } from 'payload'
-import { deepMerge } from '@/utilities/deepMerge'
+import type { Field, GroupField } from 'payload';
+import { deepMerge } from '@/utilities/utils';
 
 /**
  * Варианты внешнего вида ссылки.
  */
-export type LinkAppearances = 'default' | 'outline'
+export type LinkAppearances = 'default' | 'outline';
 
 /**
  * Опции выбора внешнего вида для административной панели.
  */
-export const appearanceOptions: Record<LinkAppearances, { label: string; value: string }> = {
+export const appearanceOptions: Record<
+  LinkAppearances,
+  { label: string; value: string }
+> = {
   default: {
     label: 'Стандартная (заливка)',
     value: 'default',
@@ -18,19 +21,19 @@ export const appearanceOptions: Record<LinkAppearances, { label: string; value: 
     label: 'Контурная',
     value: 'outline',
   },
-}
+};
 
 /**
  * Тип функции для создания поля ссылки.
  */
 type LinkType = (options?: {
   /** Массив доступных вариантов оформления или false, чтобы скрыть выбор оформления */
-  appearances?: LinkAppearances[] | false
+  appearances?: LinkAppearances[] | false;
   /** Скрывает поле для ввода текста ссылки (label) */
-  disableLabel?: boolean
+  disableLabel?: boolean;
   /** Переопределение конфигурации поля */
-  overrides?: Partial<GroupField>
-}) => Field
+  overrides?: Partial<GroupField>;
+}) => Field;
 
 /**
  * Генерирует универсальное поле для ссылки (внутренней или внешней).
@@ -41,7 +44,11 @@ type LinkType = (options?: {
  * @param options - Настройки поля
  * @returns Сконфигурированное поле Payload типа 'group'
  */
-export const link: LinkType = ({ appearances, disableLabel = false, overrides = {} } = {}) => {
+export const link: LinkType = ({
+  appearances,
+  disableLabel = false,
+  overrides = {},
+} = {}) => {
   const linkResult: GroupField = {
     name: 'link',
     label: 'Ссылка',
@@ -87,7 +94,7 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
         ],
       },
     ],
-  }
+  };
 
   const linkTypes: Field[] = [
     {
@@ -109,19 +116,19 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
         condition: (_, siblingData) => siblingData?.type === 'custom',
       },
     },
-  ]
+  ];
 
   if (!disableLabel) {
     // Применяем ширину 50% к типам ссылок, если текст ссылки включен
     const adjustedLinkTypes: Field[] = linkTypes.map((linkType) => {
       // Создаем копию поля и безопасно добавляем ширину в настройки admin
-      const field = { ...linkType }
+      const field = { ...linkType };
       field.admin = {
         ...(field.admin || {}),
         width: '50%',
-      }
-      return field as Field
-    })
+      };
+      return field as Field;
+    });
 
     linkResult.fields.push({
       type: 'row',
@@ -137,16 +144,21 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
           },
         },
       ],
-    })
+    });
   } else {
-    linkResult.fields = [...linkResult.fields, ...linkTypes]
+    linkResult.fields = [...linkResult.fields, ...linkTypes];
   }
 
   if (appearances !== false) {
-    let appearanceOptionsToUse = [appearanceOptions.default, appearanceOptions.outline]
+    let appearanceOptionsToUse = [
+      appearanceOptions.default,
+      appearanceOptions.outline,
+    ];
 
     if (appearances) {
-      appearanceOptionsToUse = appearances.map((appearance) => appearanceOptions[appearance])
+      appearanceOptionsToUse = appearances.map(
+        (appearance) => appearanceOptions[appearance]
+      );
     }
 
     linkResult.fields.push({
@@ -158,8 +170,8 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
       },
       defaultValue: 'default',
       options: appearanceOptionsToUse,
-    })
+    });
   }
 
-  return deepMerge(linkResult, overrides) as Field
-}
+  return deepMerge(linkResult, overrides) as Field;
+};
