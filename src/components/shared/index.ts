@@ -12,3 +12,4 @@ export { CMSLink } from './CMSLink';
 export { CollectionCard } from './CollectionCard';
 export { AdminActions } from './AdminActions';
 export { Preloader } from './Preloader';
+export { TelegramProvider } from './TelegramProvider';

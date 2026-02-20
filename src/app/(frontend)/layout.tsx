@@ -5,7 +5,11 @@ import { cn } from '@/utilities/utils';
 import { euclid } from '@/utilities/fonts';
 import { Header } from '@/globals/Header';
 import { Footer } from '@/globals/Footer';
-import { Preloader, ThemeProvider } from '@/components/shared';
+import {
+  Preloader,
+  ThemeProvider,
+  TelegramProvider,
+} from '@/components/shared';
 import { Toaster } from '@/components/ui';
 
 export const metadata = {
@@ -59,12 +63,14 @@ const RootLayout: FC<Props> = ({ children }): JSX.Element => {
           disableTransitionOnChange
           storageKey={METADATA.siteKey}
         >
-          <Preloader />
-          <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
-            <Header />
-            <main className="animate-fade-in w-full flex-1">{children}</main>
-            <Footer />
-          </div>
+          <TelegramProvider>
+            <Preloader />
+            <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
+              <Header />
+              <main className="animate-fade-in w-full flex-1">{children}</main>
+              <Footer />
+            </div>
+          </TelegramProvider>
         </ThemeProvider>
         <Toaster />
       </body>

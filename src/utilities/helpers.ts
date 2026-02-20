@@ -324,3 +324,49 @@ export const getCachedCollectionBySlug = (
       revalidate: 3600,
     }
   );
+
+/**
+ * Получает записи медиа-контента, у которых visualTags содержит указанный тег.
+ *
+ * @param tag - Тег для поиска (строка)
+ * @returns Массив записей MediaContent
+ */
+export const getMediaContentsByTag = async (
+  tag: string
+): Promise<MediaContentCollection[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise });
+
+    const result = await payload.find({
+      collection: COLLECTION_SLUGS.mediaContents,
+      sort: '-createdAt',
+      limit: 0,
+      depth: 1,
+      where: {
+        visualTags: {
+          contains: tag,
+        },
+      },
+    });
+
+    return result.docs as MediaContentCollection[];
+  } catch (error) {
+    console.error(`Ошибка при получении записей по тегу "${tag}":`, error);
+    throw new Error(`Не удалось загрузить записи по тегу "${tag}"`);
+  }
+};
+
+/**
+ * Кэшированная версия getMediaContentsByTag.
+ */
+export const getCachedMediaContentsByTag = (
+  tag: string
+): (() => Promise<MediaContentCollection[]>) =>
+  unstable_cache(
+    async (): Promise<MediaContentCollection[]> => getMediaContentsByTag(tag),
+    [`media_contents_tag_${tag}`],
+    {
+      tags: ['media-contents'],
+      revalidate: 3600,
+    }
+  );

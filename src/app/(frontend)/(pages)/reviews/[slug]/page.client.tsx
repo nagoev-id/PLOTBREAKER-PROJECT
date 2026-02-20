@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, Clock, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Star, Clock, ExternalLink, Play } from 'lucide-react';
 import {
   Badge,
   Accordion,
@@ -51,7 +51,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               src={posterSrc}
               alt=""
               fill
-              className="object-cover blur-2xl scale-110 opacity-20"
+              className="object-cover blur-xl scale-110"
               sizes="100vw"
               priority
             />
@@ -295,6 +295,34 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               </div>
             )}
 
+            {/* Визуальные теги */}
+            {item.visualTags && typeof item.visualTags === 'string' && (
+              <div className="space-y-1.5">
+                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                  Визуальные теги
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {item.visualTags
+                    .split(',')
+                    .map((tag) => tag.trim())
+                    .filter(Boolean)
+                    .map((tag, i) => (
+                      <Link
+                        key={`vtag-${i}-${tag}`}
+                        href={`/reviews/tags/${encodeURIComponent(tag)}`}
+                      >
+                        <Badge
+                          variant="secondary"
+                          className="rounded-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors"
+                        >
+                          #{tag}
+                        </Badge>
+                      </Link>
+                    ))}
+                </div>
+              </div>
+            )}
+
             {/* Длительность */}
             {item.duration && (
               <div className="space-y-1.5">
@@ -326,6 +354,34 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                     >
                       <ExternalLink size={12} />
                       Кинопоиск
+                    </Badge>
+                  </Link>
+
+                  <Link
+                    href={`https://www.kinopoisk.cx/film/${item.kinopoiskId}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Badge
+                      variant="secondary"
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
+                    >
+                      <Play size={12} />
+                      FRKP
+                    </Badge>
+                  </Link>
+
+                  <Link
+                    href={`https://flymaterez.net/search/?do=search&subaction=search&q=${item.originalTitle}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Badge
+                      variant="secondary"
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
+                    >
+                      <Play size={12} />
+                      HDRezka
                     </Badge>
                   </Link>
                 </div>

@@ -143,19 +143,11 @@ export const MediaContents: CollectionConfig = {
     },
     {
       name: 'visualTags',
-      type: 'array',
+      type: 'text',
       label: 'Визуальные теги',
       admin: {
-        initCollapsed: true,
+        description: 'Введите теги через запятую',
       },
-      fields: [
-        {
-          name: 'tag',
-          type: 'text',
-          label: 'Тег',
-          required: true,
-        },
-      ],
     },
 
     // Боковая панель (Sidebar) - Основные параметры

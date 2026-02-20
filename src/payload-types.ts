@@ -384,6 +384,10 @@ export interface Collection {
    */
   isPublic?: boolean | null;
   /**
+   * Если включено, список будет виден всем посетителям сайта и будет отображаться в разделе "Темы".
+   */
+  isTheme?: boolean | null;
+  /**
    * Обновляется автоматически при сохранении на основе связанных элементов.
    */
   itemCount?: number | null;
@@ -456,12 +460,10 @@ export interface MediaContent {
         id?: string | null;
       }[]
     | null;
-  visualTags?:
-    | {
-        tag: string;
-        id?: string | null;
-      }[]
-    | null;
+  /**
+   * Введите теги через запятую
+   */
+  visualTags?: string | null;
   /**
    * Тип контента (фильм, сериал и т.д.)
    */
@@ -870,6 +872,7 @@ export interface CollectionsSelect<T extends boolean = true> {
   slug?: T;
   description?: T;
   isPublic?: T;
+  isTheme?: T;
   itemCount?: T;
   items?: T;
   updatedAt?: T;
@@ -895,12 +898,7 @@ export interface MediaContentsSelect<T extends boolean = true> {
         endDate?: T;
         id?: T;
       };
-  visualTags?:
-    | T
-    | {
-        tag?: T;
-        id?: T;
-      };
+  visualTags?: T;
   type?: T;
   status?: T;
   poster?: T;
