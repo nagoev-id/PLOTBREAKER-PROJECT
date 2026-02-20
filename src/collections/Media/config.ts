@@ -15,7 +15,6 @@ export const Media: CollectionConfig = {
     plural: 'Медиа',
   },
   access: {
-    // Публичный доступ на чтение — необходим для отображения изображений на фронтенде
     read: () => true,
     create: adminOnly,
     update: adminOnly,

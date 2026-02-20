@@ -1,67 +1,90 @@
-# Payload Blank Template
+# ПРОСМОТРЕНО — Пересказы без воды.
 
-This template comes configured with the bare minimum to get started on anything you need.
+**ПРОСМОТРЕНО** — это современное полнофункциональное веб-приложение для ведения личного трекера просмотренных фильмов, сериалов, создания тематических подборок (коллекций) и публикации статей в блоге. Проект разработан с использованием передового стека технологий, обеспечивающего высокую скорость работы, приятный пользовательский интерфейс и удобную систему управления контентом (CMS).
 
-## Quick start
+## 📸 Превью сайта
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+![Главная страница](public/images/preview-1.jpeg)
 
-## Quick Start - local setup
+![Интерфейс приложения](public/images/preview-2.jpg)
 
-To spin up this template locally, follow these steps:
+## 🛠 Технологический стек
 
-### Clone
+Проект построен на базе современных инструментов и фреймворков:
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+- **Frontend:** [Next.js 15](https://nextjs.org/) (App Router), React 19, TypeScript
+- **Стилизация и UI:** [Tailwind CSS v4](https://tailwindcss.com/) для стилизации, [Radix UI](https://www.radix-ui.com/) для доступных headless-компонентов, [Framer Motion](https://www.framer.com/motion/) для плавных анимаций
+- **Backend / CMS:** [Payload CMS 3.0](https://payloadcms.com/) — мощная headless CMS, интегрированная прямо в Next.js
+- **База данных:** PostgreSQL (хостинг через [Supabase](https://supabase.com/)), адаптер `@payloadcms/db-postgres`
+- **Хранилище медиа:** S3 Object Storage (адаптер `@payloadcms/storage-s3`) для надежного хранения загружаемых изображений
+- **Редактор контента:** Lexical Rich Text Editor для написания постов и оформления страниц
+- **Формы и валидация:** `react-hook-form` вместе с `zod`
 
-### Development
+## ✨ Основной функционал
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+- **Каталог просмотренного:** Сохранение, редактирование и управление фильмами и сериалами (`MediaContents`).
+- **Блог и страницы:** Полноценная система публикации записей блога и управления статичными страницами сайта (`Posts`, `Pages`).
+- **Создание подборок:** Группировка фильмов или постов в тематические коллекции (`Collections`).
+- **Глобальный поиск:** Удобное модальное окно интеллектуального поиска по сайту с дебаунсом запросов.
+- **Оптимизированный адаптивный дизайн:** Идеальное отображение как на десктопах, так и на мобильных устройствах.
+- **Панель администратора:** Защищенная, кастомизируемая встроенная админ-панель Payload CMS для полноценного управления всеми данными.
+- **Аутентификация:** Разграничение прав доступа для администраторов и обычных пользователей.
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+## 🚀 Запуск проекта (Development)
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+Для локального запуска проекта на вашей машине выполните следующие шаги:
 
-#### Docker (Optional)
+1. **Клонируйте репозиторий:**
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+   ```bash
+   git clone <URL_репозитория>
+   cd project
+   ```
 
-To do so, follow these steps:
+2. **Настройте переменные окружения:**
+   Скопируйте файл с примером переменных и заполните его вашими данными:
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+   ```bash
+   cp .env.example .env
+   ```
 
-## How it works
+   _Важно: обязательно укажите корректную строку подключения к базе данных PostgreSQL в `DATABASE_URI` (например, от Supabase) и PAYLOAD_SECRET._
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+3. **Установите зависимости:**
+   В проекте используется `pnpm` в качестве менеджера пакетов:
 
-### Collections
+   ```bash
+   pnpm install
+   ```
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+4. **Запустите сервер разработки:**
 
-- #### Users (Authentication)
+   ```bash
+   pnpm dev
+   ```
 
-  Users are auth-enabled collections that have access to the admin panel.
+5. **Откройте приложение:**
+   - Клиентская часть портала доступна по адресу: [http://localhost:3000](http://localhost:3000)
+   - Панель администратора находится по адресу: [http://localhost:3000/admin](http://localhost:3000/admin) (_Создайте первого пользователя при первом входе_)
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+## 📦 Сборка для продакшена (Production)
 
-- #### Media
+Для подготовки проекта к деплою на боевой сервер выполните сборку:
 
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+```bash
+pnpm build
+```
 
-### Docker
+После завершения успешной сборки, готовое приложение можно запустить командой:
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+```bash
+pnpm start
+```
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+## 📝 Разработка и полезные скрипты
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+В файле `package.json` настроены алиасы команд для удобства:
 
-## Questions
-
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+- `pnpm generate:types` — генерирует актуальные TypeScript типы на основе коллекций Payload CMS
+- `pnpm lint` — проверяет код линтером (ESLint) на наличие ошибок
+- `pnpm test` — запускает все тесты (интеграционные скрипты Vitest и E2E через Playwright)
