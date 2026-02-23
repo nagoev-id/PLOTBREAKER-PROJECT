@@ -6,6 +6,7 @@ import { getGenreLabel } from '@/utilities/utils';
 import { GENRES, METADATA } from '@/utilities/constants';
 import { LoadingSpinner } from '@/components/shared';
 import { GenrePageClient } from '@/app/(frontend)/(pages)/reviews/genres/[genre]/page.client';
+import { getCachedMediaContentsByGenre } from '@/utilities/helpers';
 
 /**
  * Генерация статических параметров для всех жанров
@@ -37,9 +38,8 @@ export async function generateMetadata({
 }
 
 /**
- * Страница жанра — отображает все записи с указанным жанром
- * @param {{ params: Promise<{ genre: string }> }} - Параметры маршрута
- * @returns {JSX.Element}
+ * Страница жанра — отображает все записи с указанным жанром.
+ * Данные загружаются на сервере и передаются в клиентский компонент.
  */
 const GenrePage = async ({
   params,
@@ -53,9 +53,11 @@ const GenrePage = async ({
     notFound();
   }
 
+  const items = await getCachedMediaContentsByGenre(genre)();
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <GenrePageClient genre={genre} />
+      <GenrePageClient genre={genre} items={items} />
     </Suspense>
   );
 };

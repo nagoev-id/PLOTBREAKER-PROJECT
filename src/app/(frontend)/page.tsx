@@ -3,17 +3,17 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
-import { getPageBySlug } from '@/utilities/helpers';
+import { getPageBySlug, getCachedMediaContents } from '@/utilities/helpers';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared';
 import HomePageClient from '@/app/(frontend)/page.client';
+import { MediaContentCollection } from '@/utilities/types';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
 
 /**
  * Генерация метаданных для страницы
- * @returns Заголовок и описание страницы для SEO.
  */
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -24,8 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Основной компонент страницы (Server Component).
- * Загружает layout-блоки и весь медиа-контент для клиентской фильтрации.
- * @returns Орендеренная клиентская страница с данными.
+ * Загружает layout-блоки и медиа-контент на сервере.
  */
 const HomePage = async () => {
   const page = await getPageBySlug(PAGE_SLUGS.home);
@@ -35,10 +34,12 @@ const HomePage = async () => {
     return notFound();
   }
 
+  const mediaContents = await getCachedMediaContents()();
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <RenderBlocks blocks={page.layout} />
-      <HomePageClient />
+      <HomePageClient items={mediaContents as MediaContentCollection[]} />
     </Suspense>
   );
 };

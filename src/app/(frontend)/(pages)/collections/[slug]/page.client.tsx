@@ -12,17 +12,12 @@ import {
   MediaContentCollection,
 } from '@/utilities/types';
 import { cn, configCollection } from '@/utilities/utils';
-import {
-  PaginationControls,
-  MovieCard,
-  useCollections,
-  useMediaContents,
-} from '@/components/shared';
+import { PaginationControls, MovieCard } from '@/components/shared';
 import { PAGINATION_CONFIG } from '@/utilities/constants';
 
 // Описание типов пропсов
 type CollectionDetailClientProps = {
-  slug: string;
+  collection: CollectionCollection;
 };
 
 /**
@@ -30,26 +25,25 @@ type CollectionDetailClientProps = {
  * Отображает заголовок коллекции и карточки медиа-контента с пагинацией.
  */
 const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
-  slug,
+  collection,
 }): JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { collections } = useCollections();
-  const { mediaContents } = useMediaContents();
-  const allCollections = collections || [];
-  const allMediaContents = mediaContents || [];
 
-  console.log({ allMediaContents, allCollections });
+  // Элементы коллекции (из join)
+  const allItems = useMemo(() => {
+    const items = (
+      collection as CollectionCollection & {
+        items?: { docs?: MediaContentCollection[] };
+      }
+    ).items?.docs;
+    return (items || []).filter(
+      (item): item is MediaContentCollection =>
+        typeof item === 'object' && item !== null
+    );
+  }, [collection]);
 
-  const collection = allCollections.find((c) => c.slug === slug);
-
-  const allItems = allMediaContents.filter((item) =>
-    item.collections?.find(
-      (c) => typeof c !== 'number' && c !== null && c.slug === collection?.slug
-    )
-  );
-
-  const { type, TypeIcon } = configCollection(collection?.title || '');
+  const { type, TypeIcon } = configCollection(collection.title);
 
   // Читаем состояние пагинации из URL
   const currentPage = Number(searchParams.get('page')) || 1;
@@ -129,9 +123,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
           >
             <TypeIcon size={20} className={type.color} />
           </div>
-          <h1 className="text-xl font-bold lg:text-2xl">
-            {collection?.title || 'Коллекция не найдена'}
-          </h1>
+          <h1 className="text-xl font-bold lg:text-2xl">{collection.title}</h1>
           <Badge className="text-xs sm:text-sm font-medium">
             {allItems.length}{' '}
             {allItems.length === 1

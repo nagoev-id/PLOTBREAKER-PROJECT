@@ -5,15 +5,15 @@ import { Suspense } from 'react';
 
 import { RenderBlocks } from '@/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared';
-import { getPageBySlug } from '@/utilities/helpers';
+import { getPageBySlug, getCachedCollectionsLists } from '@/utilities/helpers';
 import CollectionsPageClient from '@/app/(frontend)/(pages)/collections/page.client';
+import { CollectionCollection } from '@/utilities/types';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
 
 /**
  * Генерация метаданных для страницы
- * @returns Заголовок и описание страницы для SEO.
  */
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Основной компонент страницы (Server Component).
- * @returns Орендеренная клиентская страница с данными.
+ * Загружает коллекции на сервере и передаёт в клиентский компонент.
  */
 const CollectionsPage = async () => {
   const page = await getPageBySlug(PAGE_SLUGS.collections);
@@ -33,10 +33,14 @@ const CollectionsPage = async () => {
     return notFound();
   }
 
+  const collections = await getCachedCollectionsLists()();
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <RenderBlocks blocks={page.layout} />
-      <CollectionsPageClient />
+      <CollectionsPageClient
+        collections={collections as CollectionCollection[]}
+      />
     </Suspense>
   );
 };

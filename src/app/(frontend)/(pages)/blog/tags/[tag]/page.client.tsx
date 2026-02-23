@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, FileText, Search, X, Tag } from 'lucide-react';
 
-import { PostCard, PaginationControls, usePosts } from '@/components/shared';
+import { PostCard, PaginationControls } from '@/components/shared';
 import { PAGINATION_CONFIG } from '@/utilities/constants';
 import { Input } from '@/components/ui';
 import { PostCollection } from '@/utilities/types';
@@ -14,6 +14,7 @@ import { PostCollection } from '@/utilities/types';
 type BlogTagPageClientProps = {
   tag: string;
   tagLabel: string;
+  posts: PostCollection[];
 };
 
 /**
@@ -25,14 +26,12 @@ type BlogTagPageClientProps = {
 export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
   tag,
   tagLabel,
+  posts,
 }): JSX.Element => {
   // Роутер
   const router = useRouter();
   // Параметры поиска
   const searchParams = useSearchParams();
-  // Список постов
-  const { posts: allPosts } = usePosts();
-  const posts = allPosts || [];
 
   // Поисковый запрос
   const [searchQuery, setSearchQuery] = useState('');
@@ -144,23 +143,15 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
     setSearchQuery('');
   }, [tag, searchParams]);
 
-  // Фильтрация по тегу
-  const tagPosts = useMemo(() => {
-    return posts.filter(
-      (post: PostCollection) =>
-        post.tags && (post.tags as string[]).includes(tag)
-    );
-  }, [posts, tag]);
-
-  // Фильтрация по поиску
+  // Фильтрация по поиску (данные уже по тегу)
   const filteredPosts = useMemo(() => {
-    if (!searchQuery.trim()) return tagPosts;
+    if (!searchQuery.trim()) return posts;
 
     const q = searchQuery.toLowerCase();
-    return tagPosts.filter((post: PostCollection) =>
+    return posts.filter((post: PostCollection) =>
       post.title?.toLowerCase().includes(q)
     );
-  }, [tagPosts, searchQuery]);
+  }, [posts, searchQuery]);
 
   // Пагинация
   const totalPages = Math.ceil(filteredPosts.length / pageSize);
@@ -195,10 +186,10 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
             </h1>
           </div>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            {tagPosts.length}{' '}
-            {tagPosts.length === 1
+            {posts.length}{' '}
+            {posts.length === 1
               ? 'статья'
-              : tagPosts.length < 5
+              : posts.length < 5
                 ? 'статьи'
                 : 'статей'}{' '}
             с тегом «{tagLabel}»

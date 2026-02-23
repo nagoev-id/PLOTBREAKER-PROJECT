@@ -16,10 +16,6 @@ type Props = {
 
 /**
  * Генерирует метаданные для страницы коллекции (Title, Description).
- * Данные загружаются на основе slug из параметров URL.
- *
- * @param args - Аргументы страницы, включая параметры маршрута.
- * @returns Объект метаданных для Next.js.
  */
 export const generateMetadata = async ({
   params,
@@ -39,16 +35,19 @@ export const generateMetadata = async ({
 
 /**
  * Серверный компонент страницы детальной информации о коллекции.
- * Загружает данные коллекции по slug и отображает клиентский компонент с Suspense.
- *
- * @param args - Пропсы компонента, содержащие параметры маршрута.
- * @returns JSX элемент страницы или 404, если коллекция не найдена.
+ * Загружает данные коллекции и передаёт в клиентский компонент.
  */
 const CollectionDetailPage = async ({ params }: Props) => {
   const { slug } = await params;
+  const collection = await getCachedCollectionBySlug(slug)();
+
+  if (!collection) {
+    return notFound();
+  }
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <CollectionDetailClient slug={slug} />
+      <CollectionDetailClient collection={collection} />
     </Suspense>
   );
 };

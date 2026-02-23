@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { METADATA } from '@/utilities/constants';
 import { LoadingSpinner } from '@/components/shared';
 import { TagPageClient } from '@/app/(frontend)/(pages)/reviews/tags/[tag]/page.client';
+import { getCachedMediaContentsByTag } from '@/utilities/helpers';
 
 // Описание типов пропсов
 type Props = {
@@ -28,9 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Страница тега — отображает все записи с указанным визуальным тегом
- * @param {{ params: Promise<{ tag: string }> }} - Параметры маршрута
- * @returns {JSX.Element}
+ * Страница тега — отображает все записи с указанным визуальным тегом.
+ * Данные загружаются на сервере и передаются в клиентский компонент.
  */
 const TagPage = async ({ params }: Props): Promise<JSX.Element> => {
   const { tag } = await params;
@@ -39,9 +39,11 @@ const TagPage = async ({ params }: Props): Promise<JSX.Element> => {
     notFound();
   }
 
+  const items = await getCachedMediaContentsByTag(tag)();
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <TagPageClient tagSlug={tag} />
+      <TagPageClient tagSlug={tag} items={items} />
     </Suspense>
   );
 };

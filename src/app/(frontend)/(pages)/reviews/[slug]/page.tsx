@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { METADATA } from '@/utilities/constants';
-import { getMediaContentMetadata } from '@/utilities/helpers';
+import { getCachedMediaContentBySlug } from '@/utilities/helpers';
 import ReviewDetailClient from '@/app/(frontend)/(pages)/reviews/[slug]/page.client';
 
 // Настройка времени повторной валидации (ISR) — 60 секунд.
@@ -27,31 +27,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: METADATA.reviewsPage.title };
   }
 
-  const mediaItem = await getMediaContentMetadata(slug);
+  const item = await getCachedMediaContentBySlug(slug)();
 
-  if (!mediaItem) {
+  if (!item) {
     return { title: METADATA.reviewsPage.title };
   }
 
   return {
-    title: `${mediaItem.title} — ${METADATA.reviewsPage.title}`,
-    description: mediaItem.description || METADATA.reviewsPage.description,
+    title: `${item.title} — ${METADATA.reviewsPage.title}`,
+    description: item.synopsis || METADATA.reviewsPage.description,
   };
 }
 
 /**
  * Серверный компонент детальной страницы обзора (Media Content).
- * Отвечает за получение данных с сервера и их передачу в клиентский интерактивный компонент.
+ * Получает данные на сервере и передаёт в клиентский компонент.
  *
  * @param params - Объект параметров маршрута.
- * @returns Контент страницы или вызов сотояния 'не найдено'.
+ * @returns Контент страницы или вызов состояния 'не найдено'.
  */
 const ReviewDetailPage = async ({ params }: Props) => {
   const { slug } = await params;
   if (!slug) {
     return notFound();
   }
-  return <ReviewDetailClient slug={slug} />;
+
+  const item = await getCachedMediaContentBySlug(slug)();
+
+  if (!item) {
+    return notFound();
+  }
+
+  return <ReviewDetailClient item={item} />;
 };
 
 export default ReviewDetailPage;

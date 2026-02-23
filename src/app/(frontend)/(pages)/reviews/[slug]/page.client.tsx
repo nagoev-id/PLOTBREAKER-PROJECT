@@ -24,29 +24,23 @@ import {
   getGenreLabel,
   getPosterUrl,
 } from '@/utilities/utils';
-import { RichText, SharedLink, useMediaContents } from '@/components/shared';
+import { RichText, SharedLink } from '@/components/shared';
 
 // Описание типов пропсов
 type ReviewDetailClientProps = {
-  slug: string;
+  item: MediaContentCollection;
 };
 
 /**
  * Клиентский компонент детальной страницы записи.
  * Hero-секция, контент обзора и сайдбар с метаданными.
- * @param slug - Слаг записи
+ * @param item - Запись медиа-контента
  * @returns {JSX.Element | null}
  */
 const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
-  slug,
+  item,
 }): JSX.Element | null => {
-  const { mediaContents } = useMediaContents();
-  const item = mediaContents?.find(
-    (item: MediaContentCollection) => item.slug === slug
-  );
   const router = useRouter();
-
-  if (!item) return null;
 
   const posterSrc = getPosterUrl(item);
   const opinionConfig = item.personalOpinion
@@ -55,7 +49,6 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
   const OpinionIcon = opinionConfig?.icon;
   const typeConfig = TYPE_CONFIG[item.type];
 
-  console.log(item);
   return (
     <article>
       <section className="relative overflow-hidden border-b">

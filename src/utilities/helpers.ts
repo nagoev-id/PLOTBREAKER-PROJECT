@@ -81,6 +81,23 @@ export const getMediaContents = async (): Promise<MediaContentCollection[]> => {
       sort: '-createdAt',
       limit: 0,
       depth: 1,
+      select: {
+        title: true,
+        originalTitle: true,
+        slug: true,
+        type: true,
+        poster: true,
+        posterUrl: true,
+        genres: true,
+        releaseYear: true,
+        watchYear: true,
+        duration: true,
+        kpRating: true,
+        personalOpinion: true,
+        director: true,
+        status: true,
+        collections: true,
+      },
     });
 
     return result.docs as MediaContentCollection[];
@@ -416,6 +433,47 @@ export const getCachedMediaContentsByGenre = (
     [`media_contents_genre_${genre}`],
     {
       tags: ['media-contents'],
+      revalidate: 3600,
+    }
+  );
+
+/**
+ * Получает одну запись MediaContent по slug со всеми полями.
+ *
+ * @param slug - Уникальный slug записи
+ * @returns MediaContentCollection или null
+ */
+export const getMediaContentBySlug = async (
+  slug: string
+): Promise<MediaContentCollection | null> => {
+  try {
+    const payload = await getPayload({ config: configPromise });
+
+    const result = await payload.find({
+      collection: COLLECTION_SLUGS.mediaContents,
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 1,
+    });
+
+    return (result.docs[0] as MediaContentCollection) ?? null;
+  } catch (error) {
+    console.error(`Ошибка при получении записи по slug "${slug}":`, error);
+    return null;
+  }
+};
+
+/**
+ * Кэшированная версия getMediaContentBySlug.
+ */
+export const getCachedMediaContentBySlug = (
+  slug: string
+): (() => Promise<MediaContentCollection | null>) =>
+  unstable_cache(
+    async () => getMediaContentBySlug(slug),
+    [`media_content_${slug}`],
+    {
+      tags: ['media-contents', `media_${slug}`],
       revalidate: 3600,
     }
   );

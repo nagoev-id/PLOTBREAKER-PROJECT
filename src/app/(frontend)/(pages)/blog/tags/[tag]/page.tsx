@@ -5,6 +5,8 @@ import type { Metadata } from 'next';
 import { METADATA } from '@/utilities/constants';
 import { LoadingSpinner } from '@/components/shared';
 import { BlogTagPageClient } from '@/app/(frontend)/(pages)/blog/tags/[tag]/page.client';
+import { getCachedPostsLists } from '@/utilities/helpers';
+import { PostCollection } from '@/utilities/types';
 
 // Допустимые теги блога
 const BLOG_TAGS: Record<string, string> = {
@@ -45,9 +47,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Страница тега блога — отображает все посты с указанным тегом
- * @param {{ params: Promise<{ tag: string }> }} - Параметры маршрута
- * @returns {JSX.Element}
+ * Страница тега блога — отображает все посты с указанным тегом.
+ * Данные загружаются на сервере и передаются в клиентский компонент.
  */
 const BlogTagPage = async ({ params }: Props): Promise<JSX.Element> => {
   const { tag } = await params;
@@ -56,9 +57,15 @@ const BlogTagPage = async ({ params }: Props): Promise<JSX.Element> => {
     notFound();
   }
 
+  const allPosts = await getCachedPostsLists()();
+  // Фильтруем по тегу на сервере
+  const tagPosts = (allPosts as PostCollection[]).filter(
+    (post) => post.tags && (post.tags as string[]).includes(tag)
+  );
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <BlogTagPageClient tag={tag} tagLabel={BLOG_TAGS[tag]} />
+      <BlogTagPageClient tag={tag} tagLabel={BLOG_TAGS[tag]} posts={tagPosts} />
     </Suspense>
   );
 };

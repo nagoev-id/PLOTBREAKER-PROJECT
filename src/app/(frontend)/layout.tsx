@@ -5,32 +5,13 @@ import { getPayload } from 'payload';
 import { headers } from 'next/headers';
 import configPromise from '@payload-config';
 
-import {
-  CollectionCollection,
-  UserCollection,
-  PostCollection,
-} from '@/utilities/types';
+import { UserCollection } from '@/utilities/types';
 import { METADATA } from '@/utilities/constants';
 import { cn } from '@/utilities/utils';
 import { euclid } from '@/utilities/fonts';
 import { Header } from '@/globals/Header';
 import { Footer } from '@/globals/Footer';
-import {
-  Preloader,
-  ThemeProvider,
-  // TelegramProvider,
-  AuthProvider,
-  CollectionsProvider,
-  MediaContentsProvider,
-  PostsProvider,
-} from '@/components/shared';
-import {
-  getCachedCollectionsLists,
-  getCachedGlobal,
-  getCachedMediaContents,
-  getCachedPostsLists,
-} from '@/utilities/helpers';
-import { MediaContent } from '@/payload-types';
+import { Preloader, ThemeProvider, AuthProvider } from '@/components/shared';
 
 // Настройки метаданных для SEO
 export const metadata = {
@@ -76,11 +57,8 @@ export const metadata = {
 /**
  * Корневой макет приложения
  *
- * Обеспечивает базовую структуру страницы
- *
- * @param props - Пропсы компонента
- * @param props.children - Дочерние элементы для отображения в основной части
- * @returns JSX элемент корневого макета
+ * Обеспечивает базовую структуру страницы.
+ * Данные больше не загружаются в layout — каждая страница загружает свои данные самостоятельно.
  */
 const RootLayout = async ({
   children,
@@ -89,9 +67,7 @@ const RootLayout = async ({
 }): Promise<JSX.Element> => {
   const payload = await getPayload({ config: configPromise });
   const { user } = await payload.auth({ headers: await headers() });
-  const collections = await getCachedCollectionsLists()();
-  const mediaContents = await getCachedMediaContents()();
-  const posts = await getCachedPostsLists()();
+
   return (
     <html lang="ru" suppressHydrationWarning>
       <body
@@ -109,27 +85,15 @@ const RootLayout = async ({
           storageKey={METADATA.siteKey}
         >
           <AuthProvider user={user as UserCollection | null}>
-            <CollectionsProvider
-              collections={collections as CollectionCollection[] | null}
-            >
-              <MediaContentsProvider
-                mediaContents={mediaContents as MediaContent[] | null}
-              >
-                <PostsProvider posts={posts as PostCollection[] | null}>
-                  {/* <TelegramProvider> */}
-                  <Preloader />
-                  <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
-                    <Header />
-                    <main className="animate-fade-in w-full flex-1">
-                      {children}
-                    </main>
-                    <Footer />
-                  </div>
-                </PostsProvider>
-                {/* </TelegramProvider> */}
-              </MediaContentsProvider>
-            </CollectionsProvider>
+            {/* <TelegramProvider> */}
+            <Preloader />
+            <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
+              <Header />
+              <main className="animate-fade-in w-full flex-1">{children}</main>
+              <Footer />
+            </div>
           </AuthProvider>
+          {/* </TelegramProvider> */}
         </ThemeProvider>
         <Toaster />
       </body>

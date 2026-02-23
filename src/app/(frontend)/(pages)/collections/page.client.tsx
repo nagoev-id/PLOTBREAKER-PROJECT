@@ -6,14 +6,16 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
 
 import { FILTERS_COLLECTIONS } from '@/utilities/constants';
 import { getTypeKey } from '@/utilities/utils';
-import { CollectionCard, useCollections } from '@/components/shared';
+import { CollectionCard } from '@/components/shared';
+import { CollectionCollection } from '@/utilities/types';
 
 /**
  * Клиентский компонент страницы коллекций.
  * Реализует фильтрацию списков и отображение карточек.
  */
-const CollectionsPageClient: FC = (): JSX.Element => {
-  const { collections } = useCollections();
+const CollectionsPageClient: FC<{ collections: CollectionCollection[] }> = ({
+  collections,
+}): JSX.Element => {
   const collectionsLists = collections || [];
   const [typeFilter, setTypeFilter] = useState<string>('all_type');
 

@@ -1,6 +1,14 @@
 'use client';
 
-import { FC, JSX, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  FC,
+  JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -17,7 +25,6 @@ import {
   CustomSelect,
   MovieCard,
   PaginationControls,
-  useMediaContents,
 } from '@/components/shared';
 import {
   PAGINATION_CONFIG,
@@ -38,10 +45,13 @@ import {
  * @param items - Массив медиа-контента
  * @returns {JSX.Element}
  */
-const HomePageClient: FC = (): JSX.Element => {
-  // Получаем медиа-контент из контекста
-  const { mediaContents } = useMediaContents();
-  const items = mediaContents || [];
+const HomePageClient: FC<{ items: MediaContentCollection[] }> = ({
+  items: itemsProp,
+}): JSX.Element => {
+  const items = itemsProp || [];
+
+  // Ref для debounce поиска
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Инициализируем роутер и searchParams
   const router = useRouter();
@@ -331,8 +341,13 @@ const HomePageClient: FC = (): JSX.Element => {
                   placeholder="Поиск..."
                   value={searchQuery}
                   onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    updateParams({ page: 1, q: e.target.value });
+                    const value = e.target.value;
+                    setSearchQuery(value);
+                    if (searchDebounceRef.current)
+                      clearTimeout(searchDebounceRef.current);
+                    searchDebounceRef.current = setTimeout(() => {
+                      updateParams({ page: 1, q: value });
+                    }, 300);
                   }}
                   className="pl-8 text-sm"
                 />

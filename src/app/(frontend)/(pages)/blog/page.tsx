@@ -6,7 +6,8 @@ import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared';
 import BlogPageClient from '@/app/(frontend)/(pages)/blog/page.client';
-import { getPageBySlug } from '@/utilities/helpers';
+import { getPageBySlug, getCachedPostsLists } from '@/utilities/helpers';
+import { PostCollection } from '@/utilities/types';
 
 // Настройки кэширования
 export const revalidate = 60;
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Серверный компонент страницы блога.
- * Загружает layout и список постов, передаёт в клиентский компонент.
+ * Загружает layout и список постов на сервере.
  */
 const BlogPage = async () => {
   const page = await getPageBySlug(PAGE_SLUGS.blog);
@@ -32,10 +33,12 @@ const BlogPage = async () => {
     return notFound();
   }
 
+  const posts = await getCachedPostsLists()();
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <RenderBlocks blocks={page.layout} />
-      <BlogPageClient />
+      <BlogPageClient posts={posts as PostCollection[]} />
     </Suspense>
   );
 };

@@ -6,18 +6,17 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Film, Search, X, Tag } from 'lucide-react';
 
-import {
-  MovieCard,
-  PaginationControls,
-  useMediaContents,
-} from '@/components/shared';
+import { MovieCard, PaginationControls } from '@/components/shared';
 import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/utilities/constants';
 import { Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { formatSlugString } from '@/utilities/utils';
 
+import { MediaContentCollection } from '@/utilities/types';
+
 // Тип пропсов компонента
 type TagPageClientProps = {
   tagSlug: string;
+  items: MediaContentCollection[];
 };
 
 /**
@@ -27,14 +26,12 @@ type TagPageClientProps = {
  */
 export const TagPageClient: FC<TagPageClientProps> = ({
   tagSlug,
+  items,
 }): JSX.Element => {
   // Роутер
   const router = useRouter();
   // Параметры поиска
   const searchParams = useSearchParams();
-  // Список фильмов
-  const { mediaContents } = useMediaContents();
-  const items = mediaContents || [];
 
   // Находим оригинальное название тега из данных
   const originalTag = useMemo(() => {
@@ -185,22 +182,9 @@ export const TagPageClient: FC<TagPageClientProps> = ({
     setSearchQuery('');
   }, [tagSlug, searchParams]);
 
-  // Фильтрация по тегу (сравниваем slug каждого тега с tagSlug)
-  const tagItems = useMemo(() => {
-    return items.filter(
-      (item) =>
-        item.visualTags &&
-        typeof item.visualTags === 'string' &&
-        item.visualTags
-          .split(',')
-          .map((t) => t.trim())
-          .some((t) => formatSlugString(t) === tagSlug)
-    );
-  }, [items, tagSlug]);
-
-  // Фильтрация фильмов
+  // Фильтрация (данные уже по тегу, фильтруем по типу/поиску)
   const filteredItems = useMemo(() => {
-    return tagItems.filter((item) => {
+    return items.filter((item) => {
       // Фильтр по типу
       if (activeType !== ALL_VALUE && item.type !== activeType) return false;
 
@@ -214,7 +198,7 @@ export const TagPageClient: FC<TagPageClientProps> = ({
 
       return true;
     });
-  }, [tagItems, activeType, searchQuery]);
+  }, [items, activeType, searchQuery]);
 
   // Пагинация
   const totalPages = Math.ceil(filteredItems.length / pageSize);
@@ -249,10 +233,10 @@ export const TagPageClient: FC<TagPageClientProps> = ({
             </h1>
           </div>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            {tagItems.length}{' '}
-            {tagItems.length === 1
+            {items.length}{' '}
+            {items.length === 1
               ? 'запись'
-              : tagItems.length < 5
+              : items.length < 5
                 ? 'записи'
                 : 'записей'}{' '}
             с тегом «{originalTag}»

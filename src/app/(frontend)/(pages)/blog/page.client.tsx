@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
 
 import { Badge, Input } from '@/components/ui';
-import { PaginationControls, PostCard, usePosts } from '@/components/shared';
+import { PaginationControls, PostCard } from '@/components/shared';
 import { PAGINATION_CONFIG } from '@/utilities/constants';
 import { PostCollection } from '@/utilities/types';
 
@@ -13,9 +13,10 @@ import { PostCollection } from '@/utilities/types';
  * Клиентский компонент страницы блога.
  * Поиск, грид карточек постов, пагинация.
  */
-const BlogPageClient: FC = (): JSX.Element => {
-  const { posts: allPosts } = usePosts();
-  const posts = allPosts || [];
+const BlogPageClient: FC<{ posts: PostCollection[] }> = ({
+  posts: allPostsProp,
+}): JSX.Element => {
+  const posts = allPostsProp || [];
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_CONFIG.defaultPageSize);

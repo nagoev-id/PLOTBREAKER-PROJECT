@@ -6,18 +6,17 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Film, Search, X } from 'lucide-react';
 
-import {
-  MovieCard,
-  PaginationControls,
-  useMediaContents,
-} from '@/components/shared';
+import { MovieCard, PaginationControls } from '@/components/shared';
 import { getGenreLabel } from '@/utilities/utils';
 import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/utilities/constants';
 import { Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 
+import { MediaContentCollection } from '@/utilities/types';
+
 // Тип пропсов компонента
 type GenrePageClientProps = {
   genre: string;
+  items: MediaContentCollection[];
 };
 
 /**
@@ -27,14 +26,12 @@ type GenrePageClientProps = {
  */
 export const GenrePageClient: FC<GenrePageClientProps> = ({
   genre,
+  items,
 }): JSX.Element => {
   // Роутер
   const router = useRouter();
   // Параметры поиска
   const searchParams = useSearchParams();
-  // Список фильмов
-  const { mediaContents } = useMediaContents();
-  const items = mediaContents || [];
   // Текст жанра
   const label = getGenreLabel(genre);
   // Тип фильма
@@ -174,16 +171,9 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
     setSearchQuery('');
   }, [genre, searchParams]);
 
-  // Фильтрация по жанру
-  const genreItems = useMemo(() => {
-    return items.filter(
-      (item) => item.genres && (item.genres as string[]).includes(genre)
-    );
-  }, [items, genre]);
-
-  // Фильтрация фильмов
+  // Фильтрация фильмов (данные уже по жанру, фильтруем по типу/поиску)
   const filteredItems = useMemo(() => {
-    return genreItems.filter((item) => {
+    return items.filter((item) => {
       // Фильтр по типу
       if (activeType !== ALL_VALUE && item.type !== activeType) return false;
 
@@ -197,7 +187,7 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
 
       return true;
     });
-  }, [genreItems, activeType, searchQuery]);
+  }, [items, activeType, searchQuery]);
 
   // Пагинация
   const totalPages = Math.ceil(filteredItems.length / pageSize);
@@ -229,10 +219,10 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
             {label}
           </h1>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            {genreItems.length}{' '}
-            {genreItems.length === 1
+            {items.length}{' '}
+            {items.length === 1
               ? 'запись'
-              : genreItems.length < 5
+              : items.length < 5
                 ? 'записи'
                 : 'записей'}{' '}
             в жанре «{label}»

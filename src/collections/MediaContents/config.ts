@@ -363,8 +363,10 @@ export const MediaContents: CollectionConfig = {
   },
   timestamps: true,
   indexes: [
+    { fields: ['slug'], unique: true },
     { fields: ['type', 'releaseYear'] },
     { fields: ['personalOpinion', 'watchYear'] },
     { fields: ['title', 'originalTitle'] },
+    { fields: ['genres'] },
   ],
 };
