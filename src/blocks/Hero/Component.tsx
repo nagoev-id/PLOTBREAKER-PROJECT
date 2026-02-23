@@ -30,9 +30,9 @@ export const HeroBlock: FC<HeroBlockProps> = ({
       initial="hidden"
       animate="visible"
       variants={ANIMATIONS.containerVariants}
-      className="container mx-auto grid place-items-center text-center space-y-6 xl:space-y-10 px-6 py-4 md:py-8 xl:py-18"
+      className=" grid place-items-center text-center space-y-6 xl:space-y-10 px-6 py-4 md:py-8 xl:py-18 bg-foreground/2"
     >
-      <div className="max-w-4xl space-y-2 md:space-y-6">
+      <div className="container mx-auto max-w-4xl space-y-2 md:space-y-6">
         {/* Заголовок */}
         {heroTitle && (
           <motion.h1

@@ -1,40 +1,41 @@
 'use client';
 
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, JSX, useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Film, Loader2, Palette, Search, Tv, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+
 import { MediaContentCollection } from '@/utilities/types';
 import { searchMedia } from '@/actions/search';
 
+// Иконки для типов контента
 const contentTypeIcons: Record<string, typeof Film> = {
   film: Film,
   series: Tv,
   cartoon: Palette,
 };
 
-// Описание пропсов
 type SearchModalProps = {
   isSearchOpen: boolean;
   setIsSearchOpen: (open: boolean) => void;
 };
 
 /**
- * Модальное окно поиска медиа-контента.
- *
- * Функциональность:
- * - Поле ввода с дебаунсом (300мс)
- * - Отображение результатов с постерами и метаданными
- * - Навигация к странице обзора
- * - Закрытие по Esc и клику на фон
+ * Модальное окно поиска медиа-контента
+ * @param isSearchOpen - Открыто ли модальное окно
+ * @param setIsSearchOpen - Функция закрытия модального окна
+ * @returns {JSX.Element | null} - Модальное окно поиска
  */
 export const SearchModal: FC<SearchModalProps> = ({
   isSearchOpen,
   setIsSearchOpen,
-}) => {
+}): JSX.Element | null => {
+  // Состояние для поискового запроса
   const [query, setQuery] = useState('');
+  // Состояние для результатов поиска
   const [results, setResults] = useState<MediaContentCollection[]>([]);
+  // Состояние для загрузки
   const [isLoading, setIsLoading] = useState(false);
 
   // Debounce поиска
@@ -166,7 +167,7 @@ export const SearchModal: FC<SearchModalProps> = ({
                     return (
                       <Link
                         key={content.id}
-                        href={`/reviews/${content.id}`}
+                        href={`/reviews/${content.slug}`}
                         onClick={handleClose}
                         className="group hover:bg-accent flex items-center justify-between gap-3 p-3 transition-colors sm:gap-4 sm:p-4"
                       >

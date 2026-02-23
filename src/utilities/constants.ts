@@ -8,6 +8,7 @@ import {
   ThumbsUp,
   Minus,
   ThumbsDown,
+  Clapperboard,
 } from 'lucide-react';
 
 // ============================================================================
@@ -223,6 +224,7 @@ export const FILTERS_COLLECTIONS = [
     options: [
       { value: 'all_type', label: 'Все' },
       ...MEDIA_CONTENT_TYPES.select,
+      { value: 'theme', label: 'Тематический' },
     ],
   },
 ];
@@ -235,23 +237,23 @@ export const TYPE_CONFIG: Record<
   film: {
     label: 'Фильм',
     icon: Film,
-    bg: 'bg-blue-50 dark:bg-blue-950/30',
+    bg: 'bg-blue-50/20 dark:bg-blue-950/20',
     color: 'text-blue-500',
-    border: 'border-blue-500',
+    border: ' border-blue-500/10',
   },
   series: {
     label: 'Сериал',
     icon: Tv,
-    bg: 'bg-purple-50 dark:bg-purple-950/30',
+    bg: 'bg-purple-50/20 dark:bg-purple-950/20',
     color: 'text-purple-500',
-    border: 'border-purple-500',
+    border: 'border-purple-500/10',
   },
   cartoon: {
     label: 'Мультфильм',
     icon: Palette,
-    bg: 'bg-rose-50 dark:bg-rose-950/30',
+    bg: 'bg-rose-50/20 dark:bg-rose-950/20',
     color: 'text-rose-500',
-    border: 'border-rose-500',
+    border: 'border-rose-500/10',
   },
 };
 
@@ -273,6 +275,12 @@ export const FALLBACK_CINFIG = {
   color: 'text-zinc-500',
   border: 'border-zinc-200',
 };
+
+export const TYPE_TABS = [
+  { label: 'Все', value: ALL_VALUE, icon: Clapperboard },
+  { label: 'Фильмы', value: 'film', icon: Film },
+  { label: 'Сериалы', value: 'series', icon: Tv },
+] as const;
 
 // ============================================================================
 // Константы - Фильтры

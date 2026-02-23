@@ -10,16 +10,19 @@ import { Badge, Separator } from '@/components/ui';
 import {
   CollectionCollection,
   MediaContentCollection,
-  UserCollection,
 } from '@/utilities/types';
 import { cn, configCollection } from '@/utilities/utils';
-import { PaginationControls, MovieCard } from '@/components/shared';
+import {
+  PaginationControls,
+  MovieCard,
+  useCollections,
+  useMediaContents,
+} from '@/components/shared';
 import { PAGINATION_CONFIG } from '@/utilities/constants';
 
 // Описание типов пропсов
 type CollectionDetailClientProps = {
-  collection: CollectionCollection;
-  user: UserCollection | null;
+  slug: string;
 };
 
 /**
@@ -27,12 +30,26 @@ type CollectionDetailClientProps = {
  * Отображает заголовок коллекции и карточки медиа-контента с пагинацией.
  */
 const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
-  collection,
-  user,
+  slug,
 }): JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { type, TypeIcon } = configCollection(collection.title);
+  const { collections } = useCollections();
+  const { mediaContents } = useMediaContents();
+  const allCollections = collections || [];
+  const allMediaContents = mediaContents || [];
+
+  console.log({ allMediaContents, allCollections });
+
+  const collection = allCollections.find((c) => c.slug === slug);
+
+  const allItems = allMediaContents.filter((item) =>
+    item.collections?.find(
+      (c) => typeof c !== 'number' && c !== null && c.slug === collection?.slug
+    )
+  );
+
+  const { type, TypeIcon } = configCollection(collection?.title || '');
 
   // Читаем состояние пагинации из URL
   const currentPage = Number(searchParams.get('page')) || 1;
@@ -60,15 +77,6 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
       router.replace(qs ? `?${qs}` : '?', { scroll: false });
     },
     [router, searchParams]
-  );
-
-  // Получаем медиа-контент из коллекции (мемоизируем для стабильности ссылки)
-  const allItems = useMemo<MediaContentCollection[]>(
-    () =>
-      collection.items?.docs?.filter(
-        (item): item is MediaContentCollection => typeof item !== 'number'
-      ) ?? [],
-    [collection.items?.docs]
   );
 
   // Подсчёт общего количества страниц
@@ -121,7 +129,9 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
           >
             <TypeIcon size={20} className={type.color} />
           </div>
-          <h1 className="text-xl font-bold lg:text-2xl">{collection.title}</h1>
+          <h1 className="text-xl font-bold lg:text-2xl">
+            {collection?.title || 'Коллекция не найдена'}
+          </h1>
           <Badge className="text-xs sm:text-sm font-medium">
             {allItems.length}{' '}
             {allItems.length === 1
@@ -160,7 +170,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.4 }}
               >
-                <MovieCard item={item} user={user} />
+                <MovieCard item={item} priority={index < 10} />
               </motion.div>
             );
           })

@@ -12,28 +12,42 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Button,
 } from '@/components/ui';
 
 import { OPINION_CONFIG, TYPE_CONFIG } from '@/utilities/constants';
 import { MediaContentCollection } from '@/utilities/types';
-import { formatDuration, getGenreLabel, getPosterUrl } from '@/utilities/utils';
-import { RichText, SharedLink } from '@/components/shared';
+import {
+  formatDate,
+  formatDuration,
+  formatSlugString,
+  getGenreLabel,
+  getPosterUrl,
+} from '@/utilities/utils';
+import { RichText, SharedLink, useMediaContents } from '@/components/shared';
 
 // Описание типов пропсов
 type ReviewDetailClientProps = {
-  item: MediaContentCollection;
+  slug: string;
 };
 
 /**
  * Клиентский компонент детальной страницы записи.
  * Hero-секция, контент обзора и сайдбар с метаданными.
- * @param item - Объект MediaContentCollection
- * @returns {JSX.Element}
+ * @param slug - Слаг записи
+ * @returns {JSX.Element | null}
  */
 const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
-  item,
-}): JSX.Element => {
+  slug,
+}): JSX.Element | null => {
+  const { mediaContents } = useMediaContents();
+  const item = mediaContents?.find(
+    (item: MediaContentCollection) => item.slug === slug
+  );
   const router = useRouter();
+
+  if (!item) return null;
+
   const posterSrc = getPosterUrl(item);
   const opinionConfig = item.personalOpinion
     ? OPINION_CONFIG[item.personalOpinion]
@@ -41,6 +55,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
   const OpinionIcon = opinionConfig?.icon;
   const typeConfig = TYPE_CONFIG[item.type];
 
+  console.log(item);
   return (
     <article>
       <section className="relative overflow-hidden border-b">
@@ -49,7 +64,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
           <div className="absolute inset-0">
             <Image
               src={posterSrc}
-              alt=""
+              alt={item.title}
               fill
               className="object-cover blur-xl scale-110"
               sizes="100vw"
@@ -67,13 +82,15 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             transition={{ duration: 0.3 }}
             className="mb-6"
           >
-            <button
+            <Button
               onClick={() => router.back()}
-              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors cursor-pointer"
+              variant="ghost"
+              size="sm"
+              className="inline-flex items-center gap-2 text-sm transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} />
               Назад
-            </button>
+            </Button>
           </motion.div>
 
           {/* Заголовок + Постер */}
@@ -85,14 +102,13 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
           >
             {/* Миниатюра постера */}
             {posterSrc && (
-              <div className="relative hidden aspect-[2/3] w-[120px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[150px]">
+              <div className="relative hidden aspect-[2/3] w-[120px] xl:w-[270px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[150px]">
                 <Image
                   src={posterSrc}
                   alt={item.title}
                   fill
                   className="object-cover"
                   sizes="150px"
-                  priority
                 />
               </div>
             )}
@@ -127,19 +143,24 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
       </section>
 
       {/* Контент: Обзор + Сайдбар */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_340px]">
+      <section className="container mx-auto px-4 pb-8">
+        <div className="grid grid-cols-1 lg:items-start gap-6 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_340px]">
           {/* Левая колонка — обзор */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="min-w-0"
+            className="min-w-0 pt-8 "
           >
             {item.synopsis && (
-              <p className="text-muted-foreground mb-8 text-base leading-relaxed lg:text-lg">
-                {item.synopsis}
-              </p>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold uppercase">
+                  Краткое описание
+                </h3>
+                <p className="text-muted-foreground text-base leading-relaxed lg:text-lg">
+                  {item.synopsis}
+                </p>
+              </div>
             )}
 
             {item.review && (
@@ -211,7 +232,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="space-y-6"
+            className="space-y-4 lg:border-l lg:border-b lg:border-r lg:pb-4 lg:border-gray-200 lg:dark:border-gray-800 lg:px-4 lg:pt-8 lg:sticky lg:top-[55px]"
           >
             {/* Рейтинг */}
             {item.kpRating && (
@@ -242,6 +263,22 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   >
                     <OpinionIcon size={14} className={opinionConfig.color} />
                     {opinionConfig.label}
+                  </Badge>
+                </div>
+              </div>
+            )}
+
+            {item.watchDate && (
+              <div className="space-y-1.5">
+                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                  Дата просмотра
+                </span>
+                <div>
+                  <Badge
+                    variant="secondary"
+                    className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1"
+                  >
+                    {formatDate(item.watchDate)}
                   </Badge>
                 </div>
               </div>
@@ -283,13 +320,14 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {item.genres.map((genre) => (
-                    <Badge
-                      key={genre}
-                      variant="secondary"
-                      className="rounded-sm px-3 py-1"
-                    >
-                      {getGenreLabel(genre)}
-                    </Badge>
+                    <Link key={genre} href={`/reviews/genres/${genre}`}>
+                      <Badge
+                        variant="secondary"
+                        className="rounded-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors"
+                      >
+                        {getGenreLabel(genre)}
+                      </Badge>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -309,7 +347,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                     .map((tag, i) => (
                       <Link
                         key={`vtag-${i}-${tag}`}
-                        href={`/reviews/tags/${encodeURIComponent(tag)}`}
+                        href={`/reviews/tags/${formatSlugString(tag)}`}
                       >
                         <Badge
                           variant="secondary"
@@ -356,6 +394,22 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                       Кинопоиск
                     </Badge>
                   </Link>
+
+                  {item.kinoriumId && (
+                    <Link
+                      href={`https://kinorium.com/${item.kinoriumId}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Badge
+                        variant="secondary"
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
+                      >
+                        <ExternalLink size={12} />
+                        Кинориум
+                      </Badge>
+                    </Link>
+                  )}
 
                   <Link
                     href={`https://www.kinopoisk.cx/film/${item.kinopoiskId}/`}

@@ -4,29 +4,29 @@ import { FC, JSX, useMemo, useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Film, Search, X, Tag } from 'lucide-react';
+import { ArrowLeft, Film, Search, X } from 'lucide-react';
 
 import {
   MovieCard,
   PaginationControls,
   useMediaContents,
 } from '@/components/shared';
+import { getGenreLabel } from '@/utilities/utils';
 import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/utilities/constants';
 import { Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
-import { formatSlugString } from '@/utilities/utils';
 
 // Тип пропсов компонента
-type TagPageClientProps = {
-  tagSlug: string;
+type GenrePageClientProps = {
+  genre: string;
 };
 
 /**
- * Клиентский компонент страницы тега
- * @param tagSlug - Slug визуального тега из URL
+ * Клиентский компонент страницы жанра
+ * @param genre - Значение жанра
  * @returns {JSX.Element}
  */
-export const TagPageClient: FC<TagPageClientProps> = ({
-  tagSlug,
+export const GenrePageClient: FC<GenrePageClientProps> = ({
+  genre,
 }): JSX.Element => {
   // Роутер
   const router = useRouter();
@@ -35,19 +35,8 @@ export const TagPageClient: FC<TagPageClientProps> = ({
   // Список фильмов
   const { mediaContents } = useMediaContents();
   const items = mediaContents || [];
-
-  // Находим оригинальное название тега из данных
-  const originalTag = useMemo(() => {
-    for (const item of items) {
-      if (item.visualTags && typeof item.visualTags === 'string') {
-        const tags = item.visualTags.split(',').map((t) => t.trim());
-        const found = tags.find((t) => formatSlugString(t) === tagSlug);
-        if (found) return found;
-      }
-    }
-    return tagSlug;
-  }, [items, tagSlug]);
-
+  // Текст жанра
+  const label = getGenreLabel(genre);
   // Тип фильма
   const [activeType, setActiveType] = useState(() => {
     const typeParam = searchParams.get('type');
@@ -96,11 +85,11 @@ export const TagPageClient: FC<TagPageClientProps> = ({
         params.set('type', type);
       }
       const qs = params.toString();
-      router.replace(`/reviews/tags/${tagSlug}${qs ? `?${qs}` : ''}`, {
+      router.replace(`/reviews/genres/${genre}${qs ? `?${qs}` : ''}`, {
         scroll: false,
       });
     },
-    [searchParams, router, tagSlug]
+    [searchParams, router, genre]
   );
 
   /**
@@ -162,10 +151,10 @@ export const TagPageClient: FC<TagPageClientProps> = ({
     setSearchQuery('');
     setCurrentPage(1);
     setPageSize(PAGINATION_CONFIG.defaultPageSize);
-    router.replace(`/reviews/tags/${tagSlug}`, { scroll: false });
-  }, [router, tagSlug]);
+    router.replace(`/reviews/genres/${genre}`, { scroll: false });
+  }, [router, genre]);
 
-  // Сброс при смене тега
+  // Сброс при смене жанра
   useEffect(() => {
     const pageParam = searchParams.get('page');
     const sizeParam = searchParams.get('size');
@@ -183,24 +172,18 @@ export const TagPageClient: FC<TagPageClientProps> = ({
     setPageSize(initialSize);
     setActiveType(typeParam || ALL_VALUE);
     setSearchQuery('');
-  }, [tagSlug, searchParams]);
+  }, [genre, searchParams]);
 
-  // Фильтрация по тегу (сравниваем slug каждого тега с tagSlug)
-  const tagItems = useMemo(() => {
+  // Фильтрация по жанру
+  const genreItems = useMemo(() => {
     return items.filter(
-      (item) =>
-        item.visualTags &&
-        typeof item.visualTags === 'string' &&
-        item.visualTags
-          .split(',')
-          .map((t) => t.trim())
-          .some((t) => formatSlugString(t) === tagSlug)
+      (item) => item.genres && (item.genres as string[]).includes(genre)
     );
-  }, [items, tagSlug]);
+  }, [items, genre]);
 
   // Фильтрация фильмов
   const filteredItems = useMemo(() => {
-    return tagItems.filter((item) => {
+    return genreItems.filter((item) => {
       // Фильтр по типу
       if (activeType !== ALL_VALUE && item.type !== activeType) return false;
 
@@ -214,7 +197,7 @@ export const TagPageClient: FC<TagPageClientProps> = ({
 
       return true;
     });
-  }, [tagItems, activeType, searchQuery]);
+  }, [genreItems, activeType, searchQuery]);
 
   // Пагинация
   const totalPages = Math.ceil(filteredItems.length / pageSize);
@@ -228,13 +211,13 @@ export const TagPageClient: FC<TagPageClientProps> = ({
       {/* Заголовок и кнопка назад */}
       <div className="mb-8">
         {/* Кнопка назад */}
-        <button
-          onClick={() => router.back()}
+        <Link
+          href="/"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-foreground"
         >
           <ArrowLeft size={14} />
           Каталог
-        </button>
+        </Link>
 
         {/* Заголовок */}
         <motion.div
@@ -242,20 +225,17 @@ export const TagPageClient: FC<TagPageClientProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="flex items-center gap-2 mb-1">
-            <Tag size={20} className="text-muted-foreground" />
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-              #{originalTag}
-            </h1>
-          </div>
+          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+            {label}
+          </h1>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            {tagItems.length}{' '}
-            {tagItems.length === 1
+            {genreItems.length}{' '}
+            {genreItems.length === 1
               ? 'запись'
-              : tagItems.length < 5
+              : genreItems.length < 5
                 ? 'записи'
                 : 'записей'}{' '}
-            с тегом «{originalTag}»
+            в жанре «{label}»
           </p>
         </motion.div>
       </div>
@@ -329,7 +309,7 @@ export const TagPageClient: FC<TagPageClientProps> = ({
           <p className="mt-1 text-sm">
             {searchQuery
               ? 'Попробуйте изменить поисковый запрос'
-              : 'С этим тегом пока нет записей'}
+              : 'В этом жанре пока нет записей'}
           </p>
         </div>
       )}
@@ -351,4 +331,4 @@ export const TagPageClient: FC<TagPageClientProps> = ({
   );
 };
 
-export default TagPageClient;
+export default GenrePageClient;

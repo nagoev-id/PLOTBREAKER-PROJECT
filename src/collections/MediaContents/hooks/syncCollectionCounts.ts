@@ -10,7 +10,8 @@ import { MediaContentCollection } from '@/utilities/types';
  */
 export const syncCollectionCounts: CollectionAfterChangeHook<
   MediaContentCollection
-> = async ({ doc, previousDoc, req: { payload } }) => {
+> = async ({ doc, previousDoc, req }) => {
+  const { payload } = req;
   const currentIds = extractIds(doc.collections);
   const previousIds = extractIds(previousDoc?.collections);
 
@@ -26,12 +27,14 @@ export const syncCollectionCounts: CollectionAfterChangeHook<
         where: {
           collections: { equals: collectionId },
         },
+        req,
       });
 
       await payload.update({
         collection: COLLECTION_SLUGS.collections,
         id: collectionId,
         data: { itemCount: totalDocs },
+        req,
       });
     } catch {
       // Ошибка обновления конкретной коллекции, продолжаем остальные

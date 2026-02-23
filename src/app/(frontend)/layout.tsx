@@ -1,5 +1,15 @@
 import React, { FC, JSX, ReactNode } from 'react';
 import '@/app/(frontend)/globals.css';
+import { Toaster } from '@/components/ui';
+import { getPayload } from 'payload';
+import { headers } from 'next/headers';
+import configPromise from '@payload-config';
+
+import {
+  CollectionCollection,
+  UserCollection,
+  PostCollection,
+} from '@/utilities/types';
 import { METADATA } from '@/utilities/constants';
 import { cn } from '@/utilities/utils';
 import { euclid } from '@/utilities/fonts';
@@ -8,10 +18,21 @@ import { Footer } from '@/globals/Footer';
 import {
   Preloader,
   ThemeProvider,
-  TelegramProvider,
+  // TelegramProvider,
+  AuthProvider,
+  CollectionsProvider,
+  MediaContentsProvider,
+  PostsProvider,
 } from '@/components/shared';
-import { Toaster } from '@/components/ui';
+import {
+  getCachedCollectionsLists,
+  getCachedGlobal,
+  getCachedMediaContents,
+  getCachedPostsLists,
+} from '@/utilities/helpers';
+import { MediaContent } from '@/payload-types';
 
+// Настройки метаданных для SEO
 export const metadata = {
   description: METADATA.siteDescription,
   title: METADATA.siteName,
@@ -28,13 +49,28 @@ export const metadata = {
       },
     ],
   },
-};
-
-/**
- * Тип пропсов для корневого макета
- */
-type Props = {
-  children: ReactNode;
+  openGraph: {
+    type: 'website',
+    locale: 'ru_RU',
+    url: METADATA.siteUrl,
+    siteName: METADATA.siteName,
+    title: METADATA.siteName,
+    description: METADATA.siteDescription,
+    images: [
+      {
+        url: '/images/preview-1.jpg',
+        width: 1200,
+        height: 630,
+        alt: METADATA.siteName,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: METADATA.siteName,
+    description: METADATA.siteDescription,
+    images: ['/images/preview-1.jpg'],
+  },
 };
 
 /**
@@ -46,7 +82,16 @@ type Props = {
  * @param props.children - Дочерние элементы для отображения в основной части
  * @returns JSX элемент корневого макета
  */
-const RootLayout: FC<Props> = ({ children }): JSX.Element => {
+const RootLayout = async ({
+  children,
+}: {
+  children: ReactNode;
+}): Promise<JSX.Element> => {
+  const payload = await getPayload({ config: configPromise });
+  const { user } = await payload.auth({ headers: await headers() });
+  const collections = await getCachedCollectionsLists()();
+  const mediaContents = await getCachedMediaContents()();
+  const posts = await getCachedPostsLists()();
   return (
     <html lang="ru" suppressHydrationWarning>
       <body
@@ -63,14 +108,28 @@ const RootLayout: FC<Props> = ({ children }): JSX.Element => {
           disableTransitionOnChange
           storageKey={METADATA.siteKey}
         >
-          <TelegramProvider>
-            <Preloader />
-            <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
-              <Header />
-              <main className="animate-fade-in w-full flex-1">{children}</main>
-              <Footer />
-            </div>
-          </TelegramProvider>
+          <AuthProvider user={user as UserCollection | null}>
+            <CollectionsProvider
+              collections={collections as CollectionCollection[] | null}
+            >
+              <MediaContentsProvider
+                mediaContents={mediaContents as MediaContent[] | null}
+              >
+                <PostsProvider posts={posts as PostCollection[] | null}>
+                  {/* <TelegramProvider> */}
+                  <Preloader />
+                  <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
+                    <Header />
+                    <main className="animate-fade-in w-full flex-1">
+                      {children}
+                    </main>
+                    <Footer />
+                  </div>
+                </PostsProvider>
+                {/* </TelegramProvider> */}
+              </MediaContentsProvider>
+            </CollectionsProvider>
+          </AuthProvider>
         </ThemeProvider>
         <Toaster />
       </body>

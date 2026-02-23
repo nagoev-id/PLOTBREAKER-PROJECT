@@ -13,6 +13,10 @@ import { populateList } from '@/collections/MediaContents/hooks/populateList';
 import { syncDates } from '@/collections/MediaContents/hooks/syncDates';
 import { syncCollectionCounts } from '@/collections/MediaContents/hooks/syncCollectionCounts';
 import { convertMarkdownReview } from '@/collections/MediaContents/hooks/convertMarkdownReview';
+import {
+  revalidateDelete,
+  revalidateList,
+} from '@/collections/MediaContents/hooks/revalidateList';
 
 export const MediaContents: CollectionConfig = {
   slug: COLLECTION_SLUGS.mediaContents,
@@ -354,7 +358,8 @@ export const MediaContents: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [syncDates],
-    afterChange: [populateList, syncCollectionCounts],
+    afterChange: [populateList, syncCollectionCounts, revalidateList],
+    afterDelete: [revalidateDelete],
   },
   timestamps: true,
   indexes: [

@@ -1,10 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPayload } from 'payload';
-import configPromise from '@payload-config';
 
-import { COLLECTION_SLUGS, METADATA } from '@/utilities/constants';
-import { MediaContentCollection } from '@/utilities/types';
+import { METADATA } from '@/utilities/constants';
+import { getMediaContentMetadata } from '@/utilities/helpers';
 import ReviewDetailClient from '@/app/(frontend)/(pages)/reviews/[slug]/page.client';
 
 // Настройка времени повторной валидации (ISR) — 60 секунд.
@@ -24,16 +22,12 @@ type Props = {
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const payload = await getPayload({ config: configPromise });
 
-  const result = await payload.find({
-    collection: COLLECTION_SLUGS.mediaContents,
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 1,
-  });
+  if (!slug) {
+    return { title: METADATA.reviewsPage.title };
+  }
 
-  const mediaItem = result.docs[0] as MediaContentCollection | undefined;
+  const mediaItem = await getMediaContentMetadata(slug);
 
   if (!mediaItem) {
     return { title: METADATA.reviewsPage.title };
@@ -41,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${mediaItem.title} — ${METADATA.reviewsPage.title}`,
-    description: mediaItem.synopsis || METADATA.reviewsPage.description,
+    description: mediaItem.description || METADATA.reviewsPage.description,
   };
 }
 
@@ -54,22 +48,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 const ReviewDetailPage = async ({ params }: Props) => {
   const { slug } = await params;
-  const payload = await getPayload({ config: configPromise });
-
-  const result = await payload.find({
-    collection: COLLECTION_SLUGS.mediaContents,
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 1,
-  });
-
-  const item = result.docs[0] as MediaContentCollection | undefined;
-
-  if (!item) {
+  if (!slug) {
     return notFound();
   }
-
-  return <ReviewDetailClient item={item} />;
+  return <ReviewDetailClient slug={slug} />;
 };
 
 export default ReviewDetailPage;

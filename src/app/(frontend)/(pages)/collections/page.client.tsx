@@ -2,28 +2,19 @@
 
 import { FC, JSX, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { User } from '@/payload-types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
 
-import { CollectionCollection } from '@/utilities/types';
 import { FILTERS_COLLECTIONS } from '@/utilities/constants';
 import { getTypeKey } from '@/utilities/utils';
-import { CollectionCard } from '@/components/shared';
-
-// Описание типов пропсов
-type CollectionsPageClientProps = {
-  data: CollectionCollection[];
-  user?: User | null;
-};
+import { CollectionCard, useCollections } from '@/components/shared';
 
 /**
  * Клиентский компонент страницы коллекций.
  * Реализует фильтрацию списков и отображение карточек.
  */
-const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
-  data,
-  user,
-}): JSX.Element => {
+const CollectionsPageClient: FC = (): JSX.Element => {
+  const { collections } = useCollections();
+  const collectionsLists = collections || [];
   const [typeFilter, setTypeFilter] = useState<string>('all_type');
 
   /**
@@ -32,11 +23,14 @@ const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
    * Иначе возвращаются только списки с выбранным типом.
    */
   const filteredLists = useMemo(() => {
-    return data.filter((list) => {
+    return collectionsLists.filter((list) => {
+      if (typeFilter === 'all_type') return true;
+      if (typeFilter === 'theme') return list.isTheme === true;
+
       const typeKey = getTypeKey(list.title);
-      return typeFilter === 'all_type' || typeKey === typeFilter;
+      return typeKey === typeFilter;
     });
-  }, [data, typeFilter]);
+  }, [collectionsLists, typeFilter]);
 
   return (
     <section className="border-t">
@@ -86,7 +80,7 @@ const CollectionsPageClient: FC<CollectionsPageClientProps> = ({
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredLists.length > 0 ? (
             filteredLists.map((list) => (
-              <CollectionCard key={list.id} list={list} user={user} />
+              <CollectionCard key={list.id} list={list} />
             ))
           ) : (
             <div className="col-span-full py-20 text-center">

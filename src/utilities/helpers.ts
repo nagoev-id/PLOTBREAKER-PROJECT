@@ -6,6 +6,7 @@ import { COLLECTION_SLUGS } from '@/utilities/constants';
 import {
   MediaContentCollection,
   CollectionCollection,
+  PostCollection,
 } from '@/utilities/types';
 import type { Config } from '@/payload-types';
 
@@ -236,7 +237,7 @@ export const getCollectionsLists = async (): Promise<
 
     const result = await payload.find({
       collection: COLLECTION_SLUGS.collections,
-      sort: '-createdAt',
+      sort: 'title',
       limit: 0,
       depth: 0,
       select: {
@@ -248,6 +249,7 @@ export const getCollectionsLists = async (): Promise<
         createdAt: true,
         updatedAt: true,
         description: true,
+        isTheme: true,
       },
     });
 
@@ -368,5 +370,148 @@ export const getCachedMediaContentsByTag = (
     {
       tags: ['media-contents'],
       revalidate: 3600,
+    }
+  );
+
+/**
+ * Получает записи медиа-контента по жанру.
+ *
+ * @param genre - Значение жанра (например: 'drama', 'comedy')
+ * @returns Массив записей MediaContent
+ */
+export const getMediaContentsByGenre = async (
+  genre: string
+): Promise<MediaContentCollection[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise });
+
+    const result = await payload.find({
+      collection: COLLECTION_SLUGS.mediaContents,
+      sort: '-createdAt',
+      limit: 0,
+      depth: 1,
+      where: {
+        genres: {
+          contains: genre,
+        },
+      },
+    });
+
+    return result.docs as MediaContentCollection[];
+  } catch (error) {
+    console.error(`Ошибка при получении записей по жанру "${genre}":`, error);
+    throw new Error(`Не удалось загрузить записи по жанру "${genre}"`);
+  }
+};
+
+/**
+ * Кэшированная версия getMediaContentsByGenre.
+ */
+export const getCachedMediaContentsByGenre = (
+  genre: string
+): (() => Promise<MediaContentCollection[]>) =>
+  unstable_cache(
+    async (): Promise<MediaContentCollection[]> =>
+      getMediaContentsByGenre(genre),
+    [`media_contents_genre_${genre}`],
+    {
+      tags: ['media-contents'],
+      revalidate: 3600,
+    }
+  );
+
+/**
+ * Получает метаданные (SEO) для страницы детального просмотра записи.
+ *
+ * @param slug - Уникальный slug записи (Media Content)
+ * @returns Метаданные (title, description)
+ */
+export const getMediaContentMetadata = async (
+  slug: string
+): Promise<{ title: string; description: string | null } | null> => {
+  try {
+    const payload = await getPayload({ config: configPromise });
+
+    const result = await payload.find({
+      collection: COLLECTION_SLUGS.mediaContents,
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 1,
+      select: {
+        title: true,
+        synopsis: true,
+      },
+    });
+
+    const mediaItem = result.docs[0] as MediaContentCollection | undefined;
+
+    if (!mediaItem) {
+      return null;
+    }
+
+    return {
+      title: mediaItem.title,
+      description: mediaItem.synopsis || null,
+    };
+  } catch (error) {
+    console.error(`Ошибка при получении метаданных для "${slug}":`, error);
+    return null;
+  }
+};
+
+/**
+ * Кэшированная версия getMediaContentMetadata.
+ */
+export const getCachedMediaContentMetadata = (
+  slug: string
+): (() => Promise<{ title: string; description: string | null } | null>) =>
+  unstable_cache(
+    async () => getMediaContentMetadata(slug),
+    [`media_contents_metadata_${slug}`],
+    {
+      tags: ['media-contents'],
+      revalidate: 3600,
+    }
+  );
+
+/**
+ * Получает список постов (записей блога) из базы данных.
+ *
+ * @returns Массив записей постов с полным типом PostCollection
+ * @throws {Error} В случае ошибки подключения к базе данных
+ */
+export const getPostsLists = async (): Promise<PostCollection[]> => {
+  try {
+    const payload = await getPayload({ config: configPromise });
+
+    const result = await payload.find({
+      collection: COLLECTION_SLUGS.posts,
+      sort: '-publishedAt',
+      limit: 0,
+      depth: 1,
+    });
+
+    return result.docs as PostCollection[];
+  } catch (error) {
+    console.error('Ошибка при получении списка постов:', error);
+    throw new Error('Не удалось загрузить список постов');
+  }
+};
+
+/**
+ * Создает кэшированную версию функции получения списка постов.
+ *
+ * Использует Next.js unstable_cache для кэширования результатов запросов.
+ * Кэш автоматически инвалидируется при изменении тега "posts".
+ *
+ * @returns Кэшированная функция, возвращающая Promise с массивом постов
+ */
+export const getCachedPostsLists = (): (() => Promise<PostCollection[]>) =>
+  unstable_cache(
+    async (): Promise<PostCollection[]> => getPostsLists(),
+    ['posts_lists'],
+    {
+      tags: ['posts'],
+      revalidate: 3600, // Кэш на 1 час
     }
   );

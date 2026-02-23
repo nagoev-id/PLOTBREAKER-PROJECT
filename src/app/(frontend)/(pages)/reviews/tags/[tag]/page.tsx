@@ -1,15 +1,10 @@
-import { Metadata } from 'next';
+import { JSX, Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { getPayload } from 'payload';
-import { headers } from 'next/headers';
-import configPromise from '@payload-config';
+import type { Metadata } from 'next';
 
 import { METADATA } from '@/utilities/constants';
-import { getCachedMediaContentsByTag } from '@/utilities/helpers';
-import TagPageClient from './page.client';
-
-// Настройка ISR — 60 секунд.
-export const revalidate = 60;
+import { LoadingSpinner } from '@/components/shared';
+import { TagPageClient } from '@/app/(frontend)/(pages)/reviews/tags/[tag]/page.client';
 
 // Описание типов пропсов
 type Props = {
@@ -17,36 +12,38 @@ type Props = {
 };
 
 /**
- * Генерирует метаданные для страницы тега.
+ * Динамическая генерация метаданных для SEO
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tag } = await params;
-  const decodedTag = decodeURIComponent(tag);
 
   return {
-    title: `#${decodedTag} — ${METADATA.reviewsPage.title}`,
-    description: `Все записи с тегом «${decodedTag}»`,
+    title: `#${tag} — ${METADATA.siteName}`,
+    description: `Все фильмы и сериалы с тегом «${tag}» на ${METADATA.siteName}`,
+    openGraph: {
+      title: `#${tag} — ${METADATA.siteName}`,
+      description: `Все фильмы и сериалы с тегом «${tag}»`,
+    },
   };
 }
 
 /**
- * Серверный компонент страницы фильтрации по тегу.
- * Загружает все записи, у которых visualTags содержит данный тег.
+ * Страница тега — отображает все записи с указанным визуальным тегом
+ * @param {{ params: Promise<{ tag: string }> }} - Параметры маршрута
+ * @returns {JSX.Element}
  */
-const TagPage = async ({ params }: Props) => {
+const TagPage = async ({ params }: Props): Promise<JSX.Element> => {
   const { tag } = await params;
-  const decodedTag = decodeURIComponent(tag);
 
-  const payload = await getPayload({ config: configPromise });
-  const { user } = await payload.auth({ headers: await headers() });
-
-  const items = await getCachedMediaContentsByTag(decodedTag)();
-
-  if (!items || items.length === 0) {
-    return notFound();
+  if (!tag.trim()) {
+    notFound();
   }
 
-  return <TagPageClient items={items} tag={decodedTag} user={user} />;
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <TagPageClient tagSlug={tag} />
+    </Suspense>
+  );
 };
 
 export default TagPage;

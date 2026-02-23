@@ -5,24 +5,17 @@ import { motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
 
 import { Badge, Input } from '@/components/ui';
-import { PaginationControls, PostCard } from '@/components/shared';
+import { PaginationControls, PostCard, usePosts } from '@/components/shared';
 import { PAGINATION_CONFIG } from '@/utilities/constants';
-import { PostCollection, UserCollection } from '@/utilities/types';
-
-// Описание типов пропсов
-type BlogPageClientProps = {
-  posts: PostCollection[];
-  user: UserCollection | null;
-};
+import { PostCollection } from '@/utilities/types';
 
 /**
  * Клиентский компонент страницы блога.
  * Поиск, грид карточек постов, пагинация.
  */
-const BlogPageClient: FC<BlogPageClientProps> = ({
-  posts,
-  user,
-}): JSX.Element => {
+const BlogPageClient: FC = (): JSX.Element => {
+  const { posts: allPosts } = usePosts();
+  const posts = allPosts || [];
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_CONFIG.defaultPageSize);
@@ -32,7 +25,9 @@ const BlogPageClient: FC<BlogPageClientProps> = ({
     const query = searchQuery.toLowerCase().trim();
     if (!query) return posts;
 
-    return posts.filter((post) => post.title?.toLowerCase().includes(query));
+    return posts.filter((post: PostCollection) =>
+      post.title?.toLowerCase().includes(query)
+    );
   }, [posts, searchQuery]);
 
   // Пагинация
@@ -109,8 +104,8 @@ const BlogPageClient: FC<BlogPageClientProps> = ({
             transition={{ delay: 0.1, duration: 0.4 }}
             className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5"
           >
-            {paginatedPosts.map((post) => (
-              <PostCard key={post.id} post={post} user={user} />
+            {paginatedPosts.map((post: PostCollection) => (
+              <PostCard key={post.id} post={post} />
             ))}
           </motion.div>
         ) : (

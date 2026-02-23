@@ -6,6 +6,23 @@ import type {
 
 import { revalidatePath, revalidateTag } from 'next/cache';
 
+// Безопасные обёртки — не падают вне контекста Next.js (CLI, jobs)
+const safeRevalidatePath = (path: string): void => {
+  try {
+    revalidatePath(path);
+  } catch {
+    // Вне Next.js контекста revalidatePath недоступен — игнорируем
+  }
+};
+
+const safeRevalidateTag = (tag: string): void => {
+  try {
+    revalidateTag(tag);
+  } catch {
+    // Вне Next.js контекста revalidateTag недоступен — игнорируем
+  }
+};
+
 /**
  * Инвалидирует кэш страницы поста после изменения.
  */
@@ -16,8 +33,8 @@ export const revalidatePost: CollectionAfterChangeHook = async ({
   if (!context.disableRevalidate) {
     const path = `/posts/${doc.slug}`;
     payload.logger.info(`Revalidating post at path: ${path}`);
-    revalidatePath(path);
-    revalidateTag('posts-sitemap');
+    safeRevalidatePath(path);
+    safeRevalidateTag('posts-sitemap');
   }
   return doc;
 };
@@ -31,8 +48,8 @@ export const revalidateDelete: CollectionAfterDeleteHook = async ({
 }) => {
   if (!context.disableRevalidate) {
     const path = `/posts/${doc?.slug}`;
-    revalidatePath(path);
-    revalidateTag('posts-sitemap');
+    safeRevalidatePath(path);
+    safeRevalidateTag('posts-sitemap');
   }
   return doc;
 };

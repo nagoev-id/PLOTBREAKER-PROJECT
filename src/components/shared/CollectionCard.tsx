@@ -4,37 +4,39 @@ import { FC, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { cn, configCollection } from '@/utilities/utils';
-
 import { Card, Separator } from '@/components/ui';
 import { toast } from 'sonner';
-import { CollectionCollection, UserCollection } from '@/utilities/types';
-import { AdminActions } from './AdminActions';
+
+import { cn, configCollection } from '@/utilities/utils';
+import { CollectionCollection } from '@/utilities/types';
+import { AdminActions } from '@/components/shared';
+import axios from 'axios';
 
 type CollectionCardProps = {
   list: CollectionCollection;
-  user?: UserCollection | null;
 };
 
 /**
  * Карточка коллекции.
  * @param list Коллекция.
- * @param user Пользователь.
  * @returns Карточка коллекции.
  */
-export const CollectionCard: FC<CollectionCardProps> = ({ list, user }) => {
+export const CollectionCard: FC<CollectionCardProps> = ({ list }) => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const { type, TypeIcon } = configCollection(list.title);
 
+  /**
+   * Удаляет коллекцию.
+   */
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/collections/${list.id}`, {
-        method: 'DELETE',
-      });
+      const { data: success } = await axios.delete(
+        `/api/collections/${list.id}`
+      );
 
-      if (!response.ok) {
+      if (!success) {
         throw new Error('Failed to delete');
       }
 
@@ -61,7 +63,10 @@ export const CollectionCard: FC<CollectionCardProps> = ({ list, user }) => {
           type.border
         )}
       >
-        <Link href={`/collections/${list.slug}`} className="block">
+        <Link
+          href={`/collections/${list.slug}`}
+          className="block dark:bg-foreground/5"
+        >
           <div className="flex items-center justify-between p-3">
             {/* Иконка типа */}
             <div
@@ -89,38 +94,37 @@ export const CollectionCard: FC<CollectionCardProps> = ({ list, user }) => {
 
           {/* Заголовок */}
           <h3 className="p-3 text-lg font-bold">{list.title}</h3>
-
-          {/* Разделитель */}
-          <Separator className={cn('bg-transparent border-b', type.border)} />
-
-          {/* Футер */}
-          <div
-            className={cn(
-              'flex items-center justify-between gap-3 p-3 text-sm text-zinc-500 dark:text-zinc-400',
-              type.bg
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <TypeIcon size={16} className="opacity-60" />
-              <span>{type.label}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="font-bold text-zinc-900 dark:text-zinc-50">
-                {list.itemCount ?? 0}
-              </span>
-              <span>записей</span>
-            </div>
-          </div>
         </Link>
-        {user && (
+
+        {/* Разделитель */}
+        <Separator className={cn('bg-transparent border-b', type.border)} />
+
+        {/* Футер */}
+        <div
+          className={cn(
+            'flex items-center gap-3 p-3 text-sm text-zinc-500 dark:text-zinc-400',
+            type.bg
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <TypeIcon size={16} className="opacity-60" />
+            <span>{type.label}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="font-bold text-zinc-900 dark:text-zinc-50">
+              {list.itemCount ?? 0}
+            </span>
+            <span>записей</span>
+          </div>
           <AdminActions
             editUrl={`/admin/collections/collections/${list.id}`}
             onDelete={handleDelete}
             isDeleting={isDeleting}
             title={list.title}
             typeName="Коллекция"
+            classNames="!p-0 ml-auto"
           />
-        )}
+        </div>
       </Card>
     </motion.div>
   );

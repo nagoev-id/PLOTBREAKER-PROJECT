@@ -9,7 +9,8 @@ import type { CollectionCollection } from '@/utilities/types';
  */
 export const updateItemCount: CollectionBeforeChangeHook<
   CollectionCollection
-> = async ({ data, originalDoc, req: { payload } }) => {
+> = async ({ data, originalDoc, req }) => {
+  const { payload } = req;
   const collectionId = originalDoc?.id;
 
   if (collectionId) {
@@ -19,6 +20,7 @@ export const updateItemCount: CollectionBeforeChangeHook<
         where: {
           collections: { equals: collectionId },
         },
+        req,
       });
 
       data.itemCount = totalDocs;

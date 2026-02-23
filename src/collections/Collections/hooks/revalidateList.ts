@@ -5,6 +5,15 @@ import type {
 import { revalidateTag } from 'next/cache';
 import { CollectionCollection } from '@/utilities/types';
 
+// Безопасная обёртка для revalidateTag — не падает вне контекста Next.js (CLI, jobs)
+const safeRevalidateTag = (tag: string): void => {
+  try {
+    revalidateTag(tag);
+  } catch {
+    // Вне Next.js контекста revalidateTag недоступен — игнорируем
+  }
+};
+
 export const revalidateList: CollectionAfterChangeHook<
   CollectionCollection
 > = async ({ doc, req: { payload, context } }) => {
@@ -12,7 +21,7 @@ export const revalidateList: CollectionAfterChangeHook<
     if (doc.slug) {
       const tag = `list_${doc.slug}`;
       payload.logger.info(`Revalidating list with tag: ${tag}`);
-      revalidateTag(tag);
+      safeRevalidateTag(tag);
     }
   }
   return doc;
@@ -24,7 +33,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<
   if (!context.disableRevalidate) {
     if (doc.slug) {
       const tag = `list_${doc.slug}`;
-      revalidateTag(tag);
+      safeRevalidateTag(tag);
     }
   }
 

@@ -1,22 +1,30 @@
 'use client';
 
-import { FC, JSX, useCallback, useMemo, useState } from 'react';
+import { FC, JSX, useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Badge, Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Input,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui';
 import { Search, X } from 'lucide-react';
 
 import {
   CustomSelect,
   MovieCard,
   PaginationControls,
+  useMediaContents,
 } from '@/components/shared';
 import {
   PAGINATION_CONFIG,
   ALL_VALUE,
   HOMEPAGE_FILTERS,
 } from '@/utilities/constants';
-import { MediaContentCollection, UserCollection } from '@/utilities/types';
+import { MediaContentCollection } from '@/utilities/types';
 import {
   genreOptions,
   matchesRating,
@@ -24,32 +32,45 @@ import {
   watchYearOptions,
 } from '@/utilities/utils';
 
-// Тип пропсов
-type HomePageClientProps = {
-  items: MediaContentCollection[];
-  user: UserCollection | null;
-};
-
 /**
  * Клиентский компонент главной страницы.
  * Отображает список медиа-контента с фильтрами, поиском и пагинацией.
  * @param items - Массив медиа-контента
  * @returns {JSX.Element}
  */
-const HomePageClient: FC<HomePageClientProps> = ({
-  items,
-  user,
-}): JSX.Element => {
+const HomePageClient: FC = (): JSX.Element => {
+  // Получаем медиа-контент из контекста
+  const { mediaContents } = useMediaContents();
+  const items = mediaContents || [];
+
+  // Инициализируем роутер и searchParams
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeType, setActiveType] = useState(ALL_VALUE);
-  const [selectedGenre, setSelectedGenre] = useState(ALL_VALUE);
-  const [selectedReleaseYear, setSelectedReleaseYear] = useState(ALL_VALUE);
-  const [selectedOpinion, setSelectedOpinion] = useState(ALL_VALUE);
-  const [selectedRating, setSelectedRating] = useState(ALL_VALUE);
-  const [selectedWatchYear, setSelectedWatchYear] = useState(ALL_VALUE);
 
+  // Состояния для фильтров
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get('q') || ''
+  );
+  const [activeType, setActiveType] = useState(
+    () => searchParams.get('type') || ALL_VALUE
+  );
+  const [selectedGenre, setSelectedGenre] = useState(
+    () => searchParams.get('genre') || ALL_VALUE
+  );
+  const [selectedReleaseYear, setSelectedReleaseYear] = useState(
+    () => searchParams.get('year') || ALL_VALUE
+  );
+  const [selectedOpinion, setSelectedOpinion] = useState(
+    () => searchParams.get('opinion') || ALL_VALUE
+  );
+  const [selectedRating, setSelectedRating] = useState(
+    () => searchParams.get('rating') || ALL_VALUE
+  );
+  const [selectedWatchYear, setSelectedWatchYear] = useState(
+    () => searchParams.get('watchYear') || ALL_VALUE
+  );
+
+  // Пагинация
   const currentPage = Number(searchParams.get('page')) || 1;
   const pageSize = PAGINATION_CONFIG.pageSizeOptions.includes(
     Number(searchParams.get('size'))
@@ -57,22 +78,69 @@ const HomePageClient: FC<HomePageClientProps> = ({
     ? Number(searchParams.get('size'))
     : PAGINATION_CONFIG.defaultPageSize;
 
-  /**
-   * Обновляет параметры пагинации в URL
-   * @param page - Номер страницы
-   * @param size - Размер страницы
-   */
+  // Синхронизация при изменении searchParams (back/forward браузера)
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '');
+    setActiveType(searchParams.get('type') || ALL_VALUE);
+    setSelectedGenre(searchParams.get('genre') || ALL_VALUE);
+    setSelectedReleaseYear(searchParams.get('year') || ALL_VALUE);
+    setSelectedOpinion(searchParams.get('opinion') || ALL_VALUE);
+    setSelectedRating(searchParams.get('rating') || ALL_VALUE);
+    setSelectedWatchYear(searchParams.get('watchYear') || ALL_VALUE);
+  }, [searchParams]);
+
+  // Обновляет все параметры в URL
   const updateParams = useCallback(
-    (page: number, size: number) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (page <= 1) params.delete('page');
-      else params.set('page', String(page));
-      if (size === PAGINATION_CONFIG.defaultPageSize) params.delete('size');
-      else params.set('size', String(size));
-      const qs = params.toString();
-      router.replace(qs ? `?${qs}` : '?', { scroll: false });
+    (
+      overrides: {
+        page?: number;
+        size?: number;
+        type?: string;
+        genre?: string;
+        year?: string;
+        opinion?: string;
+        rating?: string;
+        watchYear?: string;
+        q?: string;
+      } = {}
+    ) => {
+      const p = new URLSearchParams();
+      const page = overrides.page ?? currentPage;
+      const size = overrides.size ?? pageSize;
+      const type = overrides.type ?? activeType;
+      const genre = overrides.genre ?? selectedGenre;
+      const year = overrides.year ?? selectedReleaseYear;
+      const opinion = overrides.opinion ?? selectedOpinion;
+      const rating = overrides.rating ?? selectedRating;
+      const watchYear = overrides.watchYear ?? selectedWatchYear;
+      const q = overrides.q ?? searchQuery;
+
+      if (page > 1) p.set('page', String(page));
+      if (size !== PAGINATION_CONFIG.defaultPageSize)
+        p.set('size', String(size));
+      if (type !== ALL_VALUE) p.set('type', type);
+      if (genre !== ALL_VALUE) p.set('genre', genre);
+      if (year !== ALL_VALUE) p.set('year', year);
+      if (opinion !== ALL_VALUE) p.set('opinion', opinion);
+      if (rating !== ALL_VALUE) p.set('rating', rating);
+      if (watchYear !== ALL_VALUE) p.set('watchYear', watchYear);
+      if (q) p.set('q', q);
+
+      const qs = p.toString();
+      router.replace(qs ? `?${qs}` : '/', { scroll: false });
     },
-    [router, searchParams]
+    [
+      router,
+      currentPage,
+      pageSize,
+      activeType,
+      selectedGenre,
+      selectedReleaseYear,
+      selectedOpinion,
+      selectedRating,
+      selectedWatchYear,
+      searchQuery,
+    ]
   );
 
   /**
@@ -146,10 +214,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
     selectedWatchYear,
   ]);
 
-  /**
-   * Вычисляет общее количество страниц
-   * @returns {number} - Общее количество страниц
-   */
+  // Вычисляет общее количество страниц
   const totalPages = Math.ceil(filteredItems.length / pageSize);
 
   /**
@@ -166,8 +231,8 @@ const HomePageClient: FC<HomePageClientProps> = ({
    * @param page - Новая страница
    */
   const handlePageChange = useCallback(
-    (page: number) => updateParams(page, pageSize),
-    [updateParams, pageSize]
+    (page: number) => updateParams({ page }),
+    [updateParams]
   );
 
   /**
@@ -175,7 +240,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
    * @param newSize - Новый размер страницы
    */
   const handlePageSizeChange = useCallback(
-    (newSize: number) => updateParams(1, newSize),
+    (newSize: number) => updateParams({ page: 1, size: newSize }),
     [updateParams]
   );
 
@@ -186,9 +251,9 @@ const HomePageClient: FC<HomePageClientProps> = ({
   const handleTypeChange = useCallback(
     (value: string) => {
       setActiveType(value);
-      updateParams(1, pageSize);
+      updateParams({ page: 1, type: value });
     },
-    [updateParams, pageSize]
+    [updateParams]
   );
 
   /**
@@ -202,8 +267,8 @@ const HomePageClient: FC<HomePageClientProps> = ({
     setSelectedOpinion(ALL_VALUE);
     setSelectedRating(ALL_VALUE);
     setSelectedWatchYear(ALL_VALUE);
-    updateParams(1, PAGINATION_CONFIG.defaultPageSize);
-  }, [updateParams]);
+    router.replace('/', { scroll: false });
+  }, [router]);
 
   /**
    * Проверяет, есть ли активные фильтры
@@ -216,7 +281,9 @@ const HomePageClient: FC<HomePageClientProps> = ({
     selectedReleaseYear !== ALL_VALUE ||
     selectedOpinion !== ALL_VALUE ||
     selectedRating !== ALL_VALUE ||
-    selectedWatchYear !== ALL_VALUE;
+    selectedWatchYear !== ALL_VALUE ||
+    currentPage > 1 ||
+    pageSize !== PAGINATION_CONFIG.defaultPageSize;
 
   return (
     <section className="space-y-6 pb-8 lg:pb-11 border-t pt-8">
@@ -228,6 +295,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
           transition={{ duration: 0.5 }}
           className="space-y-2 md:space-y-4 md:flex md:items-center md:justify-between"
         >
+          {/* Заголовок */}
           <h3 className="text-2xl font-bold lg:text-3xl md:mb-0">Записи</h3>
 
           {/* Вкладки по типу контента */}
@@ -264,7 +332,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
-                    updateParams(1, pageSize);
+                    updateParams({ page: 1, q: e.target.value });
                   }}
                   className="pl-8 text-sm"
                 />
@@ -276,7 +344,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                 value={selectedGenre}
                 onValueChange={(v) => {
                   setSelectedGenre(v);
-                  updateParams(1, pageSize);
+                  updateParams({ page: 1, genre: v });
                 }}
                 options={genreOptions()}
                 placeholder="Все жанры"
@@ -288,7 +356,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                 value={selectedReleaseYear}
                 onValueChange={(v) => {
                   setSelectedReleaseYear(v);
-                  updateParams(1, pageSize);
+                  updateParams({ page: 1, year: v });
                 }}
                 options={releaseYearOptions(items)}
                 placeholder="Год выхода"
@@ -300,7 +368,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                 value={selectedOpinion}
                 onValueChange={(v) => {
                   setSelectedOpinion(v);
-                  updateParams(1, pageSize);
+                  updateParams({ page: 1, opinion: v });
                 }}
                 options={HOMEPAGE_FILTERS.opinions}
                 placeholder="Впечатление"
@@ -312,7 +380,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                 value={selectedRating}
                 onValueChange={(v) => {
                   setSelectedRating(v);
-                  updateParams(1, pageSize);
+                  updateParams({ page: 1, rating: v });
                 }}
                 options={HOMEPAGE_FILTERS.ratings}
                 placeholder="Рейтинг КП"
@@ -324,7 +392,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                 value={selectedWatchYear}
                 onValueChange={(v) => {
                   setSelectedWatchYear(v);
-                  updateParams(1, pageSize);
+                  updateParams({ page: 1, watchYear: v });
                 }}
                 options={watchYearOptions(items)}
                 placeholder="Год просмотра"
@@ -333,15 +401,15 @@ const HomePageClient: FC<HomePageClientProps> = ({
 
             {/* Кнопка сброса фильтров */}
             {hasActiveFilters && (
-              <motion.button
+              <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                onClick={resetFilters}
-                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-xs transition-colors"
               >
-                <X size={12} />
-                Сбросить фильтры
-              </motion.button>
+                <Button onClick={resetFilters} size="sm" variant="outline">
+                  <X size={12} />
+                  Сбросить фильтры
+                </Button>
+              </motion.div>
             )}
           </aside>
 
@@ -361,6 +429,8 @@ const HomePageClient: FC<HomePageClientProps> = ({
                 Найдено · {filteredItems.length}
               </Badge>
             </motion.div>
+
+            {/* Сетка карточек */}
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
               {paginatedItems.length > 0 ? (
                 paginatedItems.map((item, index) => (
@@ -370,7 +440,7 @@ const HomePageClient: FC<HomePageClientProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.03, duration: 0.4 }}
                   >
-                    <MovieCard item={item} user={user} />
+                    <MovieCard item={item} />
                   </motion.div>
                 ))
               ) : (
