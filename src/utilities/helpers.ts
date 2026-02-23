@@ -317,7 +317,7 @@ export const getCollectionBySlug = async (
       depth: 1,
       joins: {
         items: {
-          limit: 100,
+          limit: 0,
         },
       },
     });

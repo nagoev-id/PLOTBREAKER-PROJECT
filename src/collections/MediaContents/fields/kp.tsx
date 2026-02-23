@@ -146,9 +146,10 @@ const mapKpType = (
  */
 export const KpSearch = () => {
   const { setValue: setTitle } = useField<string>({ path: 'title' });
-  const { setValue: setOriginalTitle } = useField<string>({
-    path: 'originalTitle',
-  });
+  const { value: originalTitleValue, setValue: setOriginalTitle } =
+    useField<string>({
+      path: 'originalTitle',
+    });
   const { setValue: setPosterUrl } = useField<string>({ path: 'posterUrl' });
   const { setValue: setReleaseYear } = useField<number>({
     path: 'releaseYear',
@@ -190,31 +191,45 @@ export const KpSearch = () => {
 
   /**
    * Выполняет поиск фильмов/сериалов через прокси-API.
+   * @param queryOverride - Опциональный текст запроса (используется при автозаполнении)
    */
-  const handleSearch = useCallback(async () => {
-    if (!query.trim()) return;
-    setState((prev) => ({ ...prev, status: 'loading', error: null }));
-    try {
-      const response = await axios.get<{ items: KPSearchResult[] }>(
-        `/api/kp?query=${encodeURIComponent(query)}&type=${typeFilter}`
-      );
-      setState((prev) => ({
-        ...prev,
-        results: response.data.items || [],
-        status: 'success',
-      }));
-    } catch (e) {
-      setState((prev) => ({
-        ...prev,
-        status: 'error',
-        error:
-          'Ошибка при поиске в Кинопоиск. Проверьте соединение или API ключ.',
-      }));
-      console.error('[KpSearch] Search error:', e);
-    } finally {
-      setState((prev) => ({ ...prev, status: 'idle' }));
-    }
-  }, [query, typeFilter]);
+  const handleSearch = useCallback(
+    async (queryOverride?: string) => {
+      const searchQuery = queryOverride ?? query;
+      if (!searchQuery.trim()) return;
+      setState((prev) => ({ ...prev, status: 'loading', error: null }));
+      try {
+        const response = await axios.get<{ items: KPSearchResult[] }>(
+          `/api/kp?query=${encodeURIComponent(searchQuery)}&type=${typeFilter}`
+        );
+        setState((prev) => ({
+          ...prev,
+          results: response.data.items || [],
+          status: 'success',
+        }));
+      } catch (e) {
+        setState((prev) => ({
+          ...prev,
+          status: 'error',
+          error:
+            'Ошибка при поиске в Кинопоиск. Проверьте соединение или API ключ.',
+        }));
+        console.error('[KpSearch] Search error:', e);
+      } finally {
+        setState((prev) => ({ ...prev, status: 'idle' }));
+      }
+    },
+    [query, typeFilter]
+  );
+
+  /**
+   * Заполняет поле поиска значением из originalTitle и запускает поиск.
+   */
+  const handleFillFromOriginalTitle = useCallback(() => {
+    if (!originalTitleValue?.trim()) return;
+    setState((prev) => ({ ...prev, query: originalTitleValue }));
+    handleSearch(originalTitleValue);
+  }, [originalTitleValue, handleSearch]);
 
   /**
    * Заполняет поля формы данными выбранного объекта.
@@ -415,7 +430,7 @@ export const KpSearch = () => {
         />
         <button
           type="button"
-          onClick={handleSearch}
+          onClick={() => handleSearch()}
           style={{
             cursor: 'pointer',
             borderRadius: '4px',
@@ -435,6 +450,33 @@ export const KpSearch = () => {
         >
           {status === 'loading' ? '...' : 'Найти'}
         </button>
+        {originalTitleValue?.trim() && (
+          <button
+            type="button"
+            onClick={handleFillFromOriginalTitle}
+            title={`Искать: ${originalTitleValue}`}
+            style={{
+              cursor: 'pointer',
+              borderRadius: '4px',
+              border: '1px solid var(--theme-elevation-200)',
+              backgroundColor: 'var(--theme-elevation-100)',
+              padding: '10px 14px',
+              fontWeight: '600',
+              color: 'var(--theme-text)',
+              opacity: status === 'loading' ? 0.5 : 1,
+              fontSize: '0.8rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              whiteSpace: 'nowrap',
+              transition: 'opacity 0.2s, background-color 0.2s',
+            }}
+            disabled={status === 'loading'}
+          >
+            ⬆ Из оригинала
+          </button>
+        )}
       </div>
 
       {error && (

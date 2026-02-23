@@ -367,6 +367,5 @@ export const MediaContents: CollectionConfig = {
     { fields: ['type', 'releaseYear'] },
     { fields: ['personalOpinion', 'watchYear'] },
     { fields: ['title', 'originalTitle'] },
-    { fields: ['genres'] },
   ],
 };
