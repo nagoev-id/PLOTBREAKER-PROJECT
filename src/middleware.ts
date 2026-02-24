@@ -12,16 +12,16 @@ export const config = {
  * Middleware для защиты маршрутов сайта.
  * Проверяет наличие сессионного токена Payload CMS.
  */
-export const middleware = (request: NextRequest): NextResponse => {
-  // Пытаемся получить токен авторизации из кук
-  const token = request.cookies.get('payload-token');
+export const middleware = (_request: NextRequest): NextResponse => {
+  // TODO: Временно отключена проверка авторизации — сайт доступен публично.
+  // Админ-функции (Dashboard, ссылки) защищены через серверную проверку роли в layout
+  // и AuthProvider. Чтобы получить доступ к админке — зайти на /admin и авторизоваться.
 
-  // Если токен не найден, перенаправляем пользователя на страницу логина админки
-  if (!token) {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
-  }
+  // const token = request.cookies.get('payload-token');
+  // if (!token) {
+  //   return NextResponse.redirect(new URL('/admin/login', request.url));
+  // }
 
-  // Если токен присутствует, разрешаем переход к следующему этапу обработки запроса
   return NextResponse.next();
 };
 

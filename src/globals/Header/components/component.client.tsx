@@ -117,6 +117,16 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
             })}
             {user && (
               <Link
+                href="/dashboard"
+                className={`transition-colors hover:text-foreground ${
+                  pathname?.startsWith('/dashboard') ? 'text-foreground' : ''
+                }`}
+              >
+                Dashboard
+              </Link>
+            )}
+            {user && (
+              <Link
                 href="/admin"
                 aria-label="Перейти в панель управления"
                 target="_blank"

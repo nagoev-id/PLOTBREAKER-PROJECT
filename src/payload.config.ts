@@ -40,12 +40,12 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     // Автоматический вход в режиме разработки для удобства тестирования
-    ...(process.env.NODE_ENV !== 'production' && {
-      autoLogin: {
-        email: process.env.CMS_SEED_ADMIN_EMAIL,
-        password: process.env.CMS_SEED_ADMIN_PASSWORD,
-      },
-    }),
+    // ...(process.env.NODE_ENV !== 'production' && {
+    //   autoLogin: {
+    //     email: process.env.CMS_SEED_ADMIN_EMAIL,
+    //     password: process.env.CMS_SEED_ADMIN_PASSWORD,
+    //   },
+    // }),
     // Автоматическое обновление данных
     autoRefresh: true,
     // Кастомные компоненты интерфейса админки

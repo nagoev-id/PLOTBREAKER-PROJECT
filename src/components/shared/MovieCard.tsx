@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 
 import { OPINION_CONFIG } from '@/utilities/constants';
-import { getGenreLabel, getPosterUrl } from '@/utilities/utils';
+import { cn, getGenreLabel, getPosterUrl } from '@/utilities/utils';
 import { MediaContentCollection } from '@/utilities/types';
 import { AdminActions, useAuth } from '@/components/shared';
 
@@ -64,17 +64,19 @@ export const MovieCard: FC<Props> = ({
 
   return (
     <div className="relative h-full group/card">
-      <Card className="group flex h-full flex-col overflow-hidden rounded-none border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+      <Card className="group flex h-full flex-col overflow-hidden rounded-sm border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
         {/* Постер с overlay-бейджами */}
         <div className="relative aspect-[2/3] w-full overflow-hidden">
-          <AdminActions
-            editUrl={`/admin/collections/media-contents/${item.id}`}
-            onDelete={handleDelete}
-            isDeleting={isDeleting}
-            title={item.title}
-            typeName="Запись"
-            classNames="absolute top-1 left-1 z-10"
-          />
+          {user && (
+            <AdminActions
+              editUrl={`/admin/collections/media-contents/${item.id}`}
+              onDelete={handleDelete}
+              isDeleting={isDeleting}
+              title={item.title}
+              typeName="Запись"
+              classNames="absolute top-1 left-1 z-10"
+            />
+          )}
           {posterSrc && (
             <Link
               href={`/reviews/${item.slug}`}
@@ -100,9 +102,9 @@ export const MovieCard: FC<Props> = ({
 
               {/* Впечатление — overlay */}
               {OpinionIcon && opinionConfig && (
-                <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-sm bg-black/60 px-1.5 py-0.5 backdrop-blur-sm">
-                  <OpinionIcon size={12} className={opinionConfig.color} />
-                  <span className="hidden text-[10px] text-white md:inline">
+                <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-xs bg-black px-1.5 py-0.5 ">
+                  <OpinionIcon className={cn(opinionConfig.color, 'size-3')} />
+                  <span className="hidden text-[10px] lg:text-sm text-white md:inline">
                     {opinionConfig.label}
                   </span>
                 </div>
