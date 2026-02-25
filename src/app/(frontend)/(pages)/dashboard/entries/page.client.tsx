@@ -1,7 +1,6 @@
 'use client';
 
 import { FC, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import {
@@ -16,6 +15,7 @@ import { motion } from 'framer-motion';
 import { Button, Input } from '@/components/ui';
 import { DeleteConfirmDialog } from '@/components/shared/dashboard/DeleteConfirmDialog';
 import { ANIMATIONS, TYPE_CONFIG } from '@/utilities/constants';
+import { useDelete } from '@/hooks/useDelete';
 import type { MediaContent } from '@/payload-types';
 
 interface DashboardEntriesClientProps {
@@ -32,14 +32,13 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
   initialTotalPages,
   initialTotalDocs,
 }) => {
-  const router = useRouter();
   const [entries, setEntries] = useState<MediaContent[]>(initialEntries);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [totalDocs, setTotalDocs] = useState(initialTotalDocs);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const { deleteRecord, deleteLoading } = useDelete();
 
   const fetchEntries = useCallback(async (p: number, s: string) => {
     setLoading(true);
@@ -73,22 +72,16 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
     if (e.key === 'Enter') handleSearch();
   };
 
-  const handleDelete = async (id: number) => {
-    setDeleteLoading(id);
-    try {
-      const res = await fetch(`/api/dashboard/entries/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Ошибка удаления');
-      setEntries((prev) => prev.filter((e) => e.id !== id));
-      setTotalDocs((prev) => prev - 1);
-      toast.success('Запись удалена');
-      router.refresh();
-    } catch {
-      toast.error('Не удалось удалить запись');
-    } finally {
-      setDeleteLoading(null);
-    }
+  const handleDelete = (id: number) => {
+    deleteRecord(id, {
+      url: '/api/dashboard/entries',
+      successMessage: 'Запись удалена',
+      errorMessage: 'Не удалось удалить запись',
+      onSuccess: (deletedId) => {
+        setEntries((prev) => prev.filter((e) => e.id !== deletedId));
+        setTotalDocs((prev) => prev - 1);
+      },
+    });
   };
 
   const getStatusLabel = (status: string | null | undefined): string => {

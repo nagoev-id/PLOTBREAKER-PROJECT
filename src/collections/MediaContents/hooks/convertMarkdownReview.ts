@@ -60,6 +60,42 @@ const looksLikeMarkdown = (text: string): boolean => {
 };
 
 /**
+ * Проверяет, содержит ли Lexical JSON уже отформатированные узлы
+ * (заголовки, списки, цитаты и т.д.), что означает —
+ * контент уже был сконвертирован и не нужно его трогать.
+ */
+const hasRichFormatting = (state: LexicalState): boolean => {
+  const richNodeTypes = new Set([
+    'heading',
+    'list',
+    'listitem',
+    'quote',
+    'horizontalrule',
+    'upload',
+    'link',
+    'relationship',
+    'block',
+  ]);
+
+  const checkNode = (node: LexicalNode): boolean => {
+    if (node.type && richNodeTypes.has(node.type)) return true;
+    // Текстовый узел с форматированием (жирный, курсив и т.д.)
+    if (
+      node.type === 'text' &&
+      typeof node.format === 'number' &&
+      node.format > 0
+    )
+      return true;
+    if (node.children) return node.children.some(checkNode);
+    return false;
+  };
+
+  const root = state?.root;
+  if (!root?.children) return false;
+  return root.children.some(checkNode);
+};
+
+/**
  * Field hook для поля `review` (richText).
  *
  * Если вставленный текст содержит Markdown-разметку (##, **, ***, > и т.д.),
@@ -67,6 +103,9 @@ const looksLikeMarkdown = (text: string): boolean => {
  *
  * Это позволяет вставлять текст из AI (ChatGPT/Claude) в формате Markdown
  * и получать корректно отформатированный контент в редакторе.
+ *
+ * Если контент уже содержит Lexical-форматирование (heading, list, quote и т.д.),
+ * хук НЕ перезаписывает его — чтобы не терять существующее форматирование.
  */
 export const convertMarkdownReview: FieldHook = async ({
   value,
@@ -76,8 +115,15 @@ export const convertMarkdownReview: FieldHook = async ({
   // Если значение пустое — пропускаем
   if (!value) return value;
 
+  const lexicalState = value as LexicalState;
+
+  // Если контент уже содержит отформатированные узлы — не трогаем
+  if (hasRichFormatting(lexicalState)) {
+    return value;
+  }
+
   // Извлекаем текст из Lexical JSON
-  const rawText = extractTextFromLexical(value as LexicalState);
+  const rawText = extractTextFromLexical(lexicalState);
   if (!rawText.trim()) return value;
 
   // Если текст не содержит Markdown — оставляем как есть
@@ -90,7 +136,7 @@ export const convertMarkdownReview: FieldHook = async ({
     });
 
     // Конвертируем Markdown в Lexical JSON
-    const lexicalState = convertMarkdownToLexical({
+    const convertedState = convertMarkdownToLexical({
       editorConfig,
       markdown: rawText,
     });
@@ -99,7 +145,7 @@ export const convertMarkdownReview: FieldHook = async ({
       '[convertMarkdownReview] Markdown detected and converted to Lexical'
     );
 
-    return lexicalState;
+    return convertedState;
   } catch (error) {
     req.payload.logger.error(
       `[convertMarkdownReview] Failed to convert markdown: ${String(error)}`

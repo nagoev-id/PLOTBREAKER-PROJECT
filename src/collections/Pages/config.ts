@@ -21,7 +21,7 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    group: 'Контент',
+    group: 'Конфигурация',
   },
   access: {
     read: adminOnly,

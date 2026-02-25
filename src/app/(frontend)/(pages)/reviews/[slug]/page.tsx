@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { METADATA } from '@/utilities/constants';
 import { getCachedMediaContentBySlug } from '@/utilities/helpers';
+import { getPosterUrl } from '@/utilities/utils';
 import ReviewDetailClient from '@/app/(frontend)/(pages)/reviews/[slug]/page.client';
 
 // Настройка времени повторной валидации (ISR) — 60 секунд.
@@ -33,9 +34,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: METADATA.reviewsPage.title };
   }
 
+  let ogTitle = `«${item.title}»`;
+  const extraInfo = [];
+  if (item.originalTitle) extraInfo.push(item.originalTitle);
+  if (item.releaseYear) extraInfo.push(item.releaseYear);
+  if (extraInfo.length > 0) {
+    ogTitle += ` (${extraInfo.join(', ')})`;
+  }
+
+  const description = item.synopsis || METADATA.reviewsPage.description;
+  const posterSrc = getPosterUrl(item);
+  const absolutePoster = posterSrc?.startsWith('http')
+    ? posterSrc
+    : posterSrc
+      ? `${METADATA.siteUrl.replace(/\/$/, '')}${posterSrc}`
+      : null;
+  const images = absolutePoster ? [{ url: absolutePoster }] : [];
+
   return {
-    title: `${item.title} — ${METADATA.reviewsPage.title}`,
-    description: item.synopsis || METADATA.reviewsPage.description,
+    title: `${ogTitle} — ${METADATA.siteName}`,
+    description,
+    openGraph: {
+      title: ogTitle,
+      description,
+      siteName: METADATA.siteName,
+      images,
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogTitle,
+      description,
+      images,
+    },
   };
 }
 
@@ -48,6 +79,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 const ReviewDetailPage = async ({ params }: Props) => {
   const { slug } = await params;
+
   if (!slug) {
     return notFound();
   }

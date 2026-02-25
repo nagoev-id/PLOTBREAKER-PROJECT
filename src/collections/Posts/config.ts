@@ -11,8 +11,8 @@ import { COLLECTION_SLUGS } from '@/utilities/constants';
 export const Posts: CollectionConfig = {
   slug: COLLECTION_SLUGS.posts,
   labels: {
-    singular: 'Запись',
-    plural: 'Записи',
+    singular: 'Статья',
+    plural: 'Статьи',
   },
   admin: {
     useAsTitle: 'title',
@@ -42,6 +42,15 @@ export const Posts: CollectionConfig = {
     },
 
     // Боковая панель (Sidebar)
+    {
+      name: 'isPublished',
+      type: 'checkbox',
+      label: 'Опубликовано',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+      },
+    },
     {
       name: 'heroImage',
       type: 'upload',

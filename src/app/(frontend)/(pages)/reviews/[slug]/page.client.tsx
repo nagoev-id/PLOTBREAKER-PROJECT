@@ -1,11 +1,20 @@
 'use client';
 
-import { FC, JSX } from 'react';
+import { FC, JSX, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Star, Clock, ExternalLink, Play } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowLeft,
+  Star,
+  Clock,
+  ExternalLink,
+  Play,
+  Minus,
+  Plus,
+  Type,
+} from 'lucide-react';
 import {
   Badge,
   Accordion,
@@ -18,18 +27,69 @@ import {
 import { OPINION_CONFIG, TYPE_CONFIG } from '@/utilities/constants';
 import { MediaContentCollection } from '@/utilities/types';
 import {
+  cn,
   formatDate,
   formatDuration,
   formatSlugString,
   getGenreLabel,
   getPosterUrl,
 } from '@/utilities/utils';
-import { RichText, SharedLink } from '@/components/shared';
+import { AdminActions, RichText, SharedLink } from '@/components/shared';
+import { useDelete } from '@/hooks/useDelete';
 
 // Описание типов пропсов
 type ReviewDetailClientProps = {
   item: MediaContentCollection;
 };
+
+/**
+ * Компонент секции сайдбара
+ *
+ * @param title - Заголовок секции
+ * @param children - Дочерние элементы секции
+ * @param contentClassName - Классы для контента секции
+ * @returns Секция сайдбара
+ */
+const SidebarSection: FC<{
+  title: string;
+  children: React.ReactNode;
+  contentClassName?: string;
+}> = ({ title, children, contentClassName }): JSX.Element => (
+  <div className="space-y-1.5">
+    <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+      {title}
+    </span>
+    <div className={contentClassName}>{children}</div>
+  </div>
+);
+
+/**
+ * Компонент блока с кратким описанием
+ *
+ * @param synopsis - Краткое описание
+ * @param className - Дополнительные классы
+ * @returns Блок с кратким описанием
+ */
+const SynopsisBlock: FC<{ synopsis: string; className?: string }> = ({
+  synopsis,
+  className,
+}): JSX.Element => (
+  <div className={cn('space-y-2', className)}>
+    <h3 className="text-xl font-bold uppercase">Краткое описание</h3>
+    <p className="text-muted-foreground text-base leading-relaxed lg:text-lg">
+      {synopsis}
+    </p>
+  </div>
+);
+
+// Размеры prose: класс Tailwind Typography + подпись для UI
+const PROSE_SIZES = [
+  { cls: 'prose-sm', label: 'S' },
+  { cls: 'prose-base', label: 'M' },
+  { cls: 'prose-lg', label: 'L' },
+  { cls: 'prose-xl', label: 'XL' },
+  { cls: 'prose-2xl', label: '2XL' },
+] as const;
 
 /**
  * Клиентский компонент детальной страницы записи.
@@ -41,6 +101,31 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
   item,
 }): JSX.Element | null => {
   const router = useRouter();
+  const { deleteRecord, deleteLoading } = useDelete();
+  const [showFontControls, setShowFontControls] = useState(false);
+  const [sizeIndex, setSizeIndex] = useState(1);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('review_prose_size');
+    if (saved) {
+      const idx = Number(saved);
+      if (idx >= 0 && idx < PROSE_SIZES.length) setSizeIndex(idx);
+    }
+  }, []);
+
+  /**
+   * Изменяет размер шрифта в тексте обзора
+   * @param delta - Разница в индексе размера
+   */
+  const changeFontSize = (delta: number) => {
+    setSizeIndex((prev) => {
+      const next = Math.min(PROSE_SIZES.length - 1, Math.max(0, prev + delta));
+      localStorage.setItem('review_prose_size', String(next));
+      return next;
+    });
+  };
+
+  const proseSize = PROSE_SIZES[sizeIndex].cls;
 
   const posterSrc = getPosterUrl(item);
   const opinionConfig = item.personalOpinion
@@ -48,6 +133,17 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
     : null;
   const OpinionIcon = opinionConfig?.icon;
   const typeConfig = TYPE_CONFIG[item.type];
+
+  /**
+   * Обработчик удаления фильма
+   */
+  const handleDelete = () => {
+    deleteRecord(item.id, {
+      url: '/api/media-contents',
+      successMessage: 'Запись удалена',
+      errorMessage: 'Ошибка при удалении',
+    });
+  };
 
   return (
     <article>
@@ -91,46 +187,73 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-start gap-6"
+            className="grid gap-4"
           >
-            {/* Миниатюра постера */}
-            {posterSrc && (
-              <div className="relative hidden aspect-[2/3] w-[120px] xl:w-[270px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[150px]">
-                <Image
-                  src={posterSrc}
-                  alt={item.title}
-                  fill
-                  className="object-cover"
-                  sizes="150px"
-                />
-              </div>
-            )}
-
-            {/* Текстовый блок */}
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight lg:text-5xl">
-                {item.title}
-              </h1>
-
-              {item.originalTitle && (
-                <p className="text-muted-foreground text-lg italic lg:text-xl">
-                  {item.originalTitle}
-                </p>
+            <div className="flex items-start gap-4">
+              {/* Миниатюра постера */}
+              {posterSrc && (
+                <div className="relative  aspect-[2/3] w-[120px] xl:w-[270px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[150px]">
+                  <Image
+                    src={posterSrc}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    sizes="150px"
+                  />
+                </div>
               )}
 
-              {/* Метаданные: год • режиссёр • длительность */}
-              <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 text-sm">
-                {item.releaseYear && <span>{item.releaseYear}</span>}
-                {item.releaseYear && item.director && (
-                  <span className="opacity-40">•</span>
+              {/* Текстовый блок */}
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <h1 className="text-3xl font-bold tracking-tight lg:text-5xl">
+                    {item.title}
+                  </h1>
+
+                  <AdminActions
+                    editUrl={`/admin/collections/media-contents/${item.id}`}
+                    onDelete={handleDelete}
+                    isDeleting={deleteLoading === item.id}
+                    title={item.title}
+                    typeName="Запись"
+                    classNames="!p-0 max-w-max !grid-cols-2"
+                  />
+                </div>
+
+                {item.originalTitle && (
+                  <p className="text-muted-foreground text-lg italic lg:text-xl">
+                    {item.originalTitle}
+                  </p>
                 )}
-                {item.director && <span>{item.director}</span>}
-                {(item.releaseYear || item.director) && item.duration && (
-                  <span className="opacity-40">•</span>
+
+                {/* Метаданные: год • режиссёр • длительность */}
+                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 text-sm">
+                  {item.releaseYear && <span>{item.releaseYear}</span>}
+                  {item.releaseYear && item.director && (
+                    <span className="opacity-40">•</span>
+                  )}
+                  {item.director && <span>{item.director}</span>}
+                  {(item.releaseYear || item.director) && item.duration && (
+                    <span className="opacity-40">•</span>
+                  )}
+                  {item.duration && (
+                    <span>{formatDuration(item.duration)}</span>
+                  )}
+                </div>
+                {/* Синопсис */}
+                {item.synopsis && (
+                  <SynopsisBlock
+                    synopsis={item.synopsis}
+                    className="hidden lg:block"
+                  />
                 )}
-                {item.duration && <span>{formatDuration(item.duration)}</span>}
               </div>
             </div>
+
+            {/* Синопсис */}
+            {item.synopsis && (
+              <SynopsisBlock synopsis={item.synopsis} className="lg:hidden" />
+            )}
           </motion.div>
         </div>
       </section>
@@ -143,23 +266,12 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="min-w-0 pt-8 "
+            className="min-w-0 pt-8"
           >
-            {item.synopsis && (
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold uppercase">
-                  Краткое описание
-                </h3>
-                <p className="text-muted-foreground text-base leading-relaxed lg:text-lg">
-                  {item.synopsis}
-                </p>
-              </div>
-            )}
-
             {item.review && (
               <RichText
                 content={item.review}
-                className="prose-hr:my-4 prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-headings:uppercase prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-2 prose-p:text-base prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-li:my-0.5"
+                className={`prose-hr:my-4 prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-headings:uppercase prose-h2:mt-6 prose-h2:mb-2 prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-li:my-0.5`}
               />
             )}
 
@@ -167,9 +279,9 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             {(item.type === 'series' || item.type === 'cartoon') &&
               item.seasons &&
               item.seasons.length > 0 && (
-                <div className="mt-10">
-                  <h2 className="mb-4 text-xl font-bold uppercase">
-                    Обзоры по сезонам
+                <div className="space-y-2">
+                  <h2 className="text-xl font-bold uppercase">
+                    Пересказы по сезонам
                   </h2>
                   <Accordion type="multiple" className="w-full">
                     {item.seasons.map((season) => {
@@ -185,11 +297,13 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                         >
                           <AccordionTrigger className="text-base font-semibold hover:no-underline">
                             <div className="flex items-center gap-3">
-                              <span>Сезон {season.seasonNumber}</span>
+                              <span className="sm:text-base">
+                                Сезон {season.seasonNumber}
+                              </span>
                               {SeasonOpinionIcon && seasonOpinion && (
                                 <Badge
                                   variant="secondary"
-                                  className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs"
+                                  className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs sm:text-sm"
                                 >
                                   <SeasonOpinionIcon
                                     size={12}
@@ -204,7 +318,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                             {season.review ? (
                               <RichText
                                 content={season.review}
-                                className="prose prose-zinc dark:prose-invert max-w-none prose-p:text-base prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-headings:my-2 prose-li:my-0.5"
+                                className={`prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-headings:my-2 prose-li:my-0.5 prose-hr:my-4`}
                               />
                             ) : (
                               <p className="text-muted-foreground text-sm">
@@ -229,153 +343,139 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
           >
             {/* Рейтинг */}
             {item.kpRating && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Рейтинг
+              <SidebarSection
+                title="Рейтинг"
+                contentClassName="flex items-center gap-2"
+              >
+                <Star size={20} className="fill-amber-400 text-amber-400" />
+                <span className="text-2xl font-bold">
+                  {item.kpRating.toFixed(1)}
                 </span>
-                <div className="flex items-center gap-2">
-                  <Star size={20} className="fill-amber-400 text-amber-400" />
-                  <span className="text-2xl font-bold">
-                    {item.kpRating.toFixed(1)}
-                  </span>
-                  <span className="text-muted-foreground text-sm">/10</span>
-                </div>
-              </div>
+                <span className="text-muted-foreground text-sm">/10</span>
+              </SidebarSection>
             )}
 
             {/* Моя оценка */}
             {opinionConfig && OpinionIcon && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Моя оценка
-                </span>
-                <div>
-                  <Badge
-                    variant="secondary"
-                    className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1"
-                  >
-                    <OpinionIcon size={14} className={opinionConfig.color} />
-                    {opinionConfig.label}
-                  </Badge>
-                </div>
-              </div>
+              <SidebarSection title="Моя оценка">
+                <Badge
+                  variant="secondary"
+                  className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1"
+                >
+                  <OpinionIcon size={14} className={opinionConfig.color} />
+                  {opinionConfig.label}
+                </Badge>
+              </SidebarSection>
             )}
 
             {item.watchDate && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Дата просмотра
-                </span>
-                <div>
-                  <Badge
-                    variant="secondary"
-                    className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1"
-                  >
-                    {formatDate(item.watchDate)}
-                  </Badge>
-                </div>
-              </div>
+              <SidebarSection title="Дата просмотра">
+                <Badge
+                  variant="secondary"
+                  className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1"
+                >
+                  {formatDate(item.watchDate)}
+                </Badge>
+              </SidebarSection>
             )}
 
             {/* Тип */}
             {typeConfig && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Тип
-                </span>
-                <div>
-                  <Badge variant="secondary" className="rounded-sm px-3 py-1">
-                    {typeConfig.label}
-                  </Badge>
-                </div>
-              </div>
+              <SidebarSection title="Тип">
+                <Badge variant="secondary" className="rounded-sm px-3 py-1">
+                  {typeConfig.label}
+                </Badge>
+              </SidebarSection>
             )}
 
             {/* Режиссёр */}
             {item.director && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Режиссёр
-                </span>
-                <div>
-                  <Badge variant="secondary" className="rounded-sm px-3 py-1">
-                    {item.director}
-                  </Badge>
-                </div>
-              </div>
+              <SidebarSection title="Режиссёр">
+                <Badge variant="secondary" className="rounded-sm px-3 py-1">
+                  {item.director}
+                </Badge>
+              </SidebarSection>
             )}
 
             {/* Жанры */}
             {item.genres && item.genres.length > 0 && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Жанры
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {item.genres.map((genre) => (
-                    <Link key={genre} href={`/reviews/genres/${genre}`}>
-                      <Badge
-                        variant="secondary"
-                        className="rounded-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors"
-                      >
-                        {getGenreLabel(genre)}
-                      </Badge>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              <SidebarSection
+                title="Жанры"
+                contentClassName="flex flex-wrap gap-1.5"
+              >
+                {item.genres.map((genre) => (
+                  <Link key={genre} href={`/reviews/genres/${genre}`}>
+                    <Badge
+                      variant="secondary"
+                      className="rounded-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors"
+                    >
+                      {getGenreLabel(genre)}
+                    </Badge>
+                  </Link>
+                ))}
+              </SidebarSection>
             )}
 
             {/* Визуальные теги */}
             {item.visualTags && typeof item.visualTags === 'string' && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Визуальные теги
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {item.visualTags
-                    .split(',')
-                    .map((tag) => tag.trim())
-                    .filter(Boolean)
-                    .map((tag, i) => (
-                      <Link
-                        key={`vtag-${i}-${tag}`}
-                        href={`/reviews/tags/${formatSlugString(tag)}`}
+              <SidebarSection
+                title="Визуальные теги"
+                contentClassName="flex flex-wrap gap-1.5"
+              >
+                {item.visualTags
+                  .split(',')
+                  .map((tag) => tag.trim())
+                  .filter(Boolean)
+                  .map((tag, i) => (
+                    <Link
+                      key={`vtag-${i}-${tag}`}
+                      href={`/reviews/tags/${formatSlugString(tag)}`}
+                    >
+                      <Badge
+                        variant="secondary"
+                        className="rounded-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors"
                       >
-                        <Badge
-                          variant="secondary"
-                          className="rounded-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors"
-                        >
-                          #{tag}
-                        </Badge>
-                      </Link>
-                    ))}
-                </div>
-              </div>
+                        #{tag}
+                      </Badge>
+                    </Link>
+                  ))}
+              </SidebarSection>
             )}
 
             {/* Длительность */}
             {item.duration && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Длительность
-                </span>
-                <div className="flex items-center gap-1.5 text-sm">
-                  <Clock size={14} className="text-muted-foreground" />
-                  {formatDuration(item.duration)}
-                </div>
-              </div>
+              <SidebarSection
+                title="Длительность"
+                contentClassName="flex items-center gap-1.5 text-sm"
+              >
+                <Clock size={14} className="text-muted-foreground" />
+                {formatDuration(item.duration)}
+              </SidebarSection>
             )}
 
             {/* Ссылки */}
             {item.kinopoiskId && (
-              <div className="space-y-1.5">
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                  Ссылки
-                </span>
-                <div className="flex flex-wrap gap-1.5">
+              <SidebarSection
+                title="Ссылки"
+                contentClassName="flex flex-wrap gap-1.5"
+              >
+                <Link
+                  href={`https://www.kinopoisk.ru/film/${item.kinopoiskId}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Badge
+                    variant="secondary"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
+                  >
+                    <ExternalLink size={12} />
+                    Кинопоиск
+                  </Badge>
+                </Link>
+
+                {item.kinoriumId && (
                   <Link
-                    href={`https://www.kinopoisk.ru/film/${item.kinopoiskId}/`}
+                    href={`https://kinorium.com/${item.kinoriumId}/`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -384,55 +484,39 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                       className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
                     >
                       <ExternalLink size={12} />
-                      Кинопоиск
+                      Кинориум
                     </Badge>
                   </Link>
+                )}
 
-                  {item.kinoriumId && (
-                    <Link
-                      href={`https://kinorium.com/${item.kinoriumId}/`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Badge
-                        variant="secondary"
-                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
-                      >
-                        <ExternalLink size={12} />
-                        Кинориум
-                      </Badge>
-                    </Link>
-                  )}
-
-                  <Link
-                    href={`https://www.kinopoisk.cx/film/${item.kinopoiskId}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <Link
+                  href={`https://www.kinopoisk.cx/film/${item.kinopoiskId}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Badge
+                    variant="secondary"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
                   >
-                    <Badge
-                      variant="secondary"
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
-                    >
-                      <Play size={12} />
-                      FRKP
-                    </Badge>
-                  </Link>
+                    <Play size={12} />
+                    FRKP
+                  </Badge>
+                </Link>
 
-                  <Link
-                    href={`https://flymaterez.net/search/?do=search&subaction=search&q=${item.originalTitle}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <Link
+                  href={`https://flymaterez.net/search/?do=search&subaction=search&q=${item.originalTitle}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Badge
+                    variant="secondary"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
                   >
-                    <Badge
-                      variant="secondary"
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
-                    >
-                      <Play size={12} />
-                      HDRezka
-                    </Badge>
-                  </Link>
-                </div>
-              </div>
+                    <Play size={12} />
+                    HDRezka
+                  </Badge>
+                </Link>
+              </SidebarSection>
             )}
 
             {/* Поделиться */}
@@ -440,6 +524,49 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
           </motion.aside>
         </div>
       </section>
+
+      {/* Плавающая кнопка размера шрифта */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        <AnimatePresence>
+          {showFontControls && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-1 rounded-full border bg-background/95 backdrop-blur-sm px-2 py-1.5 shadow-lg"
+            >
+              <button
+                onClick={() => changeFontSize(-1)}
+                disabled={sizeIndex <= 0}
+                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:opacity-30 cursor-pointer"
+                title="Уменьшить шрифт"
+              >
+                <Minus size={14} />
+              </button>
+              <span className="min-w-[36px] text-center text-xs font-medium tabular-nums">
+                {PROSE_SIZES[sizeIndex].label}
+              </span>
+              <button
+                onClick={() => changeFontSize(1)}
+                disabled={sizeIndex >= PROSE_SIZES.length - 1}
+                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:opacity-30 cursor-pointer"
+                title="Увеличить шрифт"
+              >
+                <Plus size={14} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <button
+          onClick={() => setShowFontControls((prev) => !prev)}
+          className="flex h-11 w-11 items-center justify-center rounded-full border bg-background/95 backdrop-blur-sm shadow-lg transition-colors hover:bg-muted cursor-pointer"
+          title="Размер шрифта"
+        >
+          <Type size={18} />
+        </button>
+      </div>
     </article>
   );
 };

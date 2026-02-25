@@ -455,7 +455,7 @@ const HomePageClient: FC<{ items: MediaContentCollection[] }> = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.03, duration: 0.4 }}
                   >
-                    <MovieCard item={item} />
+                    <MovieCard item={item} priority={index < 8} />
                   </motion.div>
                 ))
               ) : (

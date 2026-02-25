@@ -476,6 +476,10 @@ export interface MediaContent {
    */
   visualTags?: string | null;
   /**
+   * Отображать запись на сайте
+   */
+  isPublished?: boolean | null;
+  /**
    * Тип контента (фильм, сериал и т.д.)
    */
   type: 'film' | 'series' | 'cartoon';
@@ -573,6 +577,7 @@ export interface Post {
     };
     [k: string]: unknown;
   };
+  isPublished?: boolean | null;
   heroImage?: (number | null) | Media;
   tags?: ('review' | 'news' | 'collection' | 'opinion' | 'guide')[] | null;
   publishedAt?: string | null;
@@ -1049,6 +1054,7 @@ export interface MediaContentsSelect<T extends boolean = true> {
         id?: T;
       };
   visualTags?: T;
+  isPublished?: T;
   type?: T;
   status?: T;
   poster?: T;
@@ -1079,6 +1085,7 @@ export interface PostsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   content?: T;
+  isPublished?: T;
   heroImage?: T;
   tags?: T;
   publishedAt?: T;

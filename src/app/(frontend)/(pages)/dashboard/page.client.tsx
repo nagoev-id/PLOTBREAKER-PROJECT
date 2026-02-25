@@ -9,6 +9,7 @@ import { Button } from '@/components/ui';
 import { CollectionFormDialog } from '@/components/shared/dashboard/CollectionFormDialog';
 import { DeleteConfirmDialog } from '@/components/shared/dashboard/DeleteConfirmDialog';
 import { ANIMATIONS } from '@/utilities/constants';
+import { useDelete } from '@/hooks/useDelete';
 import type { Collection } from '@/payload-types';
 
 interface DashboardCollectionsClientProps {
@@ -28,7 +29,7 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
   const [editingCollection, setEditingCollection] = useState<Collection | null>(
     null
   );
-  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const { deleteRecord, deleteLoading } = useDelete();
 
   const handleCreate = () => {
     setEditingCollection(null);
@@ -77,21 +78,15 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
     }
   };
 
-  const handleDelete = async (id: number) => {
-    setDeleteLoading(id);
-    try {
-      const res = await fetch(`/api/dashboard/collections/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Ошибка удаления');
-      setCollections((prev) => prev.filter((c) => c.id !== id));
-      toast.success('Список удалён');
-      router.refresh();
-    } catch {
-      toast.error('Не удалось удалить список');
-    } finally {
-      setDeleteLoading(null);
-    }
+  const handleDelete = (id: number) => {
+    deleteRecord(id, {
+      url: '/api/dashboard/collections',
+      successMessage: 'Список удалён',
+      errorMessage: 'Не удалось удалить список',
+      onSuccess: (deletedId) => {
+        setCollections((prev) => prev.filter((c) => c.id !== deletedId));
+      },
+    });
   };
 
   return (

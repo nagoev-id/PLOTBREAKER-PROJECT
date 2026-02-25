@@ -13,6 +13,7 @@ import { populateList } from '@/collections/MediaContents/hooks/populateList';
 import { syncDates } from '@/collections/MediaContents/hooks/syncDates';
 import { syncCollectionCounts } from '@/collections/MediaContents/hooks/syncCollectionCounts';
 import { convertMarkdownReview } from '@/collections/MediaContents/hooks/convertMarkdownReview';
+import { formatVisualTags } from '@/collections/MediaContents/hooks/formatVisualTags';
 import {
   revalidateDelete,
   revalidateList,
@@ -21,8 +22,8 @@ import {
 export const MediaContents: CollectionConfig = {
   slug: COLLECTION_SLUGS.mediaContents,
   labels: {
-    singular: 'Медиа-Содержимое',
-    plural: 'Медиа-Содержимое',
+    singular: 'Контент',
+    plural: 'Контент',
   },
   access: {
     read: adminOnly,
@@ -152,9 +153,22 @@ export const MediaContents: CollectionConfig = {
       admin: {
         description: 'Введите теги через запятую',
       },
+      hooks: {
+        beforeChange: [formatVisualTags],
+      },
     },
 
     // Боковая панель (Sidebar) - Основные параметры
+    {
+      name: 'isPublished',
+      type: 'checkbox',
+      label: 'Опубликовано',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Отображать запись на сайте',
+      },
+    },
     {
       name: 'type',
       type: 'select',

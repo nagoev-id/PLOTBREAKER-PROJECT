@@ -17,8 +17,8 @@ import { convertMarkdownReview } from '@/collections/Collections/hooks/convertMa
 export const Collections: CollectionConfig = {
   slug: COLLECTION_SLUGS.collections,
   labels: {
-    singular: 'Коллекция',
-    plural: 'Коллекции',
+    singular: 'Подборка',
+    plural: 'Подборки',
   },
   admin: {
     useAsTitle: 'title',
@@ -26,7 +26,6 @@ export const Collections: CollectionConfig = {
     group: 'Контент',
   },
   access: {
-    // В данный момент доступ на все операции ограничен только администраторами
     read: adminOnly,
     create: adminOnly,
     update: adminOnly,
@@ -42,7 +41,7 @@ export const Collections: CollectionConfig = {
       unique: true,
     },
     // Поле для генерации URL-адреса списка на основе названия
-    slugField('title'),
+    slugField('title', { unique: true }),
     // Поле для описания списка
     {
       name: 'description',

@@ -3,6 +3,7 @@
 import { Check, Share2 } from 'lucide-react';
 import { FC, JSX, useCallback, useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui';
 
 /**
  * Компонент для кнопки "Поделиться"
@@ -10,6 +11,7 @@ import { toast } from 'sonner';
  */
 export const SharedLink: FC = (): JSX.Element => {
   const [copied, setCopied] = useState(false);
+
   /**
    * Копирует текущий URL в буфер обмена
    */
@@ -25,24 +27,32 @@ export const SharedLink: FC = (): JSX.Element => {
     }
   }, []);
 
+  /**
+   * Рендерит содержимое кнопки
+   * @returns {JSX.Element} - содержимое кнопки
+   */
+  const renderContent = (): JSX.Element => {
+    if (copied) {
+      return (
+        <>
+          <Check size={14} />
+          Скопировано
+        </>
+      );
+    }
+    return (
+      <>
+        <Share2 size={14} />
+        Поделиться
+      </>
+    );
+  };
+
   return (
     <div className="border-t pt-4">
-      <button
-        onClick={handleShare}
-        className="text-muted-foreground hover:text-foreground inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-sm border px-4 py-2 text-sm transition-colors hover:bg-accent"
-      >
-        {copied ? (
-          <>
-            <Check size={14} />
-            Скопировано
-          </>
-        ) : (
-          <>
-            <Share2 size={14} />
-            Поделиться
-          </>
-        )}
-      </button>
+      <Button onClick={handleShare} className="inline-flex w-full">
+        {renderContent()}
+      </Button>
     </div>
   );
 };

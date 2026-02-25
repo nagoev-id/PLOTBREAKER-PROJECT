@@ -13,8 +13,8 @@ import { Header } from '@/globals/Header';
 import { Footer } from '@/globals/Footer';
 import { Preloader, ThemeProvider, AuthProvider } from '@/components/shared';
 
-// Настройки метаданных для SEO
 export const metadata = {
+  metadataBase: new URL(METADATA.siteUrl),
   description: METADATA.siteDescription,
   title: METADATA.siteName,
   keywords: METADATA.siteKeywords,

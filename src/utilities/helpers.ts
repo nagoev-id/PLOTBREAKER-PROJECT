@@ -8,6 +8,7 @@ import {
   CollectionCollection,
   PostCollection,
 } from '@/utilities/types';
+import { formatSlugString } from '@/utilities/utils';
 import type { Config } from '@/payload-types';
 
 /**
@@ -81,6 +82,25 @@ export const getMediaContents = async (): Promise<MediaContentCollection[]> => {
       sort: '-createdAt',
       limit: 0,
       depth: 1,
+      where: {
+        and: [
+          // {
+          //   status: {
+          //     not_equals: 'planned',
+          //   },
+          // },
+          // {
+          //   review: {
+          //     exists: true,
+          //   },
+          // },
+          {
+            isPublished: {
+              equals: true,
+            },
+          },
+        ],
+      },
       select: {
         title: true,
         originalTitle: true,
@@ -307,26 +327,26 @@ export const getCachedCollectionsLists = (): (() => Promise<
 export const getCollectionBySlug = async (
   slug: string
 ): Promise<CollectionCollection | null> => {
-  try {
-    const payload = await getPayload({ config: configPromise });
+  const payload = await getPayload({ config: configPromise });
 
-    const result = await payload.find({
-      collection: COLLECTION_SLUGS.collections,
-      where: { slug: { equals: slug } },
-      limit: 1,
-      depth: 1,
-      joins: {
-        items: {
-          limit: 0,
+  const result = await payload.find({
+    collection: COLLECTION_SLUGS.collections,
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 1,
+    joins: {
+      items: {
+        limit: 0,
+        where: {
+          isPublished: {
+            equals: true,
+          },
         },
       },
-    });
+    },
+  });
 
-    return (result.docs[0] as CollectionCollection) ?? null;
-  } catch (error) {
-    console.error(`Ошибка при получении коллекции "${slug}":`, error);
-    return null;
-  }
+  return (result.docs[0] as CollectionCollection) ?? null;
 };
 
 /**
@@ -345,33 +365,54 @@ export const getCachedCollectionBySlug = (
   );
 
 /**
- * Получает записи медиа-контента, у которых visualTags содержит указанный тег.
+ * Получает записи медиа-контента, у которых visualTags (отформатированный) совпадает с указанным слагом.
  *
- * @param tag - Тег для поиска (строка)
+ * @param tagSlug - Слаг тега для поиска (например: 'uzhasy')
  * @returns Массив записей MediaContent
  */
 export const getMediaContentsByTag = async (
-  tag: string
+  tagSlug: string
 ): Promise<MediaContentCollection[]> => {
   try {
     const payload = await getPayload({ config: configPromise });
 
+    // Получаем все опубликованные записи, у которых есть визуальные теги
     const result = await payload.find({
       collection: COLLECTION_SLUGS.mediaContents,
       sort: '-createdAt',
       limit: 0,
       depth: 1,
       where: {
-        visualTags: {
-          contains: tag,
-        },
+        and: [
+          {
+            visualTags: {
+              exists: true,
+            },
+          },
+          {
+            isPublished: {
+              equals: true,
+            },
+          },
+        ],
       },
     });
 
-    return result.docs as MediaContentCollection[];
+    const docs = result.docs as MediaContentCollection[];
+
+    // Фильтруем записи: разбиваем visualTags и проверяем наличие слага
+    return docs.filter((item) => {
+      if (!item.visualTags) return false;
+
+      const tags = item.visualTags
+        .split(',')
+        .map((t) => formatSlugString(t.trim()));
+
+      return tags.includes(tagSlug);
+    });
   } catch (error) {
-    console.error(`Ошибка при получении записей по тегу "${tag}":`, error);
-    throw new Error(`Не удалось загрузить записи по тегу "${tag}"`);
+    console.error(`Ошибка при получении записей по тегу "${tagSlug}":`, error);
+    throw new Error(`Не удалось загрузить записи по тегу "${tagSlug}"`);
   }
 };
 
@@ -383,7 +424,7 @@ export const getCachedMediaContentsByTag = (
 ): (() => Promise<MediaContentCollection[]>) =>
   unstable_cache(
     async (): Promise<MediaContentCollection[]> => getMediaContentsByTag(tag),
-    [`media_contents_tag_${tag}`],
+    [`media_contents_tag_v2_${tag}`],
     {
       tags: ['media-contents'],
       revalidate: 3600,
@@ -408,9 +449,18 @@ export const getMediaContentsByGenre = async (
       limit: 0,
       depth: 1,
       where: {
-        genres: {
-          contains: genre,
-        },
+        and: [
+          {
+            genres: {
+              contains: genre,
+            },
+          },
+          {
+            isPublished: {
+              equals: true,
+            },
+          },
+        ],
       },
     });
 
@@ -446,21 +496,18 @@ export const getCachedMediaContentsByGenre = (
 export const getMediaContentBySlug = async (
   slug: string
 ): Promise<MediaContentCollection | null> => {
-  try {
-    const payload = await getPayload({ config: configPromise });
+  const payload = await getPayload({ config: configPromise });
 
-    const result = await payload.find({
-      collection: COLLECTION_SLUGS.mediaContents,
-      where: { slug: { equals: slug } },
-      limit: 1,
-      depth: 1,
-    });
+  const result = await payload.find({
+    collection: COLLECTION_SLUGS.mediaContents,
+    where: {
+      and: [{ slug: { equals: slug } }, { isPublished: { equals: true } }],
+    },
+    limit: 1,
+    depth: 1,
+  });
 
-    return (result.docs[0] as MediaContentCollection) ?? null;
-  } catch (error) {
-    console.error(`Ошибка при получении записи по slug "${slug}":`, error);
-    return null;
-  }
+  return (result.docs[0] as MediaContentCollection) ?? null;
 };
 
 /**
@@ -492,7 +539,9 @@ export const getMediaContentMetadata = async (
 
     const result = await payload.find({
       collection: COLLECTION_SLUGS.mediaContents,
-      where: { slug: { equals: slug } },
+      where: {
+        and: [{ slug: { equals: slug } }, { isPublished: { equals: true } }],
+      },
       limit: 1,
       depth: 1,
       select: {
@@ -547,6 +596,11 @@ export const getPostsLists = async (): Promise<PostCollection[]> => {
       sort: '-publishedAt',
       limit: 0,
       depth: 1,
+      where: {
+        isPublished: {
+          equals: true,
+        },
+      },
     });
 
     return result.docs as PostCollection[];
