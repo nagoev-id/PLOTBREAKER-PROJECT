@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { FC, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, Search, ShieldUser, X } from 'lucide-react';
+import { LayoutDashboard, Menu, Search, ShieldUser, X } from 'lucide-react';
 
 import { getURL } from '@/utilities/utils';
 import {
@@ -122,7 +122,8 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
                   pathname?.startsWith('/dashboard') ? 'text-foreground' : ''
                 }`}
               >
-                Dashboard
+                <span className="sr-only">Редактировать</span>
+                <LayoutDashboard size={18} />
               </Link>
             )}
             {user && (

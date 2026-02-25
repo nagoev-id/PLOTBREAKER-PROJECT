@@ -9,6 +9,7 @@ import {
   Minus,
   ThumbsDown,
   Clapperboard,
+  Meh,
 } from 'lucide-react';
 
 // ============================================================================
@@ -267,7 +268,7 @@ export const OPINION_CONFIG: Record<
   { icon: typeof ThumbsUp; label: string; color: string }
 > = {
   like: { icon: ThumbsUp, label: 'Понравилось', color: 'text-green-500' },
-  neutral: { icon: Minus, label: 'Пойдет', color: 'text-yellow-500' },
+  neutral: { icon: Meh, label: 'Пойдет', color: 'text-yellow-500' },
   dislike: { icon: ThumbsDown, label: 'Потрачено', color: 'text-red-500' },
 };
 

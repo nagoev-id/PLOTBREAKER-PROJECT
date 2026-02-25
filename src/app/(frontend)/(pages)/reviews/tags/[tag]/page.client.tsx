@@ -2,7 +2,6 @@
 
 import { FC, JSX, useMemo, useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Film, Search, X, Tag } from 'lucide-react';
 

@@ -1,4 +1,4 @@
-import React, { FC, JSX, ReactNode } from 'react';
+import React, { JSX, ReactNode } from 'react';
 import '@/app/(frontend)/globals.css';
 import { Toaster } from '@/components/ui';
 import { getPayload } from 'payload';

@@ -281,7 +281,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               item.seasons.length > 0 && (
                 <div className="space-y-2">
                   <h2 className="text-xl font-bold uppercase">
-                    Пересказы по сезонам
+                    Подробный пересказ
                   </h2>
                   <Accordion type="multiple" className="w-full">
                     {item.seasons.map((season) => {
@@ -303,10 +303,10 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                               {SeasonOpinionIcon && seasonOpinion && (
                                 <Badge
                                   variant="secondary"
-                                  className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs sm:text-sm"
+                                  className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs sm:text-sm border border-muted-foreground/50"
                                 >
                                   <SeasonOpinionIcon
-                                    size={12}
+                                    size={14}
                                     className={seasonOpinion.color}
                                   />
                                   {seasonOpinion.label}

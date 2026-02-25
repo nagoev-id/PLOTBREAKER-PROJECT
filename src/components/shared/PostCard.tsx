@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { FC, JSX, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, Tag, ArrowUpRight } from 'lucide-react';
+import { Calendar, Tag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui';

@@ -102,9 +102,9 @@ export const MovieCard: FC<Props> = ({
 
               {/* Впечатление — overlay */}
               {OpinionIcon && opinionConfig && (
-                <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-xs bg-black px-1.5 py-0.5 ">
-                  <OpinionIcon className={cn(opinionConfig.color, 'size-3')} />
-                  <span className="hidden text-[10px] lg:text-sm text-white md:inline">
+                <div className="absolute top-8 right-1.5 flex items-center gap-1 rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm">
+                  <OpinionIcon className={cn(opinionConfig.color, 'size-4')} />
+                  <span className="hidden text-[10px] text-white lg:text-[12px] md:inline">
                     {opinionConfig.label}
                   </span>
                 </div>
