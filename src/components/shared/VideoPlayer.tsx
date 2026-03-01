@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Badge } from '@/components/ui';
 import { cn } from '@/utilities/utils';
 import Artplayer from 'artplayer';
+import { useAuth } from './AuthProvider';
 
 // ============================================================================
 // Типы
@@ -120,7 +121,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
   hdrezkaUrl,
   title,
   type,
-}): JSX.Element => {
+}): JSX.Element | null => {
   // UI
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -242,6 +243,23 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
       playerRef.current = null;
     }
 
+    // Субтитры (только если они есть)
+    const subs = stream.subtitles || {};
+    const subKeys = Object.keys(subs);
+    const subtitleOption =
+      subKeys.length > 0
+        ? {
+            url: subs[subKeys[0]]?.link || '',
+            type: 'vtt' as const,
+            style: {
+              color: '#fff',
+              fontSize: '20px',
+              textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+            },
+            encoding: 'utf-8',
+          }
+        : undefined;
+
     const art = new Artplayer({
       container: artRef.current,
       url: defaultUrl,
@@ -251,7 +269,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
       pip: true,
       autoSize: false,
       autoMini: true,
-      screenshot: true,
+      screenshot: false,
       setting: true,
       loop: false,
       flip: true,
@@ -259,7 +277,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
       aspectRatio: true,
       fullscreen: true,
       fullscreenWeb: true,
-      subtitleOffset: true,
+      subtitleOffset: subKeys.length > 0,
       miniProgressBar: true,
       mutex: true,
       backdrop: true,
@@ -276,41 +294,24 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
         url: videos[q]?.[0] || '',
       })),
 
-      // Субтитры
-      subtitle: (() => {
-        const subs = stream.subtitles || {};
-        const subKeys = Object.keys(subs);
-        if (subKeys.length === 0) return undefined;
-        const firstSub = subs[subKeys[0]];
-        return {
-          url: firstSub?.link || '',
-          type: 'vtt',
-          style: {
-            color: '#fff',
-            fontSize: '20px',
-            textShadow: '0 2px 4px rgba(0,0,0,0.8)',
-          },
-          encoding: 'utf-8',
-        };
-      })(),
+      // Субтитры (добавляем только если они есть)
+      ...(subtitleOption ? { subtitle: subtitleOption } : {}),
 
       // Настройки
       settings: [
         // Переключатель субтитров в настройках
-        ...(Object.keys(stream.subtitles || {}).length > 1
+        ...(subKeys.length > 1
           ? [
               {
                 html: 'Субтитры',
                 icon: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
                 selector: [
                   { html: 'Выкл', default: false },
-                  ...Object.entries(stream.subtitles || {}).map(
-                    ([lang, sub], idx) => ({
-                      html: sub.title || lang,
-                      url: sub.link,
-                      default: idx === 0,
-                    })
-                  ),
+                  ...Object.entries(subs).map(([lang, sub], idx) => ({
+                    html: sub.title || lang,
+                    url: sub.link,
+                    default: idx === 0,
+                  })),
                 ],
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 onSelect(item: any) {
@@ -413,7 +414,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
           <Button
             onClick={handleOpen}
             size="lg"
-            className="inline-flex items-center gap-2 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex items-center gap-2"
           >
             <Play size={18} fill="currentColor" />
             Смотреть онлайн

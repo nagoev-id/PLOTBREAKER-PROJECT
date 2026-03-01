@@ -26,6 +26,7 @@ import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { KpSearch as KpSearch_70d02b6d193904f37d267daf157f4bf5 } from '@/collections/MediaContents/fields/kp.tsx'
 import { TmdbSearch as TmdbSearch_f274336b3d71b8ac775c94c4a114216e } from '@/collections/MediaContents/fields/tmdb.tsx'
+import { HdRezkaSearch as HdRezkaSearch_8df430b94531f89d5f97fef88d00c4c2 } from '@/collections/MediaContents/fields/hdrezka.tsx'
 import { CopyPromptButton as CopyPromptButton_1a592cbcfc5fab74a608677f8d75158e } from '@/fields/CopyPromptButton.tsx'
 import { ExportListMenuItem as ExportListMenuItem_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportListMenuItem as ImportListMenuItem_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
@@ -40,6 +41,8 @@ import { ExportSaveButton as ExportSaveButton_cdf7e044479f899a31f804427d568b36 }
 import { ImportCollectionField as ImportCollectionField_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportPreview as ImportPreview_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportSaveButton as ImportSaveButton_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
+import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
+import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { RowLabel as RowLabel_c6a25d6c05b71fed17679145da08a6e6 } from '@/globals/Header/components/row-label'
 import { default as default_ad0ebc0a53bbf547baac04d05cdf09ad } from '@/components/admin/OpenSiteLink'
@@ -76,6 +79,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/collections/MediaContents/fields/kp.tsx#KpSearch": KpSearch_70d02b6d193904f37d267daf157f4bf5,
   "@/collections/MediaContents/fields/tmdb.tsx#TmdbSearch": TmdbSearch_f274336b3d71b8ac775c94c4a114216e,
+  "@/collections/MediaContents/fields/hdrezka.tsx#HdRezkaSearch": HdRezkaSearch_8df430b94531f89d5f97fef88d00c4c2,
   "@/fields/CopyPromptButton.tsx#CopyPromptButton": CopyPromptButton_1a592cbcfc5fab74a608677f8d75158e,
   "@payloadcms/plugin-import-export/rsc#ExportListMenuItem": ExportListMenuItem_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportListMenuItem": ImportListMenuItem_cdf7e044479f899a31f804427d568b36,
@@ -90,6 +94,8 @@ export const importMap = {
   "@payloadcms/plugin-import-export/rsc#ImportCollectionField": ImportCollectionField_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportPreview": ImportPreview_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportSaveButton": ImportSaveButton_cdf7e044479f899a31f804427d568b36,
+  "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
+  "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
   "@/globals/Header/components/row-label#RowLabel": RowLabel_c6a25d6c05b71fed17679145da08a6e6,
   "@/components/admin/OpenSiteLink#default": default_ad0ebc0a53bbf547baac04d05cdf09ad,

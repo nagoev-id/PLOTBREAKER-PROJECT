@@ -34,7 +34,12 @@ import {
   getGenreLabel,
   getPosterUrl,
 } from '@/utilities/utils';
-import { AdminActions, RichText, SharedLink } from '@/components/shared';
+import {
+  AdminActions,
+  RichText,
+  SharedLink,
+  useAuth,
+} from '@/components/shared';
 import { useDelete } from '@/hooks/useDelete';
 
 const VideoPlayer = lazy(() => import('@/components/shared/VideoPlayer'));
@@ -103,6 +108,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
   item,
 }): JSX.Element | null => {
   const router = useRouter();
+  const { user } = useAuth();
   const { deleteRecord, deleteLoading } = useDelete();
   const [showFontControls, setShowFontControls] = useState(false);
   const [sizeIndex, setSizeIndex] = useState(1);
@@ -261,7 +267,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
       </section>
 
       {/* Плеер HDRezka (только если указан URL) */}
-      {item.hdrezkaUrl && (
+      {item.hdrezkaUrl && user && (
         <section className="container mx-auto px-4 pt-6">
           <Suspense
             fallback={

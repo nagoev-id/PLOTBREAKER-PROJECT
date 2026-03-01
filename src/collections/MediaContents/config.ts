@@ -54,6 +54,15 @@ export const MediaContents: CollectionConfig = {
         },
       },
     },
+    {
+      name: 'hdrezkaSearch',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/collections/MediaContents/fields/hdrezka.tsx#HdRezkaSearch',
+        },
+      },
+    },
     // Основная информация (Main)
     {
       name: 'title',
