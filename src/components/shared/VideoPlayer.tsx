@@ -114,6 +114,16 @@ const Selector: FC<{
 );
 
 // ============================================================================
+// Утилиты
+// ============================================================================
+
+/**
+ * Проксирует URL видео через наш API чтобы обойти привязку CDN-токена к IP сервера.
+ */
+const proxyUrl = (url: string) =>
+  `/api/rezka/proxy?url=${encodeURIComponent(url)}`;
+
+// ============================================================================
 // Основной компонент
 // ============================================================================
 
@@ -268,7 +278,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
     const preferred = ['1080p', '1080p Ultra', '720p', '480p', '360p'];
     const defaultQuality =
       preferred.find((q) => sortedQualities.includes(q)) || sortedQualities[0];
-    const defaultUrl = videos[defaultQuality]?.[0] || '';
+    const defaultUrl = proxyUrl(videos[defaultQuality]?.[0] || '');
 
     // Destroy previous
     if (playerRef.current) {
@@ -425,7 +435,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
       quality: sortedQualities.map((q) => ({
         default: q === defaultQuality,
         html: q,
-        url: videos[q]?.[0] || '',
+        url: proxyUrl(videos[q]?.[0] || ''),
       })),
 
       // Субтитры
