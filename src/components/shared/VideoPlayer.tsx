@@ -140,7 +140,8 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
   const artRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Artplayer | null>(null);
 
-  const isSeries = type === 'series' || info?.type === 'tv_series';
+  const isSeries =
+    type === 'series' || (info?.type ? info.type.includes('series') : false);
 
   // Загрузка информации
   const loadInfo = useCallback(async () => {
@@ -216,6 +217,38 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
     if (info && !stream) loadStream();
   }, [info, stream, loadStream]);
 
+  // Refs для доступа из Artplayer callbacks
+  const stateRef = useRef({
+    translator: selectedTranslator,
+    season: selectedSeason,
+    episode: selectedEpisode,
+  });
+  useEffect(() => {
+    stateRef.current = {
+      translator: selectedTranslator,
+      season: selectedSeason,
+      episode: selectedEpisode,
+    };
+  }, [selectedTranslator, selectedSeason, selectedEpisode]);
+
+  // Callback refs для изменения из Artplayer
+  const changeHandlersRef = useRef({
+    setTranslator: (val: string) => {
+      setSelectedTranslator(val);
+      setStream(null);
+    },
+    setSeason: (val: string) => {
+      setSelectedSeason(val);
+      setSelectedEpisode('1');
+      setStream(null);
+    },
+    setEpisode: (val: string) => {
+      setSelectedEpisode(val);
+      setStream(null);
+    },
+    nextEpisode: () => {},
+  });
+
   // ===================== Artplayer =====================
   useEffect(() => {
     if (!stream || !artRef.current) return;
@@ -260,6 +293,107 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
           }
         : undefined;
 
+    // ===== Настройки (settings) =====
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const settingsItems: any[] = [];
+
+    // Озвучка
+    if (info && Object.keys(info.translators).length > 0) {
+      settingsItems.push({
+        html: 'Озвучка',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>',
+        selector: Object.entries(info.translators).map(([id, t]) => ({
+          html: `${t.name}${t.premium ? ' ⭐' : ''}`,
+          value: id,
+          default: id === stateRef.current.translator,
+        })),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSelect(item: any) {
+          changeHandlersRef.current.setTranslator(item.value);
+          return item.html;
+        },
+      });
+    }
+
+    // Сезон (для сериалов)
+    if (isSeries && info?.seriesInfo && info.seriesInfo.length > 0) {
+      settingsItems.push({
+        html: 'Сезон',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>',
+        selector: info.seriesInfo.map((s) => ({
+          html: s.season_text || `Сезон ${s.season}`,
+          value: String(s.season),
+          default: String(s.season) === stateRef.current.season,
+        })),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSelect(item: any) {
+          changeHandlersRef.current.setSeason(item.value);
+          return item.html;
+        },
+      });
+
+      // Серия
+      const currentSeasonData = info.seriesInfo.find(
+        (s) => String(s.season) === stateRef.current.season
+      );
+      if (currentSeasonData && currentSeasonData.episodes.length > 0) {
+        settingsItems.push({
+          html: 'Серия',
+          icon: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>',
+          selector: currentSeasonData.episodes.map((ep) => ({
+            html: ep.episode_text || `Серия ${ep.episode}`,
+            value: String(ep.episode),
+            default: String(ep.episode) === stateRef.current.episode,
+          })),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onSelect(item: any) {
+            changeHandlersRef.current.setEpisode(item.value);
+            return item.html;
+          },
+        });
+      }
+    }
+
+    // Субтитры
+    if (subKeys.length > 1) {
+      settingsItems.push({
+        html: 'Субтитры',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
+        selector: [
+          { html: 'Выкл', default: false },
+          ...Object.entries(subs).map(([lang, sub], idx) => ({
+            html: sub.title || lang,
+            url: sub.link,
+            default: idx === 0,
+          })),
+        ],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSelect(item: any) {
+          if (item.url) {
+            art.subtitle.switch(item.url, { name: '' });
+          } else {
+            art.subtitle.show = false;
+          }
+          return item.html;
+        },
+      });
+    }
+
+    // ===== Controls (кнопка "След. серия") =====
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const controls: any[] = [];
+    if (isSeries) {
+      controls.push({
+        name: 'next-episode',
+        position: 'right',
+        html: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>',
+        tooltip: 'Следующая серия',
+        click() {
+          changeHandlersRef.current.nextEpisode();
+        },
+      });
+    }
+
     const art = new Artplayer({
       container: artRef.current,
       url: defaultUrl,
@@ -294,38 +428,14 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
         url: videos[q]?.[0] || '',
       })),
 
-      // Субтитры (добавляем только если они есть)
+      // Субтитры
       ...(subtitleOption ? { subtitle: subtitleOption } : {}),
 
-      // Настройки
-      settings: [
-        // Переключатель субтитров в настройках
-        ...(subKeys.length > 1
-          ? [
-              {
-                html: 'Субтитры',
-                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
-                selector: [
-                  { html: 'Выкл', default: false },
-                  ...Object.entries(subs).map(([lang, sub], idx) => ({
-                    html: sub.title || lang,
-                    url: sub.link,
-                    default: idx === 0,
-                  })),
-                ],
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                onSelect(item: any) {
-                  if (item.url) {
-                    art.subtitle.switch(item.url, { name: '' });
-                  } else {
-                    art.subtitle.show = false;
-                  }
-                  return item.html;
-                },
-              },
-            ]
-          : []),
-      ],
+      // Настройки (озвучка, сезон, серия, субтитры)
+      settings: settingsItems,
+
+      // Кнопки управления
+      controls,
 
       // Кастомные стили
       cssVar: {
@@ -344,7 +454,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
         playerRef.current = null;
       }
     };
-  }, [stream, title]);
+  }, [stream, title, info, isSeries]);
 
   // Перезагрузка потока при смене озвучки/серии
   const handleTranslatorChange = (val: string) => {
@@ -396,6 +506,11 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
       }
     }
   }, [info, selectedSeason, selectedEpisode]);
+
+  // Привязка goNextEpisode к ref для Artplayer кнопки
+  useEffect(() => {
+    changeHandlersRef.current.nextEpisode = goNextEpisode;
+  }, [goNextEpisode]);
 
   // Эпизоды текущего сезона
   const currentSeasonEpisodes =
