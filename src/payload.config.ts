@@ -139,48 +139,46 @@ export default buildConfig({
         { slug: COLLECTION_SLUGS.posts },
       ],
     }),
-
-    // ВРЕМЕННО ОТКЛЮЧЕНО для импорта данных
-    // searchPlugin({
-    //   // Коллекции, данные которых будут индексироваться для поиска
-    //   collections: [COLLECTION_SLUGS.mediaContents, COLLECTION_SLUGS.posts],
-    //   // Веса коллекций в результатах поиска
-    //   defaultPriorities: {
-    //     [COLLECTION_SLUGS.mediaContents]: 10,
-    //     [COLLECTION_SLUGS.posts]: 5,
-    //   },
-    //   // Обработка данных перед синхронизацией с индексом поиска
-    //   beforeSync: ({ originalDoc, searchDoc }) => ({
-    //     ...searchDoc,
-    //     title: originalDoc.title || searchDoc.title,
-    //     // Сбор ключевых слов для улучшения результатов поиска
-    //     keywords: [
-    //       originalDoc.title,
-    //       originalDoc.originalTitle,
-    //       originalDoc.director,
-    //     ]
-    //       .filter(Boolean)
-    //       .join(' '),
-    //   }),
-    //   // Переопределение настроек коллекции результатов поиска
-    //   searchOverrides: {
-    //     slug: 'search-results',
-    //     labels: {
-    //       singular: 'Результат поиска',
-    //       plural: 'Результаты поиска',
-    //     },
-    //     admin: {
-    //       group: 'Система',
-    //     },
-    //     fields: ({ defaultFields }) => [
-    //       ...defaultFields,
-    //       {
-    //         name: 'keywords',
-    //         type: 'text',
-    //         admin: { readOnly: true },
-    //       },
-    //     ],
-    //   },
-    // }),
+    searchPlugin({
+      // Коллекции, данные которых будут индексироваться для поиска
+      collections: [COLLECTION_SLUGS.mediaContents, COLLECTION_SLUGS.posts],
+      // Веса коллекций в результатах поиска
+      defaultPriorities: {
+        [COLLECTION_SLUGS.mediaContents]: 10,
+        [COLLECTION_SLUGS.posts]: 5,
+      },
+      // Обработка данных перед синхронизацией с индексом поиска
+      beforeSync: ({ originalDoc, searchDoc }) => ({
+        ...searchDoc,
+        title: originalDoc.title || searchDoc.title,
+        // Сбор ключевых слов для улучшения результатов поиска
+        keywords: [
+          originalDoc.title,
+          originalDoc.originalTitle,
+          originalDoc.director,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      }),
+      // Переопределение настроек коллекции результатов поиска
+      searchOverrides: {
+        slug: 'search-results',
+        labels: {
+          singular: 'Результат поиска',
+          plural: 'Результаты поиска',
+        },
+        admin: {
+          group: 'Система',
+        },
+        fields: ({ defaultFields }) => [
+          ...defaultFields,
+          {
+            name: 'keywords',
+            type: 'text',
+            admin: { readOnly: true },
+          },
+        ],
+      },
+    }),
   ],
 });

@@ -360,6 +360,16 @@ export const MediaContents: CollectionConfig = {
       },
     },
     {
+      name: 'hdrezkaUrl',
+      type: 'text',
+      label: 'HDRezka URL',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Ссылка на фильм/сериал на HDRezka (для встроенного плеера)',
+      },
+    },
+    {
       name: 'collections',
       type: 'relationship',
       relationTo: 'collections',

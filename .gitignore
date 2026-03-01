@@ -407,3 +407,6 @@ common/temp/
 # Certificates
 *.csr
 *.der
+
+# HDRezka Python microservice (separate repo)
+rezka/

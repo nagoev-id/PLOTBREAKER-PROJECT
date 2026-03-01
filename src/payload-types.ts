@@ -75,6 +75,7 @@ export interface Config {
     posts: Post;
     exports: Export;
     imports: Import;
+    'search-results': SearchResult;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-folders': FolderInterface;
@@ -99,6 +100,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     imports: ImportsSelect<false> | ImportsSelect<true>;
+    'search-results': SearchResultsSelect<false> | SearchResultsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
@@ -550,6 +552,10 @@ export interface MediaContent {
   episodeCount?: number | null;
   kinopoiskId?: string | null;
   kinoriumId?: string | null;
+  /**
+   * Ссылка на фильм/сериал на HDRezka (для встроенного плеера)
+   */
+  hdrezkaUrl?: string | null;
   collections?: (number | Collection)[] | null;
   updatedAt: string;
   createdAt: string;
@@ -657,6 +663,29 @@ export interface Import {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-results".
+ */
+export interface SearchResult {
+  id: number;
+  title?: string | null;
+  priority?: number | null;
+  doc:
+    | {
+        relationTo: 'media-contents';
+        value: number | MediaContent;
+      }
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      };
+  keywords?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -797,6 +826,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'search-results';
+        value: number | SearchResult;
       } | null)
     | ({
         relationTo: 'payload-folders';
@@ -1073,6 +1106,7 @@ export interface MediaContentsSelect<T extends boolean = true> {
   episodeCount?: T;
   kinopoiskId?: T;
   kinoriumId?: T;
+  hdrezkaUrl?: T;
   collections?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1149,6 +1183,18 @@ export interface ImportsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search-results_select".
+ */
+export interface SearchResultsSelect<T extends boolean = true> {
+  title?: T;
+  priority?: T;
+  doc?: T;
+  keywords?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

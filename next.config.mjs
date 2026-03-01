@@ -2,7 +2,16 @@ import { withPayload } from '@payloadcms/next/withPayload';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Your Next.js config here
+  // Проксирование запросов к Python-микросервису HDRezka
+  async rewrites() {
+    const rezkaApiUrl = process.env.REZKA_API_URL || 'http://localhost:8000';
+    return [
+      {
+        source: '/api/rezka/:path*',
+        destination: `${rezkaApiUrl}/api/:path*`,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, JSX, useEffect, useState } from 'react';
+import { FC, JSX, useEffect, useState, lazy, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -36,6 +36,8 @@ import {
 } from '@/utilities/utils';
 import { AdminActions, RichText, SharedLink } from '@/components/shared';
 import { useDelete } from '@/hooks/useDelete';
+
+const VideoPlayer = lazy(() => import('@/components/shared/VideoPlayer'));
 
 // Описание типов пропсов
 type ReviewDetailClientProps = {
@@ -257,6 +259,25 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
           </motion.div>
         </div>
       </section>
+
+      {/* Плеер HDRezka (только если указан URL) */}
+      {item.hdrezkaUrl && (
+        <section className="container mx-auto px-4 pt-6">
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-8">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+              </div>
+            }
+          >
+            <VideoPlayer
+              hdrezkaUrl={item.hdrezkaUrl}
+              title={item.title}
+              type={item.type}
+            />
+          </Suspense>
+        </section>
+      )}
 
       {/* Контент: Обзор + Сайдбар */}
       <section className="container mx-auto px-4 pb-8">
