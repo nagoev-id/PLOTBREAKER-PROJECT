@@ -118,10 +118,15 @@ const Selector: FC<{
 // ============================================================================
 
 /**
- * Проксирует URL видео через наш API чтобы обойти привязку CDN-токена к IP сервера.
+ * Проксирует URL видео через наш API в продакшене.
+ * Локально CDN-ссылки работают напрямую (IP совпадает).
+ * На продакшене CDN-токен привязан к IP Render-сервера.
  */
+const isProduction =
+  typeof window !== 'undefined' &&
+  !window.location.hostname.includes('localhost');
 const proxyUrl = (url: string) =>
-  `/api/rezka/proxy?url=${encodeURIComponent(url)}`;
+  isProduction ? `/api/rezka/proxy?url=${encodeURIComponent(url)}` : url;
 
 // ============================================================================
 // Основной компонент
