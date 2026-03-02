@@ -20,3 +20,7 @@ export {
 } from './MediaContentsProvider';
 export { CollectionsProvider, useCollections } from './CollectionsProvider';
 export { PostsProvider, usePosts } from './PostsProvider';
+export { SidebarSection } from './SidebarSection';
+export { SynopsisBlock } from './SynopsisBlock';
+export { ExternalLinks } from './ExternalLinks';
+export { KinoBdContainer } from './KinoBdContainer';

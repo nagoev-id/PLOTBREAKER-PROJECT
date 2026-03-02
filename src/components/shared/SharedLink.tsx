@@ -5,11 +5,22 @@ import { FC, JSX, useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui';
 
+type SharedLink = {
+  className?: string;
+  showText?: boolean;
+  buttonVariant?: 'link' | 'outline' | 'default' | 'secondary' | 'ghost';
+  buttonSize?: 'default' | 'sm' | 'lg' | 'icon' | null | undefined;
+};
 /**
  * Компонент для кнопки "Поделиться"
  * @returns {JSX.Element}
  */
-export const SharedLink: FC = (): JSX.Element => {
+export const SharedLink: FC<SharedLink> = ({
+  className,
+  showText = false,
+  buttonVariant = 'link',
+  buttonSize = 'sm',
+}): JSX.Element => {
   const [copied, setCopied] = useState(false);
 
   /**
@@ -36,21 +47,26 @@ export const SharedLink: FC = (): JSX.Element => {
       return (
         <>
           <Check size={14} />
-          Скопировано
+          <span className={!showText ? 'sr-only' : ''}>Скопировано</span>
         </>
       );
     }
     return (
       <>
         <Share2 size={14} />
-        Поделиться
+        <span className={!showText ? 'sr-only' : ''}>Поделиться</span>
       </>
     );
   };
 
   return (
-    <div className="border-t pt-4">
-      <Button onClick={handleShare} className="inline-flex w-full">
+    <div className={className}>
+      <Button
+        variant={buttonVariant}
+        size={buttonSize}
+        onClick={handleShare}
+        className="inline-flex w-full"
+      >
         {renderContent()}
       </Button>
     </div>

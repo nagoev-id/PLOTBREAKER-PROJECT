@@ -16,6 +16,29 @@ import { cn } from '@/utilities/utils';
 import Artplayer from 'artplayer';
 import { useAuth } from './AuthProvider';
 
+{
+  /* Плеер HDRezka (только если указан URL) */
+}
+{
+  /* {item.hdrezkaUrl && user && (
+        <section className="container mx-auto px-4 pt-6">
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-8">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+              </div>
+            }
+          >
+            <VideoPlayer
+              hdrezkaUrl={item.hdrezkaUrl}
+              title={item.title}
+              type={item.type}
+            />
+          </Suspense>
+        </section>
+      )} */
+}
+
 // ============================================================================
 // Типы
 // ============================================================================

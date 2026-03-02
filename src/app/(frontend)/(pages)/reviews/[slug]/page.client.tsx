@@ -1,20 +1,11 @@
 'use client';
 
-import { FC, JSX, useEffect, useState, lazy, Suspense } from 'react';
+import { FC, JSX, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowLeft,
-  Star,
-  Clock,
-  ExternalLink,
-  Play,
-  Minus,
-  Plus,
-  Type,
-} from 'lucide-react';
+import { ArrowLeft, Star, Clock, Minus, Plus, Type } from 'lucide-react';
 import {
   Badge,
   Accordion,
@@ -27,7 +18,6 @@ import {
 import { OPINION_CONFIG, TYPE_CONFIG } from '@/utilities/constants';
 import { MediaContentCollection } from '@/utilities/types';
 import {
-  cn,
   formatDate,
   formatDuration,
   formatSlugString,
@@ -36,58 +26,22 @@ import {
 } from '@/utilities/utils';
 import {
   AdminActions,
+  ExternalLinks,
+  KinoBdContainer,
   RichText,
   SharedLink,
+  SidebarSection,
+  SynopsisBlock,
   useAuth,
 } from '@/components/shared';
 import { useDelete } from '@/hooks/useDelete';
 
-const VideoPlayer = lazy(() => import('@/components/shared/VideoPlayer'));
+// const VideoPlayer = lazy(() => import('@/components/shared/VideoPlayer'));
 
 // Описание типов пропсов
 type ReviewDetailClientProps = {
   item: MediaContentCollection;
 };
-
-/**
- * Компонент секции сайдбара
- *
- * @param title - Заголовок секции
- * @param children - Дочерние элементы секции
- * @param contentClassName - Классы для контента секции
- * @returns Секция сайдбара
- */
-const SidebarSection: FC<{
-  title: string;
-  children: React.ReactNode;
-  contentClassName?: string;
-}> = ({ title, children, contentClassName }): JSX.Element => (
-  <div className="space-y-1.5">
-    <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-      {title}
-    </span>
-    <div className={contentClassName}>{children}</div>
-  </div>
-);
-
-/**
- * Компонент блока с кратким описанием
- *
- * @param synopsis - Краткое описание
- * @param className - Дополнительные классы
- * @returns Блок с кратким описанием
- */
-const SynopsisBlock: FC<{ synopsis: string; className?: string }> = ({
-  synopsis,
-  className,
-}): JSX.Element => (
-  <div className={cn('space-y-2', className)}>
-    <h3 className="text-xl font-bold uppercase">Краткое описание</h3>
-    <p className="text-muted-foreground text-base leading-relaxed lg:text-lg">
-      {synopsis}
-    </p>
-  </div>
-);
 
 // Размеры prose: класс Tailwind Typography + подпись для UI
 const PROSE_SIZES = [
@@ -112,6 +66,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
   const { deleteRecord, deleteLoading } = useDelete();
   const [showFontControls, setShowFontControls] = useState(false);
   const [sizeIndex, setSizeIndex] = useState(1);
+  const [showKinoBd, setShowKinoBd] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('review_prose_size');
@@ -167,7 +122,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/80 to-background" />
           </div>
         )}
 
@@ -229,9 +184,14 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 </div>
 
                 {item.originalTitle && (
-                  <p className="text-muted-foreground text-lg italic lg:text-xl">
+                  <div className="flex items-center gap-2 text-muted-foreground text-lg italic lg:text-xl">
                     {item.originalTitle}
-                  </p>
+
+                    {/* Поделиться */}
+                    <div className="max-w-max">
+                      <SharedLink showText={false} buttonSize="icon" />
+                    </div>
+                  </div>
                 )}
 
                 {/* Метаданные: год • режиссёр • длительность */}
@@ -248,12 +208,41 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                     <span>{formatDuration(item.duration)}</span>
                   )}
                 </div>
+
                 {/* Синопсис */}
                 {item.synopsis && (
                   <SynopsisBlock
                     synopsis={item.synopsis}
                     className="hidden lg:block"
                   />
+                )}
+
+                {/* Моя оценка */}
+                {opinionConfig && OpinionIcon && (
+                  <div className="hidden md:block">
+                    <SidebarSection title="Моя оценка">
+                      <Badge className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1">
+                        <OpinionIcon
+                          size={14}
+                          className={opinionConfig.color}
+                        />
+                        {opinionConfig.label}
+                      </Badge>
+                    </SidebarSection>
+                  </div>
+                )}
+
+                {/* Ссылки */}
+                {item.kinopoiskId && (
+                  <div className="hidden md:block">
+                    <ExternalLinks
+                      kinopoiskId={item.kinopoiskId}
+                      kinoriumId={item.kinoriumId}
+                      originalTitle={item.originalTitle}
+                      showKinoBd={showKinoBd}
+                      onToggleKinoBd={() => setShowKinoBd((p) => !p)}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -262,27 +251,42 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             {item.synopsis && (
               <SynopsisBlock synopsis={item.synopsis} className="lg:hidden" />
             )}
+
+            {/* Моя оценка */}
+            {opinionConfig && OpinionIcon && (
+              <div className="md:hidden">
+                <SidebarSection title="Моя оценка">
+                  <Badge className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1">
+                    <OpinionIcon size={14} className={opinionConfig.color} />
+                    {opinionConfig.label}
+                  </Badge>
+                </SidebarSection>
+              </div>
+            )}
+
+            {/* Ссылки */}
+            {item.kinopoiskId && (
+              <div className="md:hidden">
+                <ExternalLinks
+                  kinopoiskId={item.kinopoiskId}
+                  kinoriumId={item.kinoriumId}
+                  originalTitle={item.originalTitle}
+                  showKinoBd={showKinoBd}
+                  variant="default"
+                  onToggleKinoBd={() => setShowKinoBd((p) => !p)}
+                />
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
 
-      {/* Плеер HDRezka (только если указан URL) */}
-      {item.hdrezkaUrl && user && (
-        <section className="container mx-auto px-4 pt-6">
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center py-8">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-              </div>
-            }
-          >
-            <VideoPlayer
-              hdrezkaUrl={item.hdrezkaUrl}
-              title={item.title}
-              type={item.type}
-            />
-          </Suspense>
-        </section>
+      {/* KinoBD плеер (по KinopoiskId) */}
+      {showKinoBd && item.kinopoiskId && (
+        <KinoBdContainer
+          kinopoiskId={String(item.kinopoiskId)}
+          onClose={() => setShowKinoBd(false)}
+        />
       )}
 
       {/* Контент: Обзор + Сайдбар */}
@@ -482,72 +486,20 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
             {/* Ссылки */}
             {item.kinopoiskId && (
-              <SidebarSection
-                title="Ссылки"
-                contentClassName="flex flex-wrap gap-1.5"
-              >
-                <Link
-                  href={`https://www.kinopoisk.ru/film/${item.kinopoiskId}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Badge
-                    variant="secondary"
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
-                  >
-                    <ExternalLink size={12} />
-                    Кинопоиск
-                  </Badge>
-                </Link>
-
-                {item.kinoriumId && (
-                  <Link
-                    href={`https://kinorium.com/${item.kinoriumId}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Badge
-                      variant="secondary"
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
-                    >
-                      <ExternalLink size={12} />
-                      Кинориум
-                    </Badge>
-                  </Link>
-                )}
-
-                <Link
-                  href={`https://www.kinopoisk.cx/film/${item.kinopoiskId}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Badge
-                    variant="secondary"
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
-                  >
-                    <Play size={12} />
-                    FRKP
-                  </Badge>
-                </Link>
-
-                <Link
-                  href={`https://flymaterez.net/search/?do=search&subaction=search&q=${item.originalTitle}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Badge
-                    variant="secondary"
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors hover:bg-accent"
-                  >
-                    <Play size={12} />
-                    HDRezka
-                  </Badge>
-                </Link>
-              </SidebarSection>
+              <ExternalLinks
+                kinopoiskId={item.kinopoiskId}
+                kinoriumId={item.kinoriumId}
+                originalTitle={item.originalTitle}
+                variant="secondary"
+              />
             )}
 
             {/* Поделиться */}
-            <SharedLink />
+            <SharedLink
+              className="border-t pt-4"
+              showText={true}
+              buttonVariant="default"
+            />
           </motion.aside>
         </div>
       </section>
