@@ -122,7 +122,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/80 to-background" />
+            <div className="absolute inset-0 bg-linear-to-b from-background/80 via-background/80 to-background" />
           </div>
         )}
 
@@ -155,7 +155,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             <div className="flex items-start gap-4">
               {/* Миниатюра постера */}
               {posterSrc && (
-                <div className="relative  aspect-[2/3] w-[120px] xl:w-[270px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[150px]">
+                <div className="relative  aspect-2/3 w-[120px] xl:w-[270px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[150px]">
                   <Image
                     src={posterSrc}
                     alt={item.title}
@@ -200,7 +200,17 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   {item.releaseYear && item.director && (
                     <span className="opacity-40">•</span>
                   )}
-                  {item.director && <span>{item.director}</span>}
+                  {item.director &&
+                    item.director
+                      .split(',')
+                      .map((d) => d.trim())
+                      .filter(Boolean)
+                      .map((d, i, arr) => (
+                        <span key={d}>
+                          {d}
+                          {i < arr.length - 1 && ', '}
+                        </span>
+                      ))}
                   {(item.releaseYear || item.director) && item.duration && (
                     <span className="opacity-40">•</span>
                   )}
@@ -421,10 +431,23 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
             {/* Режиссёр */}
             {item.director && (
-              <SidebarSection title="Режиссёр">
-                <Badge variant="secondary" className="rounded-sm px-3 py-1">
-                  {item.director}
-                </Badge>
+              <SidebarSection
+                title="Режиссёр"
+                contentClassName="flex flex-wrap gap-1.5"
+              >
+                {item.director
+                  .split(',')
+                  .map((d) => d.trim())
+                  .filter(Boolean)
+                  .map((d) => (
+                    <Badge
+                      key={d}
+                      variant="secondary"
+                      className="rounded-sm px-3 py-1"
+                    >
+                      {d}
+                    </Badge>
+                  ))}
               </SidebarSection>
             )}
 
