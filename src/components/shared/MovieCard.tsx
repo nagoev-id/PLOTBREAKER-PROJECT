@@ -4,7 +4,7 @@ import { FC, JSX, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, Clock, Star } from 'lucide-react';
+import { Calendar, Clock, Star, Timer } from 'lucide-react';
 import { Card, Badge } from '@/components/ui';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -32,6 +32,7 @@ export const MovieCard: FC<Props> = ({
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const posterSrc = getPosterUrl(item);
+  const isPlanned = item.status === 'planned';
 
   const opinionConfig = item.personalOpinion
     ? OPINION_CONFIG[item.personalOpinion]
@@ -66,7 +67,7 @@ export const MovieCard: FC<Props> = ({
     <div className="relative h-full group/card">
       <Card className="group flex h-full flex-col overflow-hidden rounded-sm border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
         {/* Постер с overlay-бейджами */}
-        <div className="relative aspect-[2/3] w-full overflow-hidden">
+        <div className="relative aspect-2/3 w-full overflow-hidden">
           {user && (
             <AdminActions
               editUrl={`/admin/collections/media-contents/${item.id}`}
@@ -87,7 +88,10 @@ export const MovieCard: FC<Props> = ({
                 alt={item.title}
                 fill
                 priority={priority}
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                className={cn(
+                  'object-cover transition-transform duration-300 group-hover:scale-105',
+                  isPlanned && 'grayscale'
+                )}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               />
               <div className="absolute inset-0 bg-black/5 transition-colors group-hover:bg-black/10" />
@@ -100,15 +104,22 @@ export const MovieCard: FC<Props> = ({
                 </div>
               )}
 
-              {/* Впечатление — overlay */}
-              {OpinionIcon && opinionConfig && (
+              {/* Статус «Планирую» или впечатление — overlay */}
+              {isPlanned ? (
+                <div className="absolute top-8 right-1.5 flex items-center gap-1 rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold backdrop-blur-sm">
+                  <Timer className="size-4 text-blue-400" />
+                  <span className="hidden text-[10px] text-blue-400 lg:text-[12px] md:inline">
+                    Планирую
+                  </span>
+                </div>
+              ) : OpinionIcon && opinionConfig ? (
                 <div className="absolute top-8 right-1.5 flex items-center gap-1 rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm">
                   <OpinionIcon className={cn(opinionConfig.color, 'size-4')} />
                   <span className="hidden text-[10px] text-white lg:text-[12px] md:inline">
                     {opinionConfig.label}
                   </span>
                 </div>
-              )}
+              ) : null}
             </Link>
           )}
         </div>
