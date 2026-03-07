@@ -373,7 +373,12 @@ export const getAuthUser = async () => {
     const { user } = await payload.auth({ headers: await headers() });
     return user;
   } catch (error) {
-    console.error('Ошибка при получении текущего пользователя:', error);
+    // При SSG headers() недоступен — это ожидаемое поведение, не логируем
+    const isDynamic =
+      error instanceof Error && error.message.includes('headers');
+    if (!isDynamic) {
+      console.error('Ошибка при получении текущего пользователя:', error);
+    }
     return null;
   }
 };

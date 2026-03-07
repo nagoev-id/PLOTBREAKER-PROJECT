@@ -1,26 +1,19 @@
-export { LoadingSpinner } from './LoadingSpinner';
-export { PaginationControls } from './PaginationControls';
-export { MovieCard } from './MovieCard';
-export { PostCard } from './PostCard';
-export { RichText } from './RichText';
-export { CustomSelect } from './CustomSelect';
-export { SearchModal } from '@/features/search/components/SearchModal';
-export { ThemeProvider } from './ThemeProvider';
-export { ThemeToggle } from './ThemeToggle';
-export { SharedLink } from './SharedLink';
-export { CMSLink } from './CMSLink';
-export { CollectionCard } from './CollectionCard';
-export { AdminActions } from './AdminActions';
-export { Preloader } from './Preloader';
-export { TelegramProvider } from './TelegramProvider';
-export { AuthProvider, useAuth } from './AuthProvider';
-export {
-  MediaContentsProvider,
-  useMediaContents,
-} from './MediaContentsProvider';
-export { CollectionsProvider, useCollections } from './CollectionsProvider';
-export { PostsProvider, usePosts } from './PostsProvider';
-export { SidebarSection } from './SidebarSection';
-export { SynopsisBlock } from './SynopsisBlock';
-export { ExternalLinks } from './ExternalLinks';
-export { KinoBdContainer } from './KinoBdContainer';
+export { CollectionCard } from './lists/CollectionCard';
+export { PostCard } from './posts/PostCard';
+
+export { CMSLink } from '../admin/CMSLink';
+
+export { LoadingSpinner } from './ui/LoadingSpinner';
+export { PaginationControls } from './ui/PaginationControls';
+export { RichText } from './ui/RichText';
+export { CustomSelect } from './ui/CustomSelect';
+export { ThemeToggle } from './ui/ThemeToggle';
+export { AdminActions } from './ui/AdminActions';
+export { Preloader } from './ui/Preloader';
+
+export { SidebarSection } from './titles/SidebarSection';
+export { SynopsisBlock } from './titles/SynopsisBlock';
+export { ExternalLinks } from './titles/ExternalLinks';
+export { KinoBdContainer } from './titles/KinoBdContainer';
+export { MovieCard } from './titles/MovieCard';
+export { SharedLink } from './titles/SharedLink';

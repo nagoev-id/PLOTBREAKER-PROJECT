@@ -72,7 +72,7 @@ const CollectionsPageClient: FC<{ collections: List[] }> = ({
                     value={typeFilter}
                     onValueChange={(val) => val && setTypeFilter(val)}
                   >
-                    <TabsList className="flex h-auto justify-center max-w-max">
+                    <TabsList className="flex flex-wrap h-auto justify-center w-full">
                       {filter.options.map((option) => (
                         <TabsTrigger key={option.value} value={option.value}>
                           {option.label}

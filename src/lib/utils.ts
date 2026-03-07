@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { format, isValid, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-import { TYPE_CONFIG, GENRES, FALLBACK_CINFIG } from './constants';
+import { TYPE_CONFIG, GENRES, FALLBACK_CINFIG, ALL_VALUE } from './constants';
 
 /**
  * Утилита для объединения CSS классов (clsx + tailwind-merge).
@@ -158,8 +158,6 @@ import type { Title } from '@/payload-types';
 
 // Ре-экспорт из канонического источника для обратной совместимости
 export { formatSlugString } from '@/payload/utilities/utils';
-
-const ALL_VALUE = 'all';
 
 /**
  * Проверяет, попадает ли рейтинг в указанный диапазон.

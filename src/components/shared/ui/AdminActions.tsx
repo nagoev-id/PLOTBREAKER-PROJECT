@@ -13,7 +13,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui';
 
-import { useAuth } from '@/components/shared';
+import { useAuth } from '@/components/context';
 import { cn } from '@/lib/utils';
 
 // Тип для пропсов
@@ -76,7 +76,7 @@ export const AdminActions: FC<AdminActionsProps> = ({
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <button
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm dark:bg-white dark:text-black"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm dark:bg-white dark:text-black cursor-pointer"
             onClick={(e) => e.stopPropagation()}
             title="Удалить"
           >

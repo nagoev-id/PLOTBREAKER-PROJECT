@@ -191,6 +191,13 @@ export const TITLES_COLLECTION = {
   admin: {
     defaultColumns: ['title', 'type', 'collections'],
     group: 'Контент',
+    preview: (doc: Record<string, unknown>) => {
+      const slug = typeof doc?.slug === 'string' ? doc.slug : undefined;
+      if (!slug) return null;
+      const base =
+        process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+      return `${base}/reviews/${slug}`;
+    },
   },
   fields: [
     {

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
-import { FC } from "react";
-import { Button } from "../ui";
+import { FC } from 'react';
+import { Button } from '@/components/ui';
 
 /**
  * Кнопка переключения темы (светлая/темная).
@@ -17,7 +17,7 @@ export const ThemeToggle: FC = () => {
       variant="ghost"
       size="icon"
       className="rounded-full transition-all duration-300 hover:scale-110"
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
     >
       <Sun className="h-6 w-[1.3rem] transition-transform duration-300 dark:hidden" />
       <Moon className="hidden h-5 w-5 transition-transform duration-300 dark:block" />

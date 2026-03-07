@@ -73,6 +73,9 @@ const HomePageClient: FC<{ items: Title[] }> = ({
   const [selectedOpinion, setSelectedOpinion] = useState(
     () => searchParams.get('opinion') || ALL_VALUE
   );
+  const [selectedStatus, setSelectedStatus] = useState(
+    () => searchParams.get('status') || 'watched'
+  );
   const [selectedRating, setSelectedRating] = useState(
     () => searchParams.get('rating') || ALL_VALUE
   );
@@ -95,6 +98,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
     setSelectedGenre(searchParams.get('genre') || ALL_VALUE);
     setSelectedReleaseYear(searchParams.get('year') || ALL_VALUE);
     setSelectedOpinion(searchParams.get('opinion') || ALL_VALUE);
+    setSelectedStatus(searchParams.get('status') || 'watched');
     setSelectedRating(searchParams.get('rating') || ALL_VALUE);
     setSelectedWatchYear(searchParams.get('watchYear') || ALL_VALUE);
   }, [searchParams]);
@@ -109,6 +113,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
         genre?: string;
         year?: string;
         opinion?: string;
+        status?: string;
         rating?: string;
         watchYear?: string;
         q?: string;
@@ -121,6 +126,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
       const genre = overrides.genre ?? selectedGenre;
       const year = overrides.year ?? selectedReleaseYear;
       const opinion = overrides.opinion ?? selectedOpinion;
+      const status = overrides.status ?? selectedStatus;
       const rating = overrides.rating ?? selectedRating;
       const watchYear = overrides.watchYear ?? selectedWatchYear;
       const q = overrides.q ?? searchQuery;
@@ -132,6 +138,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
       if (genre !== ALL_VALUE) p.set('genre', genre);
       if (year !== ALL_VALUE) p.set('year', year);
       if (opinion !== ALL_VALUE) p.set('opinion', opinion);
+      if (status !== ALL_VALUE) p.set('status', status);
       if (rating !== ALL_VALUE) p.set('rating', rating);
       if (watchYear !== ALL_VALUE) p.set('watchYear', watchYear);
       if (q) p.set('q', q);
@@ -147,6 +154,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
       selectedGenre,
       selectedReleaseYear,
       selectedOpinion,
+      selectedStatus,
       selectedRating,
       selectedWatchYear,
       searchQuery,
@@ -197,6 +205,10 @@ const HomePageClient: FC<{ items: Title[] }> = ({
       )
         return false;
 
+      // Статус
+      if (selectedStatus !== ALL_VALUE && item.status !== selectedStatus)
+        return false;
+
       // Рейтинг КП
       if (selectedRating !== ALL_VALUE) {
         if (!matchesRating(item.kpRating, selectedRating)) return false;
@@ -218,6 +230,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
     selectedGenre,
     selectedReleaseYear,
     selectedOpinion,
+    selectedStatus,
     selectedRating,
     selectedWatchYear,
   ]);
@@ -273,6 +286,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
     setSelectedGenre(ALL_VALUE);
     setSelectedReleaseYear(ALL_VALUE);
     setSelectedOpinion(ALL_VALUE);
+    setSelectedStatus('watched');
     setSelectedRating(ALL_VALUE);
     setSelectedWatchYear(ALL_VALUE);
     router.replace('/', { scroll: false });
@@ -288,6 +302,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
     selectedGenre !== ALL_VALUE ||
     selectedReleaseYear !== ALL_VALUE ||
     selectedOpinion !== ALL_VALUE ||
+    selectedStatus !== 'watched' ||
     selectedRating !== ALL_VALUE ||
     selectedWatchYear !== ALL_VALUE ||
     currentPage > 1 ||
@@ -385,6 +400,18 @@ const HomePageClient: FC<{ items: Title[] }> = ({
                 }}
                 options={HOMEPAGE_FILTERS.opinions}
                 placeholder="Впечатление"
+              />
+
+              {/* Статус */}
+              <CustomSelect
+                label="Статус"
+                value={selectedStatus}
+                onValueChange={(v) => {
+                  setSelectedStatus(v);
+                  updateParams({ page: 1, status: v });
+                }}
+                options={HOMEPAGE_FILTERS.statuses}
+                placeholder="Статус"
               />
 
               {/* Рейтинг КП */}

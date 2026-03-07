@@ -292,6 +292,13 @@ export const HOMEPAGE_FILTERS = {
       value: o.value,
     })),
   ],
+  statuses: [
+    { label: 'Все', value: ALL_VALUE },
+    ...MEDIA_CONTENT_STATUS.select.map((s) => ({
+      label: s.label,
+      value: s.value,
+    })),
+  ],
   ratings: [
     { label: 'Все', value: ALL_VALUE },
     { label: '9–10', value: '9-10' },

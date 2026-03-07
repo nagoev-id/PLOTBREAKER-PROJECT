@@ -147,10 +147,11 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             transition={{ duration: 0.5 }}
             className="grid gap-4"
           >
-            <div className="flex items-start gap-4">
+            {/* <div className="flex items-start gap-4"> */}
+            <div className="grid gap-2 md:gap-4 md:grid-cols-[200px_1fr]">
               {/* Миниатюра постера */}
               {posterSrc && (
-                <div className="relative  aspect-2/3 w-[120px] xl:w-[270px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[150px]">
+                <div className="relative aspect-2/3 w-full max-w-[300px] mx-auto shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block ">
                   <Image
                     src={posterSrc}
                     alt={item.title}
@@ -162,21 +163,10 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               )}
 
               {/* Текстовый блок */}
-              <div className="space-y-2">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                  <h1 className="text-3xl font-bold tracking-tight lg:text-5xl">
-                    {item.title}
-                  </h1>
-
-                  <AdminActions
-                    editUrl={`/admin/collections/titles/${item.id}`}
-                    onDelete={handleDelete}
-                    isDeleting={deleteLoading === item.id}
-                    title={item.title}
-                    typeName="Запись"
-                    classNames="!p-0 max-w-max !grid-cols-2"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <h1 className="text-2xl font-bold tracking-tight lg:text-5xl">
+                  {item.title}
+                </h1>
 
                 {item.originalTitle && (
                   <div className="flex items-center gap-2 text-muted-foreground text-lg italic lg:text-xl">
@@ -190,7 +180,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 )}
 
                 {/* Метаданные: год • режиссёр • длительность */}
-                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 text-sm">
+                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                   {item.releaseYear && <span>{item.releaseYear}</span>}
                   {item.releaseYear && item.director && (
                     <span className="opacity-40">•</span>
@@ -208,72 +198,113 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                       ))}
                 </div>
 
-                {/* Синопсис */}
-                {item.synopsis && (
-                  <SynopsisBlock
-                    synopsis={item.synopsis}
-                    className="hidden lg:block"
-                  />
-                )}
-
-                {/* Моя оценка */}
-                {opinionConfig && OpinionIcon && (
-                  <div className="hidden md:block">
-                    <SidebarSection title="Моя оценка">
-                      <Badge className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1">
-                        <OpinionIcon
-                          size={14}
-                          className={opinionConfig.color}
-                        />
-                        {opinionConfig.label}
-                      </Badge>
-                    </SidebarSection>
-                  </div>
-                )}
-
-                {/* Ссылки */}
-                {item.kinopoiskId && (
-                  <div className="hidden md:block">
-                    <ExternalLinks
-                      kinopoiskId={item.kinopoiskId}
-                      originalTitle={item.originalTitle}
-                      showKinoBd={showKinoBd}
-                      onToggleKinoBd={() => setShowKinoBd((p) => !p)}
-                    />
-                  </div>
-                )}
+                <AdminActions
+                  editUrl={`/admin/collections/titles/${item.id}`}
+                  onDelete={handleDelete}
+                  isDeleting={deleteLoading === item.id}
+                  title={item.title}
+                  typeName="Запись"
+                  classNames="!p-0 max-w-max !grid-cols-3"
+                />
               </div>
             </div>
 
-            {/* Синопсис */}
-            {item.synopsis && (
-              <SynopsisBlock synopsis={item.synopsis} className="lg:hidden" />
-            )}
+            <div className="grid gap-2">
+              {/* Синопсис */}
+              {item.synopsis && <SynopsisBlock synopsis={item.synopsis} />}
 
-            {/* Моя оценка */}
-            {opinionConfig && OpinionIcon && (
-              <div className="md:hidden">
-                <SidebarSection title="Моя оценка">
-                  <Badge className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1">
-                    <OpinionIcon size={14} className={opinionConfig.color} />
-                    {opinionConfig.label}
+              {/* Тип */}
+              {typeConfig && (
+                <SidebarSection title="Тип">
+                  <Badge className="rounded-sm px-3 py-1">
+                    {typeConfig.label}
                   </Badge>
                 </SidebarSection>
-              </div>
-            )}
+              )}
 
-            {/* Ссылки */}
-            {item.kinopoiskId && (
-              <div className="md:hidden">
+              {/* Рейтинг */}
+              {item.kpRating && (
+                <SidebarSection
+                  title="Рейтинг КП"
+                  contentClassName="flex items-center gap-2"
+                >
+                  <Badge className="inline-flex gap-1">
+                    <Star size={15} className="fill-amber-400 text-amber-400" />
+                    <span className="text-lg font-bold">
+                      {item.kpRating.toFixed(1)}
+                    </span>
+                  </Badge>
+                </SidebarSection>
+              )}
+
+              {/* Моя оценка */}
+              {opinionConfig && OpinionIcon && (
+                <SidebarSection title="Моя оценка">
+                  <Badge className="inline-flex gap-1 rounded-sm px-3 py-1 transition-colors">
+                    <OpinionIcon size={14} className={opinionConfig.color} />
+                    <span>{opinionConfig.label}</span>
+                  </Badge>
+                </SidebarSection>
+              )}
+
+              {/* Дата просмота */}
+              {item.watchDate && (
+                <SidebarSection title="Дата просмотра">
+                  <Badge className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1">
+                    {formatDate(item.watchDate)}
+                  </Badge>
+                </SidebarSection>
+              )}
+
+              {/* Жанры */}
+              {item.genres && item.genres.length > 0 && (
+                <SidebarSection
+                  title="Жанры"
+                  contentClassName="flex flex-wrap gap-1.5"
+                >
+                  {item.genres.map((genre: string) => (
+                    <Link key={genre} href={`/reviews/genres/${genre}`}>
+                      <Badge className="rounded-sm px-3 py-1 cursor-pointer transition-colors">
+                        {getGenreLabel(genre)}
+                      </Badge>
+                    </Link>
+                  ))}
+                </SidebarSection>
+              )}
+
+              {/* Ссылки */}
+              {item.kinopoiskId && (
                 <ExternalLinks
                   kinopoiskId={item.kinopoiskId}
                   originalTitle={item.originalTitle}
                   showKinoBd={showKinoBd}
-                  variant="default"
                   onToggleKinoBd={() => setShowKinoBd((p) => !p)}
                 />
-              </div>
-            )}
+              )}
+
+              {/* Визуальные теги */}
+              {item.visualTags && typeof item.visualTags === 'string' && (
+                <SidebarSection
+                  title="Визуальные теги"
+                  contentClassName="flex flex-wrap gap-1.5"
+                >
+                  {item.visualTags
+                    .split(',')
+                    .map((tag: string) => tag.trim())
+                    .filter(Boolean)
+                    .map((tag: string, i: number) => (
+                      <Link
+                        key={`vtag-${i}-${tag}`}
+                        href={`/reviews/tags/${formatSlugString(tag)}`}
+                      >
+                        <Badge className="rounded-sm px-3 py-1 cursor-pointer transition-colors">
+                          # {tag}
+                        </Badge>
+                      </Link>
+                    ))}
+                </SidebarSection>
+              )}
+            </div>
           </motion.div>
         </div>
       </section>
@@ -288,220 +319,80 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
       {/* Контент: Обзор + Сайдбар */}
       <section className="container mx-auto px-4 pb-8">
-        <div className="grid grid-cols-1 lg:items-start gap-6 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_340px]">
-          {/* Левая колонка — обзор */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="min-w-0 pt-8"
-          >
-            {item.review && (
-              <RichText
-                content={item.review}
-                className={`prose-hr:my-4 prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-headings:uppercase prose-h2:mt-6 prose-h2:mb-2 prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-li:my-0.5`}
-              />
-            )}
-
-            {/* Обзоры по сезонам (для сериалов и мультфильмов) */}
-            {(item.type === 'series' || item.type === 'cartoon') &&
-              item.seasons &&
-              item.seasons.length > 0 && (
-                <div className="space-y-2">
-                  <h2 className="text-xl font-bold uppercase">
-                    Подробный пересказ
-                  </h2>
-                  <Accordion type="multiple" className="w-full">
-                    {item.seasons.map(
-                      (season: NonNullable<Title['seasons']>[number]) => {
-                        const seasonOpinion = season.personalOpinion
-                          ? OPINION_CONFIG[season.personalOpinion]
-                          : null;
-                        const SeasonOpinionIcon = seasonOpinion?.icon;
-
-                        return (
-                          <AccordionItem
-                            key={season.id ?? season.seasonNumber}
-                            value={`season-${season.seasonNumber}`}
-                          >
-                            <AccordionTrigger className="text-base font-semibold hover:no-underline">
-                              <div className="flex items-center gap-3">
-                                <span className="sm:text-base">
-                                  Сезон {season.seasonNumber}
-                                </span>
-                                {SeasonOpinionIcon && seasonOpinion && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs sm:text-sm border border-muted-foreground/50"
-                                  >
-                                    <SeasonOpinionIcon
-                                      size={14}
-                                      className={seasonOpinion.color}
-                                    />
-                                    {seasonOpinion.label}
-                                  </Badge>
-                                )}
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              {season.review ? (
-                                <RichText
-                                  content={season.review}
-                                  className={`prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-headings:my-2 prose-li:my-0.5 prose-hr:my-4`}
-                                />
-                              ) : (
-                                <p className="text-muted-foreground text-sm">
-                                  Обзор пока не добавлен
-                                </p>
-                              )}
-                            </AccordionContent>
-                          </AccordionItem>
-                        );
-                      }
-                    )}
-                  </Accordion>
-                </div>
-              )}
-          </motion.div>
-
-          {/* Правая колонка — сайдбар */}
-          <motion.aside
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="space-y-4 lg:border-l lg:border-b lg:border-r lg:pb-4 lg:border-gray-200 lg:dark:border-gray-800 lg:px-4 lg:pt-8 lg:sticky lg:top-[55px]"
-          >
-            {/* Рейтинг */}
-            {item.kpRating && (
-              <SidebarSection
-                title="Рейтинг"
-                contentClassName="flex items-center gap-2"
-              >
-                <Star size={20} className="fill-amber-400 text-amber-400" />
-                <span className="text-2xl font-bold">
-                  {item.kpRating.toFixed(1)}
-                </span>
-                <span className="text-muted-foreground text-sm">/10</span>
-              </SidebarSection>
-            )}
-
-            {/* Моя оценка */}
-            {opinionConfig && OpinionIcon && (
-              <SidebarSection title="Моя оценка">
-                <Badge
-                  variant="secondary"
-                  className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1"
-                >
-                  <OpinionIcon size={14} className={opinionConfig.color} />
-                  {opinionConfig.label}
-                </Badge>
-              </SidebarSection>
-            )}
-
-            {item.watchDate && (
-              <SidebarSection title="Дата просмотра">
-                <Badge
-                  variant="secondary"
-                  className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1"
-                >
-                  {formatDate(item.watchDate)}
-                </Badge>
-              </SidebarSection>
-            )}
-
-            {/* Тип */}
-            {typeConfig && (
-              <SidebarSection title="Тип">
-                <Badge variant="secondary" className="rounded-sm px-3 py-1">
-                  {typeConfig.label}
-                </Badge>
-              </SidebarSection>
-            )}
-
-            {/* Режиссёр */}
-            {item.director && (
-              <SidebarSection
-                title="Режиссёр"
-                contentClassName="flex flex-wrap gap-1.5"
-              >
-                {item.director
-                  .split(',')
-                  .map((d: string) => d.trim())
-                  .filter(Boolean)
-                  .map((d: string) => (
-                    <Badge
-                      key={d}
-                      variant="secondary"
-                      className="rounded-sm px-3 py-1"
-                    >
-                      {d}
-                    </Badge>
-                  ))}
-              </SidebarSection>
-            )}
-
-            {/* Жанры */}
-            {item.genres && item.genres.length > 0 && (
-              <SidebarSection
-                title="Жанры"
-                contentClassName="flex flex-wrap gap-1.5"
-              >
-                {item.genres.map((genre: string) => (
-                  <Link key={genre} href={`/reviews/genres/${genre}`}>
-                    <Badge
-                      variant="secondary"
-                      className="rounded-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors"
-                    >
-                      {getGenreLabel(genre)}
-                    </Badge>
-                  </Link>
-                ))}
-              </SidebarSection>
-            )}
-
-            {/* Визуальные теги */}
-            {item.visualTags && typeof item.visualTags === 'string' && (
-              <SidebarSection
-                title="Визуальные теги"
-                contentClassName="flex flex-wrap gap-1.5"
-              >
-                {item.visualTags
-                  .split(',')
-                  .map((tag: string) => tag.trim())
-                  .filter(Boolean)
-                  .map((tag: string, i: number) => (
-                    <Link
-                      key={`vtag-${i}-${tag}`}
-                      href={`/reviews/tags/${formatSlugString(tag)}`}
-                    >
-                      <Badge
-                        variant="secondary"
-                        className="rounded-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors"
-                      >
-                        #{tag}
-                      </Badge>
-                    </Link>
-                  ))}
-              </SidebarSection>
-            )}
-
-            {/* Ссылки */}
-            {item.kinopoiskId && (
-              <ExternalLinks
-                kinopoiskId={item.kinopoiskId}
-                originalTitle={item.originalTitle}
-                variant="secondary"
-              />
-            )}
-
-            {/* Поделиться */}
-            <SharedLink
-              className="border-t pt-4"
-              showText={true}
-              buttonVariant="default"
+        {/* Левая колонка — обзор */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="min-w-0 pt-8"
+        >
+          {item.review && (
+            <RichText
+              content={item.review}
+              className={`prose-hr:my-4 prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-headings:uppercase prose-h2:mt-6 prose-h2:mb-2 prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-li:my-0.5`}
             />
-          </motion.aside>
-        </div>
+          )}
+
+          {/* Обзоры по сезонам (для сериалов и мультфильмов) */}
+          {(item.type === 'series' || item.type === 'cartoon') &&
+            item.seasons &&
+            item.seasons.length > 0 && (
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold uppercase">
+                  Подробный пересказ
+                </h2>
+                <Accordion type="multiple" className="w-full">
+                  {item.seasons.map(
+                    (season: NonNullable<Title['seasons']>[number]) => {
+                      const seasonOpinion = season.personalOpinion
+                        ? OPINION_CONFIG[season.personalOpinion]
+                        : null;
+                      const SeasonOpinionIcon = seasonOpinion?.icon;
+
+                      return (
+                        <AccordionItem
+                          key={season.id ?? season.seasonNumber}
+                          value={`season-${season.seasonNumber}`}
+                        >
+                          <AccordionTrigger className="text-base font-semibold hover:no-underline">
+                            <div className="flex items-center gap-3">
+                              <span className="sm:text-base">
+                                Сезон {season.seasonNumber}
+                              </span>
+                              {SeasonOpinionIcon && seasonOpinion && (
+                                <Badge
+                                  variant="secondary"
+                                  className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs sm:text-sm border border-muted-foreground/50"
+                                >
+                                  <SeasonOpinionIcon
+                                    size={14}
+                                    className={seasonOpinion.color}
+                                  />
+                                  {seasonOpinion.label}
+                                </Badge>
+                              )}
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {season.review ? (
+                              <RichText
+                                content={season.review}
+                                className={`prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-headings:my-2 prose-li:my-0.5 prose-hr:my-4`}
+                              />
+                            ) : (
+                              <p className="text-muted-foreground text-sm">
+                                Обзор пока не добавлен
+                              </p>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    }
+                  )}
+                </Accordion>
+              </div>
+            )}
+        </motion.div>
       </section>
 
       {/* Плавающая кнопка размера шрифта */}

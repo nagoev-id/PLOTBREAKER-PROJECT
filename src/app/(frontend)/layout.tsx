@@ -8,7 +8,8 @@ import { METADATA } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { euclid } from '@/lib/fonts';
 import { Header, Footer } from '@/payload/globals';
-import { Preloader, ThemeProvider, AuthProvider } from '@/components/shared';
+import { Preloader } from '@/components/shared';
+import { ThemeProvider, AuthProvider } from '@/components/context';
 
 export const metadata = {
   metadataBase: new URL(METADATA.siteUrl),
@@ -81,7 +82,6 @@ const RootLayout = async ({
           storageKey={METADATA.siteKey}
         >
           <AuthProvider user={user as User | null}>
-            {/* <TelegramProvider> */}
             <Preloader />
             <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">
               <Header />
@@ -89,7 +89,6 @@ const RootLayout = async ({
               <Footer />
             </div>
           </AuthProvider>
-          {/* </TelegramProvider> */}
         </ThemeProvider>
         <Toaster />
       </body>

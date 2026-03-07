@@ -6,8 +6,10 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Menu, Search, ShieldUser, X } from 'lucide-react';
 
 import { getURL } from '@/lib/utils';
-import { SearchModal, CMSLink } from '@/components/shared';
+import { CMSLink } from '@/components/shared';
+
 import type { Header as HeaderGlobal, User } from '@/payload-types';
+import { SearchModal } from '@/features/search/components/SearchModal';
 
 type NavItemCollection = NonNullable<HeaderGlobal['navItems']>[number];
 
@@ -87,7 +89,7 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
   return (
     <>
       <header
-        className="bg-background/80 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur transition-all duration-300"
+        className="bg-background/80  supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur transition-all duration-300"
         role="banner"
       >
         <div className="container mx-auto flex h-16 items-center gap-4 px-4">

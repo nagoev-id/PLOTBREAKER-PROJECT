@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Play } from 'lucide-react';
 import Link from 'next/link';
 import { FC, JSX } from 'react';
-import { SidebarSection } from '@/components/shared/SidebarSection';
+import { SidebarSection } from '@/components/shared/titles/SidebarSection';
 import { cn } from '@/lib/utils';
 
 type ExternalLinksProps = {
@@ -59,11 +59,10 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
     </Link>
 
     <Link
-      href={`https://tapeop.dev/`}
+      href={`https://tv.kinohub.vip/movie/${kinopoiskId}`}
       target="_blank"
       rel="noopener noreferrer"
       id="tapeop-play-btn"
-      data-kinopoisk-id={String(kinopoiskId)}
     >
       <Badge
         variant={variant}
@@ -73,24 +72,7 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
         )}
       >
         <Play size={12} />
-        Tapeop
-      </Badge>
-    </Link>
-
-    <Link
-      href={`https://flymaterez.net/search/?do=search&subaction=search&q=${originalTitle ?? ''}`}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <Badge
-        variant={variant}
-        className={cn(
-          'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
-          variant === 'default' ? 'hover:bg-primary/20' : ''
-        )}
-      >
-        <Play size={12} />
-        HDRezka
+        KinoHub
       </Badge>
     </Link>
 
@@ -107,5 +89,21 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
         {showKinoBd ? 'Скрыть KinoBD' : 'KinoBD'}
       </Badge>
     )}
+    <Link
+      href={`https://flymaterez.net/search/?do=search&subaction=search&q=${originalTitle ?? ''}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Badge
+        variant={variant}
+        className={cn(
+          'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
+          variant === 'default' ? 'hover:bg-primary/20' : ''
+        )}
+      >
+        <Play size={12} />
+        HDRezka
+      </Badge>
+    </Link>
   </SidebarSection>
 );

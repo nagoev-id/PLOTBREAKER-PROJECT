@@ -12,7 +12,8 @@ import axios from 'axios';
 import { OPINION_CONFIG } from '@/lib/constants';
 import { cn, getGenreLabel, getPosterUrl } from '@/lib/utils';
 import type { Title } from '@/payload-types';
-import { AdminActions, useAuth } from '@/components/shared';
+import { AdminActions } from '@/components/shared';
+import { useAuth } from '@/components/context';
 
 type Props = {
   item: Title;
