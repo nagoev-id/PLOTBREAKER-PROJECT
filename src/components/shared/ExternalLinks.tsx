@@ -62,6 +62,8 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
       href={`https://tapeop.dev/`}
       target="_blank"
       rel="noopener noreferrer"
+      id="tapeop-play-btn"
+      data-kinopoisk-id={String(kinopoiskId)}
     >
       <Badge
         variant={variant}
