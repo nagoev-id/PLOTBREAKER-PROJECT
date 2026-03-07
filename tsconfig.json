@@ -27,7 +27,7 @@
         "./src/*"
       ],
       "@payload-config": [
-        "./src/payload.config.ts"
+        "./src/payload/config/payload.config.ts"
       ]
     },
     "target": "ES2022",
@@ -39,6 +39,7 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "old-src"
   ],
 }

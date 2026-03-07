@@ -7,16 +7,16 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Film, Search, X } from 'lucide-react';
 
 import { MovieCard, PaginationControls } from '@/components/shared';
-import { getGenreLabel } from '@/utilities/utils';
-import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/utilities/constants';
+import { getGenreLabel } from '@/lib/utils';
+import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/lib/constants';
 import { Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 
-import { MediaContentCollection } from '@/utilities/types';
+import type { Title } from '@/payload-types';
 
 // Тип пропсов компонента
 type GenrePageClientProps = {
   genre: string;
-  items: MediaContentCollection[];
+  items: Title[];
 };
 
 /**

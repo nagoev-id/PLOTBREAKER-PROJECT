@@ -30,14 +30,14 @@ import {
   PAGINATION_CONFIG,
   ALL_VALUE,
   HOMEPAGE_FILTERS,
-} from '@/utilities/constants';
-import { MediaContentCollection } from '@/utilities/types';
+} from '@/lib/constants';
+import type { Title } from '@/payload-types';
 import {
   genreOptions,
   matchesRating,
   releaseYearOptions,
   watchYearOptions,
-} from '@/utilities/utils';
+} from '@/lib/utils';
 
 /**
  * Клиентский компонент главной страницы.
@@ -45,10 +45,10 @@ import {
  * @param items - Массив медиа-контента
  * @returns {JSX.Element}
  */
-const HomePageClient: FC<{ items: MediaContentCollection[] }> = ({
+const HomePageClient: FC<{ items: Title[] }> = ({
   items: itemsProp,
 }): JSX.Element => {
-  const items = itemsProp || [];
+  const items = useMemo(() => itemsProp ?? [], [itemsProp]);
 
   // Ref для debounce поиска
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -176,9 +176,7 @@ const HomePageClient: FC<{ items: MediaContentCollection[] }> = ({
       if (
         selectedGenre !== ALL_VALUE &&
         !item.genres?.includes(
-          selectedGenre as MediaContentCollection['genres'] extends
-            | (infer U)[]
-            | null
+          selectedGenre as Title['genres'] extends (infer U)[] | null
             ? U
             : never
         )

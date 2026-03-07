@@ -4,18 +4,18 @@ import { FC, JSX, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, Clock, Star, Timer } from 'lucide-react';
+import { Calendar, Star, Timer } from 'lucide-react';
 import { Card, Badge } from '@/components/ui';
 import { toast } from 'sonner';
 import axios from 'axios';
 
-import { OPINION_CONFIG } from '@/utilities/constants';
-import { cn, getGenreLabel, getPosterUrl } from '@/utilities/utils';
-import { MediaContentCollection } from '@/utilities/types';
+import { OPINION_CONFIG } from '@/lib/constants';
+import { cn, getGenreLabel, getPosterUrl } from '@/lib/utils';
+import type { Title } from '@/payload-types';
 import { AdminActions, useAuth } from '@/components/shared';
 
 type Props = {
-  item: MediaContentCollection;
+  item: Title;
   priority?: boolean;
 };
 
@@ -47,7 +47,7 @@ export const MovieCard: FC<Props> = ({
       setIsDeleting(true);
       const {
         data: { success },
-      } = await axios.delete(`/api/media-contents/${item.id}`);
+      } = await axios.delete(`/api/titles/${item.id}`);
 
       if (!success) {
         throw new Error('Failed to delete');
@@ -67,10 +67,10 @@ export const MovieCard: FC<Props> = ({
     <div className="relative h-full group/card">
       <Card className="group flex h-full flex-col overflow-hidden rounded-sm border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
         {/* Постер с overlay-бейджами */}
-        <div className="relative aspect-2/3 w-full overflow-hidden">
+        <div className="relative aspect-2/3 w-full overflow-hidden bg-neutral-200">
           {user && (
             <AdminActions
-              editUrl={`/admin/collections/media-contents/${item.id}`}
+              editUrl={`/admin/collections/titles/${item.id}`}
               onDelete={handleDelete}
               isDeleting={isDeleting}
               title={item.title}
@@ -143,7 +143,7 @@ export const MovieCard: FC<Props> = ({
           {/* Жанры */}
           {item.genres && item.genres.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {item.genres.slice(0, 3).map((genre) => (
+              {item.genres.slice(0, 3).map((genre: string) => (
                 <Link
                   key={genre}
                   href={`/reviews/genres/${genre}`}
@@ -166,12 +166,6 @@ export const MovieCard: FC<Props> = ({
               <span className="flex items-center gap-1">
                 <Calendar size={11} className="opacity-60" />
                 {item.releaseYear}
-              </span>
-            )}
-            {item.duration && (
-              <span className="flex items-center gap-1">
-                <Clock size={11} className="opacity-60" />
-                {item.duration} мин
               </span>
             )}
           </div>

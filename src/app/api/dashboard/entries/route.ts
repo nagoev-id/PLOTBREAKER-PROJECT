@@ -1,18 +1,17 @@
 import { getPayload } from 'payload';
 import type { Where } from 'payload';
-import { headers } from 'next/headers';
 import configPromise from '@payload-config';
-import { COLLECTION_SLUGS } from '@/utilities/constants';
-import type { User } from '@/payload-types';
+import { COLLECTION_SLUGS } from '@/lib/constants';
+import { getAuthUser } from '@/lib/helpers';
 
 /**
  * Проверяет, что текущий пользователь — admin.
  */
 const requireAdmin = async () => {
   const payload = await getPayload({ config: configPromise });
-  const { user } = await payload.auth({ headers: await headers() });
+  const user = await getAuthUser();
 
-  if (!user || (user as User).role !== 'admin') {
+  if (!user) {
     return {
       error: Response.json({ error: 'Доступ запрещён' }, { status: 403 }),
       payload: null,
@@ -46,7 +45,7 @@ export async function GET(request: Request) {
     }
 
     const result = await payload!.find({
-      collection: COLLECTION_SLUGS.mediaContents,
+      collection: COLLECTION_SLUGS.titles,
       sort: '-createdAt',
       page,
       limit,
@@ -89,7 +88,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const doc = await payload!.create({
-      collection: COLLECTION_SLUGS.mediaContents,
+      collection: COLLECTION_SLUGS.titles,
       data: body,
     });
 

@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { METADATA } from '@/utilities/constants';
-import { getCachedMediaContentBySlug } from '@/utilities/helpers';
-import { getPosterUrl } from '@/utilities/utils';
+import { METADATA } from '@/lib/constants';
+import { getCachedTitleBySlug } from '@/lib/helpers';
+import { getPosterUrl } from '@/lib/utils';
 import ReviewDetailClient from '@/app/(frontend)/(pages)/reviews/[slug]/page.client';
 
 // Настройка времени повторной валидации (ISR) — 60 секунд.
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: METADATA.reviewsPage.title };
   }
 
-  const item = await getCachedMediaContentBySlug(slug)();
+  const item = await getCachedTitleBySlug(slug)();
 
   if (!item) {
     return { title: METADATA.reviewsPage.title };
@@ -84,7 +84,7 @@ const ReviewDetailPage = async ({ params }: Props) => {
     return notFound();
   }
 
-  const item = await getCachedMediaContentBySlug(slug)();
+  const item = await getCachedTitleBySlug(slug)();
 
   if (!item) {
     return notFound();

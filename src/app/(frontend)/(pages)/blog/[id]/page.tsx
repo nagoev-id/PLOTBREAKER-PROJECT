@@ -3,9 +3,9 @@ import { notFound } from 'next/navigation';
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
 
-import { COLLECTION_SLUGS, METADATA } from '@/utilities/constants';
+import { COLLECTION_SLUGS, METADATA } from '@/lib/constants';
 import BlogDetailClient from '@/app/(frontend)/(pages)/blog/[id]/page.client';
-import { PostCollection } from '@/utilities/types';
+import type { Post } from '@/payload-types';
 
 // Настройки кэширования
 export const revalidate = 60;
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       collection: COLLECTION_SLUGS.posts,
       id: Number(id),
       depth: 1,
-    })) as PostCollection;
+    })) as Post;
 
     return {
       title: `${post.title} — ${METADATA.blogPage.title}`,
@@ -44,14 +44,14 @@ const BlogDetailPage = async ({ params }: Props) => {
   const { id } = await params;
   const payload = await getPayload({ config: configPromise });
 
-  let post: PostCollection;
+  let post: Post;
 
   try {
     post = (await payload.findByID({
       collection: COLLECTION_SLUGS.posts,
       id: Number(id),
       depth: 1,
-    })) as PostCollection;
+    })) as Post;
   } catch {
     return notFound();
   }

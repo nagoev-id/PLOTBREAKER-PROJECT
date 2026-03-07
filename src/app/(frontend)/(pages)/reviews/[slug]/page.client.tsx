@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Star, Clock, Minus, Plus, Type } from 'lucide-react';
+import { ArrowLeft, Star, Minus, Plus, Type } from 'lucide-react';
 import {
   Badge,
   Accordion,
@@ -15,15 +15,14 @@ import {
   Button,
 } from '@/components/ui';
 
-import { OPINION_CONFIG, TYPE_CONFIG } from '@/utilities/constants';
-import { MediaContentCollection } from '@/utilities/types';
+import { OPINION_CONFIG, TYPE_CONFIG } from '@/lib/constants';
+import type { Title } from '@/payload-types';
 import {
   formatDate,
-  formatDuration,
   formatSlugString,
   getGenreLabel,
   getPosterUrl,
-} from '@/utilities/utils';
+} from '@/lib/utils';
 import {
   AdminActions,
   ExternalLinks,
@@ -32,15 +31,12 @@ import {
   SharedLink,
   SidebarSection,
   SynopsisBlock,
-  useAuth,
 } from '@/components/shared';
 import { useDelete } from '@/hooks/useDelete';
 
-// const VideoPlayer = lazy(() => import('@/components/shared/VideoPlayer'));
-
 // Описание типов пропсов
 type ReviewDetailClientProps = {
-  item: MediaContentCollection;
+  item: Title;
 };
 
 // Размеры prose: класс Tailwind Typography + подпись для UI
@@ -62,7 +58,6 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
   item,
 }): JSX.Element | null => {
   const router = useRouter();
-  const { user } = useAuth();
   const { deleteRecord, deleteLoading } = useDelete();
   const [showFontControls, setShowFontControls] = useState(false);
   const [sizeIndex, setSizeIndex] = useState(1);
@@ -102,7 +97,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
    */
   const handleDelete = () => {
     deleteRecord(item.id, {
-      url: '/api/media-contents',
+      url: '/api/titles',
       successMessage: 'Запись удалена',
       errorMessage: 'Ошибка при удалении',
     });
@@ -174,7 +169,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   </h1>
 
                   <AdminActions
-                    editUrl={`/admin/collections/media-contents/${item.id}`}
+                    editUrl={`/admin/collections/titles/${item.id}`}
                     onDelete={handleDelete}
                     isDeleting={deleteLoading === item.id}
                     title={item.title}
@@ -203,20 +198,14 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   {item.director &&
                     item.director
                       .split(',')
-                      .map((d) => d.trim())
+                      .map((d: string) => d.trim())
                       .filter(Boolean)
-                      .map((d, i, arr) => (
+                      .map((d: string, i: number, arr: string[]) => (
                         <span key={d}>
                           {d}
                           {i < arr.length - 1 && ', '}
                         </span>
                       ))}
-                  {(item.releaseYear || item.director) && item.duration && (
-                    <span className="opacity-40">•</span>
-                  )}
-                  {item.duration && (
-                    <span>{formatDuration(item.duration)}</span>
-                  )}
                 </div>
 
                 {/* Синопсис */}
@@ -247,7 +236,6 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   <div className="hidden md:block">
                     <ExternalLinks
                       kinopoiskId={item.kinopoiskId}
-                      kinoriumId={item.kinoriumId}
                       originalTitle={item.originalTitle}
                       showKinoBd={showKinoBd}
                       onToggleKinoBd={() => setShowKinoBd((p) => !p)}
@@ -279,7 +267,6 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               <div className="md:hidden">
                 <ExternalLinks
                   kinopoiskId={item.kinopoiskId}
-                  kinoriumId={item.kinoriumId}
                   originalTitle={item.originalTitle}
                   showKinoBd={showKinoBd}
                   variant="default"
@@ -325,51 +312,53 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                     Подробный пересказ
                   </h2>
                   <Accordion type="multiple" className="w-full">
-                    {item.seasons.map((season) => {
-                      const seasonOpinion = season.personalOpinion
-                        ? OPINION_CONFIG[season.personalOpinion]
-                        : null;
-                      const SeasonOpinionIcon = seasonOpinion?.icon;
+                    {item.seasons.map(
+                      (season: NonNullable<Title['seasons']>[number]) => {
+                        const seasonOpinion = season.personalOpinion
+                          ? OPINION_CONFIG[season.personalOpinion]
+                          : null;
+                        const SeasonOpinionIcon = seasonOpinion?.icon;
 
-                      return (
-                        <AccordionItem
-                          key={season.id ?? season.seasonNumber}
-                          value={`season-${season.seasonNumber}`}
-                        >
-                          <AccordionTrigger className="text-base font-semibold hover:no-underline">
-                            <div className="flex items-center gap-3">
-                              <span className="sm:text-base">
-                                Сезон {season.seasonNumber}
-                              </span>
-                              {SeasonOpinionIcon && seasonOpinion && (
-                                <Badge
-                                  variant="secondary"
-                                  className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs sm:text-sm border border-muted-foreground/50"
-                                >
-                                  <SeasonOpinionIcon
-                                    size={14}
-                                    className={seasonOpinion.color}
-                                  />
-                                  {seasonOpinion.label}
-                                </Badge>
+                        return (
+                          <AccordionItem
+                            key={season.id ?? season.seasonNumber}
+                            value={`season-${season.seasonNumber}`}
+                          >
+                            <AccordionTrigger className="text-base font-semibold hover:no-underline">
+                              <div className="flex items-center gap-3">
+                                <span className="sm:text-base">
+                                  Сезон {season.seasonNumber}
+                                </span>
+                                {SeasonOpinionIcon && seasonOpinion && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs sm:text-sm border border-muted-foreground/50"
+                                  >
+                                    <SeasonOpinionIcon
+                                      size={14}
+                                      className={seasonOpinion.color}
+                                    />
+                                    {seasonOpinion.label}
+                                  </Badge>
+                                )}
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              {season.review ? (
+                                <RichText
+                                  content={season.review}
+                                  className={`prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-headings:my-2 prose-li:my-0.5 prose-hr:my-4`}
+                                />
+                              ) : (
+                                <p className="text-muted-foreground text-sm">
+                                  Обзор пока не добавлен
+                                </p>
                               )}
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            {season.review ? (
-                              <RichText
-                                content={season.review}
-                                className={`prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-headings:my-2 prose-li:my-0.5 prose-hr:my-4`}
-                              />
-                            ) : (
-                              <p className="text-muted-foreground text-sm">
-                                Обзор пока не добавлен
-                              </p>
-                            )}
-                          </AccordionContent>
-                        </AccordionItem>
-                      );
-                    })}
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      }
+                    )}
                   </Accordion>
                 </div>
               )}
@@ -437,9 +426,9 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               >
                 {item.director
                   .split(',')
-                  .map((d) => d.trim())
+                  .map((d: string) => d.trim())
                   .filter(Boolean)
-                  .map((d) => (
+                  .map((d: string) => (
                     <Badge
                       key={d}
                       variant="secondary"
@@ -457,7 +446,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 title="Жанры"
                 contentClassName="flex flex-wrap gap-1.5"
               >
-                {item.genres.map((genre) => (
+                {item.genres.map((genre: string) => (
                   <Link key={genre} href={`/reviews/genres/${genre}`}>
                     <Badge
                       variant="secondary"
@@ -478,9 +467,9 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               >
                 {item.visualTags
                   .split(',')
-                  .map((tag) => tag.trim())
+                  .map((tag: string) => tag.trim())
                   .filter(Boolean)
-                  .map((tag, i) => (
+                  .map((tag: string, i: number) => (
                     <Link
                       key={`vtag-${i}-${tag}`}
                       href={`/reviews/tags/${formatSlugString(tag)}`}
@@ -496,22 +485,10 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               </SidebarSection>
             )}
 
-            {/* Длительность */}
-            {item.duration && (
-              <SidebarSection
-                title="Длительность"
-                contentClassName="flex items-center gap-1.5 text-sm"
-              >
-                <Clock size={14} className="text-muted-foreground" />
-                {formatDuration(item.duration)}
-              </SidebarSection>
-            )}
-
             {/* Ссылки */}
             {item.kinopoiskId && (
               <ExternalLinks
                 kinopoiskId={item.kinopoiskId}
-                kinoriumId={item.kinoriumId}
                 originalTitle={item.originalTitle}
                 variant="secondary"
               />

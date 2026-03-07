@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui';
 import { Button, Input, Label, Switch } from '@/components/ui';
-import type { Collection } from '@/payload-types';
+import type { List as Collection } from '@/payload-types';
 
 interface CollectionFormDialogProps {
   open: boolean;

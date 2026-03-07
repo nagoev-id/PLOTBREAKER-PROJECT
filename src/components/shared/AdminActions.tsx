@@ -1,6 +1,6 @@
 import { FC, JSX, MouseEvent } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Pencil, Trash2, Loader2, ShieldUser } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui';
 
 import { useAuth } from '@/components/shared';
-import { cn } from '@/utilities/utils';
+import { cn } from '@/lib/utils';
 
 // Тип для пропсов
 type AdminActionsProps = {
@@ -50,12 +50,7 @@ export const AdminActions: FC<AdminActionsProps> = ({
   }
 
   return (
-    <div
-      className={cn(
-        'grid lg:grid-cols-2 gap-1 p-2 md:px-3 md:pb-3',
-        classNames
-      )}
-    >
+    <div className={cn('grid gap-1 p-2 md:px-3 md:pb-3', classNames)}>
       <Link
         href={editUrl}
         target="_blank"
@@ -65,6 +60,17 @@ export const AdminActions: FC<AdminActionsProps> = ({
       >
         <Pencil size={16} />
         <span className="sr-only">Редактировать</span>
+      </Link>
+
+      <Link
+        href={`/dashboard/entries/${editUrl.split('/').pop()}/edit`}
+        target="_blank"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm dark:bg-white dark:text-black"
+        onClick={(e) => e.stopPropagation()}
+        title="Дашборд записи"
+      >
+        <ShieldUser size={16} />
+        <span className="sr-only">Дашборд записи</span>
       </Link>
 
       <AlertDialog>

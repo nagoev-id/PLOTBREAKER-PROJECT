@@ -6,15 +6,15 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, FileText, Search, X, Tag } from 'lucide-react';
 
 import { PostCard, PaginationControls } from '@/components/shared';
-import { PAGINATION_CONFIG } from '@/utilities/constants';
+import { PAGINATION_CONFIG } from '@/lib/constants';
 import { Input } from '@/components/ui';
-import { PostCollection } from '@/utilities/types';
+import type { Post } from '@/payload-types';
 
 // Тип пропсов компонента
 type BlogTagPageClientProps = {
   tag: string;
   tagLabel: string;
-  posts: PostCollection[];
+  posts: Post[];
 };
 
 /**
@@ -148,9 +148,7 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
     if (!searchQuery.trim()) return posts;
 
     const q = searchQuery.toLowerCase();
-    return posts.filter((post: PostCollection) =>
-      post.title?.toLowerCase().includes(q)
-    );
+    return posts.filter((post: Post) => post.title?.toLowerCase().includes(q));
   }, [posts, searchQuery]);
 
   // Пагинация
@@ -229,7 +227,7 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
       {/* Грид карточек */}
       {paginatedPosts.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          {paginatedPosts.map((post: PostCollection, index: number) => (
+          {paginatedPosts.map((post: Post, index: number) => (
             <motion.div
               key={post.id}
               initial={{ opacity: 0, y: 15 }}

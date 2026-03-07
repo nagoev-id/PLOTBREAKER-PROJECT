@@ -1,9 +1,9 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
-import { COLLECTION_SLUGS } from '@/utilities/constants';
+import { COLLECTION_SLUGS } from '@/lib/constants';
 import { notFound } from 'next/navigation';
 import { EntryForm } from '@/components/shared/dashboard/EntryForm';
-import type { MediaContent, Collection } from '@/payload-types';
+import type { Title as MediaContent, List as Collection } from '@/payload-types';
 
 interface EditEntryPageProps {
   params: Promise<{ id: string }>;
@@ -19,7 +19,7 @@ const EditEntryPage = async ({ params }: EditEntryPageProps) => {
   let entry: MediaContent;
   try {
     entry = await payload.findByID({
-      collection: COLLECTION_SLUGS.mediaContents,
+      collection: COLLECTION_SLUGS.titles,
       id,
       depth: 1,
     });
@@ -29,7 +29,7 @@ const EditEntryPage = async ({ params }: EditEntryPageProps) => {
 
   // Загружаем коллекции для выбора в форме
   const collectionsResult = await payload.find({
-    collection: COLLECTION_SLUGS.collections,
+    collection: COLLECTION_SLUGS.lists,
     sort: 'title',
     limit: 0,
     depth: 0,

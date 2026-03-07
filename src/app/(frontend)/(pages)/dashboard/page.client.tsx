@@ -8,9 +8,9 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui';
 import { CollectionFormDialog } from '@/components/shared/dashboard/CollectionFormDialog';
 import { DeleteConfirmDialog } from '@/components/shared/dashboard/DeleteConfirmDialog';
-import { ANIMATIONS } from '@/utilities/constants';
+import { ANIMATIONS } from '@/lib/constants';
 import { useDelete } from '@/hooks/useDelete';
-import type { Collection } from '@/payload-types';
+import type { List as Collection } from '@/payload-types';
 
 interface DashboardCollectionsClientProps {
   initialCollections: Collection[];

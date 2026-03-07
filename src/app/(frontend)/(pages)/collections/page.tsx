@@ -1,13 +1,13 @@
-import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
+import { METADATA, PAGE_SLUGS } from '@/lib/constants';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
-import { RenderBlocks } from '@/blocks/RenderBlocks';
+import { RenderBlocks } from '@/features/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared';
-import { getPageBySlug, getCachedCollectionsLists } from '@/utilities/helpers';
+import { getPageBySlug, getCachedLists } from '@/lib/helpers';
 import CollectionsPageClient from '@/app/(frontend)/(pages)/collections/page.client';
-import { CollectionCollection } from '@/utilities/types';
+import type { List } from '@/payload-types';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
@@ -33,14 +33,12 @@ const CollectionsPage = async () => {
     return notFound();
   }
 
-  const collections = await getCachedCollectionsLists()();
+  const collections = await getCachedLists()();
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <RenderBlocks blocks={page.layout} />
-      <CollectionsPageClient
-        collections={collections as CollectionCollection[]}
-      />
+      <CollectionsPageClient collections={collections as List[]} />
     </Suspense>
   );
 };

@@ -2,12 +2,12 @@ import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { METADATA, PAGE_SLUGS } from '@/utilities/constants';
-import { getPageBySlug, getCachedMediaContents } from '@/utilities/helpers';
-import { RenderBlocks } from '@/blocks/RenderBlocks';
+import { METADATA, PAGE_SLUGS } from '@/lib/constants';
+import { getPageBySlug, getCachedTitles } from '@/lib/helpers';
+import { RenderBlocks } from '@/features/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared';
 import HomePageClient from '@/app/(frontend)/page.client';
-import { MediaContentCollection } from '@/utilities/types';
+import type { Title } from '@/payload-types';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
@@ -34,12 +34,12 @@ const HomePage = async () => {
     return notFound();
   }
 
-  const mediaContents = await getCachedMediaContents()();
+  const mediaContents = await getCachedTitles()();
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <RenderBlocks blocks={page.layout} />
-      <HomePageClient items={mediaContents as MediaContentCollection[]} />
+      <HomePageClient items={mediaContents as Title[]} />
     </Suspense>
   );
 };

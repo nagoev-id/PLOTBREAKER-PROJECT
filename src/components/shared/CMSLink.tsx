@@ -2,7 +2,7 @@ import Link from 'next/link';
 import React, { FC } from 'react';
 import { Button, ButtonProps } from '@/components/ui';
 
-import { cn, getURL } from '@/utilities/utils';
+import { cn, getURL } from '@/lib/utils';
 
 type CMSLinkType = {
   /** Внешний вид ссылки ("inline" или варианты Button) */

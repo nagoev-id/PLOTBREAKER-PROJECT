@@ -1,11 +1,8 @@
 import { FC, ReactNode } from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getPayload } from 'payload';
-import { headers } from 'next/headers';
-import configPromise from '@payload-config';
+import { getAuthUser } from '@/lib/helpers';
 import { redirect } from 'next/navigation';
-import type { User } from '@/payload-types';
 import { List, Film } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -18,11 +15,10 @@ export const metadata: Metadata = {
  * Проверяет admin-доступ на уровне сервера.
  */
 const DashboardLayout = async ({ children }: { children: ReactNode }) => {
-  const payload = await getPayload({ config: configPromise });
-  const { user } = await payload.auth({ headers: await headers() });
+  const user = await getAuthUser();
 
   // Редирект если не admin
-  if (!user || (user as User).role !== 'admin') {
+  if (!user) {
     redirect('/');
   }
 

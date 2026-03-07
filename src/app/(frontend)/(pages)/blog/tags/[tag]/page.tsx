@@ -2,11 +2,11 @@ import { JSX, Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
-import { METADATA } from '@/utilities/constants';
+import { METADATA } from '@/lib/constants';
 import { LoadingSpinner } from '@/components/shared';
 import { BlogTagPageClient } from '@/app/(frontend)/(pages)/blog/tags/[tag]/page.client';
-import { getCachedPostsLists } from '@/utilities/helpers';
-import { PostCollection } from '@/utilities/types';
+import { getCachedPosts } from '@/lib/helpers';
+import type { Post } from '@/payload-types';
 
 // Допустимые теги блога
 const BLOG_TAGS: Record<string, string> = {
@@ -57,9 +57,9 @@ const BlogTagPage = async ({ params }: Props): Promise<JSX.Element> => {
     notFound();
   }
 
-  const allPosts = await getCachedPostsLists()();
+  const allPosts = await getCachedPosts()();
   // Фильтруем по тегу на сервере
-  const tagPosts = (allPosts as PostCollection[]).filter(
+  const tagPosts = (allPosts as Post[]).filter(
     (post) => post.tags && (post.tags as string[]).includes(tag)
   );
 

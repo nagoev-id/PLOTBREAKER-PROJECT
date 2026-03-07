@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPayload, Where } from 'payload';
 import config from '@payload-config';
-import { COLLECTION_SLUGS } from '@/utilities/constants';
+import { COLLECTION_SLUGS } from '@/lib/constants';
 
 /**
  * GET /api/search?q=query&type=film|series&page=1&limit=10
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     };
 
     const result = await payload.find({
-      collection: COLLECTION_SLUGS.mediaContents,
+      collection: COLLECTION_SLUGS.titles,
       where,
       limit,
       page,

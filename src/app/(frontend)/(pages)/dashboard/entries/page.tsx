@@ -1,8 +1,8 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
-import { COLLECTION_SLUGS } from '@/utilities/constants';
+import { COLLECTION_SLUGS } from '@/lib/constants';
 import DashboardEntriesClient from './page.client';
-import type { MediaContent } from '@/payload-types';
+import type { Title as MediaContent } from '@/payload-types';
 
 /**
  * Server component для страницы управления записями.
@@ -11,7 +11,7 @@ const DashboardEntriesPage = async () => {
   const payload = await getPayload({ config: configPromise });
 
   const result = await payload.find({
-    collection: COLLECTION_SLUGS.mediaContents,
+    collection: COLLECTION_SLUGS.titles,
     sort: '-createdAt',
     limit: 20,
     depth: 1,

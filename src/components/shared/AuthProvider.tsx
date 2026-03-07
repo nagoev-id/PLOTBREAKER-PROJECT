@@ -1,11 +1,11 @@
 'use client';
 
 import { createContext, useContext, ReactNode } from 'react';
-import { UserCollection } from '@/utilities/types';
+import type { User } from '@/payload-types';
 
 // Тип для контекста аутентификации
 type AuthContextType = {
-  user: UserCollection | null;
+  user: User | null;
 };
 
 // Создание контекста аутентификации
@@ -16,7 +16,7 @@ export const AuthProvider = ({
   user,
   children,
 }: {
-  user: UserCollection | null;
+  user: User | null;
   children: ReactNode;
 }) => {
   return (

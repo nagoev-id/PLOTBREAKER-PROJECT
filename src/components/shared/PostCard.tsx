@@ -8,11 +8,11 @@ import { Calendar, Tag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui';
+import axios from 'axios';
+import type { Media, Post } from '@/payload-types';
 
 import { AdminActions } from '@/components/shared';
-import { formatDate } from '@/utilities/utils';
-import { MediaCollection, PostCollection } from '@/utilities/types';
-import axios from 'axios';
+import { formatDate } from '@/lib/utils';
 
 // Маппинг тегов на русские названия
 const TAG_LABELS: Record<string, string> = {
@@ -24,7 +24,7 @@ const TAG_LABELS: Record<string, string> = {
 };
 
 type Props = {
-  post: PostCollection;
+  post: Post;
 };
 
 /**
@@ -38,7 +38,7 @@ export const PostCard: FC<Props> = ({ post }): JSX.Element => {
   console.log(post);
   const heroImage =
     post.heroImage && typeof post.heroImage === 'object'
-      ? (post.heroImage as MediaCollection)
+      ? (post.heroImage as Media)
       : null;
 
   const handleDelete = async () => {
@@ -66,7 +66,7 @@ export const PostCard: FC<Props> = ({ post }): JSX.Element => {
     <div className="relative h-full group/card">
       <Card className="group flex h-full flex-col overflow-hidden rounded-none border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
         {/* Hero-изображение */}
-        <div className="relative aspect-[16/10] w-full h-[200px] lg:h-[300px] overflow-hidden bg-muted">
+        <div className="relative aspect-16/10 w-full h-[200px] lg:h-[300px] overflow-hidden bg-muted">
           <Link href={`/blog/${post.id}`} className="block h-full w-full">
             {heroImage?.url ? (
               <Image
@@ -111,7 +111,7 @@ export const PostCard: FC<Props> = ({ post }): JSX.Element => {
             {/* Теги */}
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-1">
-                {post.tags.map((tag) => (
+                {post.tags.map((tag: string) => (
                   <Link key={tag} href={`/blog/tags/${tag}`}>
                     <Badge
                       variant="secondary"

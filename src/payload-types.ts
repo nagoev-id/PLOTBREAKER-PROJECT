@@ -70,8 +70,8 @@ export interface Config {
     users: User;
     media: Media;
     pages: Page;
-    collections: Collection;
-    'media-contents': MediaContent;
+    lists: List;
+    titles: Title;
     posts: Post;
     exports: Export;
     imports: Import;
@@ -84,8 +84,8 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
-    collections: {
-      items: 'media-contents';
+    lists: {
+      items: 'titles';
     };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
@@ -95,8 +95,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
-    collections: CollectionsSelect<false> | CollectionsSelect<true>;
-    'media-contents': MediaContentsSelect<false> | MediaContentsSelect<true>;
+    lists: ListsSelect<false> | ListsSelect<true>;
+    titles: TitlesSelect<false> | TitlesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     imports: ImportsSelect<false> | ImportsSelect<true>;
@@ -157,14 +157,12 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   name: string;
-  avatar?: (number | null) | Media;
-  role?: ('admin' | 'user') | null;
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
   apiKey?: string | null;
   apiKeyIndex?: string | null;
-  email?: string | null;
+  email: string;
   username: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -219,14 +217,6 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    tablet?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
   };
 }
 /**
@@ -262,6 +252,9 @@ export interface FolderInterface {
 export interface Page {
   id: number;
   title: string;
+  /**
+   * Автоматически генерируется из названия. Можно редактировать вручную.
+   */
   slug?: string | null;
   layout?: (HeroBlock | AboutBlock)[] | null;
   updatedAt: string;
@@ -292,7 +285,7 @@ export interface HeroBlock {
           url?: string | null;
           label: string;
           /**
-           * Выберите, как ссылка должна отображаться на сайте.
+           * Стиль оформления ссылки.
            */
           appearance?: ('default' | 'outline') | null;
         };
@@ -354,7 +347,7 @@ export interface AboutBlock {
                   } | null;
                   url?: string | null;
                   /**
-                   * Выберите, как ссылка должна отображаться на сайте.
+                   * Стиль оформления ссылки.
                    */
                   appearance?: ('default' | 'outline') | null;
                 };
@@ -371,11 +364,14 @@ export interface AboutBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "collections".
+ * via the `definition` "lists".
  */
-export interface Collection {
+export interface List {
   id: number;
   title: string;
+  /**
+   * Автоматически генерируется из названия. Можно редактировать вручную.
+   */
   slug?: string | null;
   description?: {
     root: {
@@ -405,7 +401,7 @@ export interface Collection {
    */
   itemCount?: number | null;
   items?: {
-    docs?: (number | MediaContent)[];
+    docs?: (number | Title)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -414,9 +410,9 @@ export interface Collection {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media-contents".
+ * via the `definition` "titles".
  */
-export interface MediaContent {
+export interface Title {
   id: number;
   /**
    * Название фильма или сериала на русском языке
@@ -426,6 +422,9 @@ export interface MediaContent {
    * Название на языке оригинала
    */
   originalTitle?: string | null;
+  /**
+   * Автоматически генерируется из названия. Можно редактировать вручную.
+   */
   slug?: string | null;
   /**
    * Краткое описание фильма или сериала
@@ -467,7 +466,7 @@ export interface MediaContent {
           };
           [k: string]: unknown;
         } | null;
-        personalOpinion?: ('like' | 'neutral' | 'dislike') | null;
+        personalOpinion?: ('like' | 'neutral' | 'dislike' | 'planned') | null;
         startDate?: string | null;
         endDate?: string | null;
         id?: string | null;
@@ -497,9 +496,15 @@ export interface MediaContent {
    * Используется, если файл не загружен в Медиа
    */
   posterUrl?: string | null;
-  personalOpinion?: ('like' | 'neutral' | 'dislike') | null;
+  /**
+   * Автоматически устанавливается при статусе "Планирую"
+   */
+  personalOpinion?: ('like' | 'neutral' | 'dislike' | 'planned') | null;
   tmdbRating?: number | null;
   kpRating?: number | null;
+  /**
+   * Для сериалов вычисляется автоматически из дат сезонов
+   */
   watchDate?: string | null;
   /**
    * Автоматически заполняется из даты просмотра
@@ -540,23 +545,13 @@ export interface MediaContent {
    */
   director?: string | null;
   /**
-   * Месяц и день релиза (если известно)
-   */
-  releaseDate?: string | null;
-  /**
    * Автоматически заполняется из даты выхода
    */
   releaseYear?: number | null;
-  duration?: number | null;
   seasonCount?: number | null;
   episodeCount?: number | null;
   kinopoiskId?: string | null;
-  kinoriumId?: string | null;
-  /**
-   * Ссылка на фильм/сериал на HDRezka (для встроенного плеера)
-   */
-  hdrezkaUrl?: string | null;
-  collections?: (number | Collection)[] | null;
+  collections?: (number | List)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -567,7 +562,32 @@ export interface MediaContent {
 export interface Post {
   id: number;
   title: string;
+  /**
+   * Автоматически генерируется из названия. Можно редактировать вручную.
+   */
   slug?: string | null;
+  /**
+   * Краткое описание статьи.
+   */
+  annotation: string;
+  /**
+   * Основной текст статьи.
+   */
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   content: {
     root: {
       type: string;
@@ -583,8 +603,9 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  isPublished?: boolean | null;
   heroImage?: (number | null) | Media;
+  isPublished?: boolean | null;
+  image?: (number | null) | Media;
   tags?: ('review' | 'news' | 'collection' | 'opinion' | 'guide')[] | null;
   publishedAt?: string | null;
   updatedAt: string;
@@ -633,7 +654,7 @@ export interface Export {
  */
 export interface Import {
   id: number;
-  collectionSlug: 'media-contents' | 'posts';
+  collectionSlug: 'titles' | 'posts';
   importMode?: ('create' | 'update' | 'upsert') | null;
   matchField?: string | null;
   status?: ('pending' | 'completed' | 'partial' | 'failed') | null;
@@ -676,8 +697,8 @@ export interface SearchResult {
   priority?: number | null;
   doc:
     | {
-        relationTo: 'media-contents';
-        value: number | MediaContent;
+        relationTo: 'titles';
+        value: number | Title;
       }
     | {
         relationTo: 'posts';
@@ -816,12 +837,12 @@ export interface PayloadLockedDocument {
         value: number | Page;
       } | null)
     | ({
-        relationTo: 'collections';
-        value: number | Collection;
+        relationTo: 'lists';
+        value: number | List;
       } | null)
     | ({
-        relationTo: 'media-contents';
-        value: number | MediaContent;
+        relationTo: 'titles';
+        value: number | Title;
       } | null)
     | ({
         relationTo: 'posts';
@@ -883,8 +904,6 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
-  avatar?: T;
-  role?: T;
   updatedAt?: T;
   createdAt?: T;
   enableAPIKey?: T;
@@ -939,16 +958,6 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
         card?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        tablet?:
           | T
           | {
               url?: T;
@@ -1053,9 +1062,9 @@ export interface AboutBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "collections_select".
+ * via the `definition` "lists_select".
  */
-export interface CollectionsSelect<T extends boolean = true> {
+export interface ListsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   description?: T;
@@ -1068,9 +1077,9 @@ export interface CollectionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media-contents_select".
+ * via the `definition` "titles_select".
  */
-export interface MediaContentsSelect<T extends boolean = true> {
+export interface TitlesSelect<T extends boolean = true> {
   title?: T;
   originalTitle?: T;
   slug?: T;
@@ -1099,14 +1108,10 @@ export interface MediaContentsSelect<T extends boolean = true> {
   watchYear?: T;
   genres?: T;
   director?: T;
-  releaseDate?: T;
   releaseYear?: T;
-  duration?: T;
   seasonCount?: T;
   episodeCount?: T;
   kinopoiskId?: T;
-  kinoriumId?: T;
-  hdrezkaUrl?: T;
   collections?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1118,9 +1123,12 @@ export interface MediaContentsSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  annotation?: T;
+  body?: T;
   content?: T;
-  isPublished?: T;
   heroImage?: T;
+  isPublished?: T;
+  image?: T;
   tags?: T;
   publishedAt?: T;
   updatedAt?: T;
@@ -1291,7 +1299,7 @@ export interface Header {
      */
     logoIcon?: string | null;
     /**
-     * Текст логотипа сайта
+     * Текст логотипа, отображаемый рядом с иконкой
      */
     logoText?: string | null;
   };

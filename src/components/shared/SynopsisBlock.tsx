@@ -1,4 +1,4 @@
-import { cn } from '@/utilities/utils';
+import { cn } from '@/lib/utils';
 import { FC, JSX } from 'react';
 
 type SynopsisBlockProps = {

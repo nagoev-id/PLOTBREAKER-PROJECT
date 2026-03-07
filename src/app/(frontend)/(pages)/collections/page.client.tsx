@@ -4,19 +4,18 @@ import { FC, JSX, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
 
-import { FILTERS_COLLECTIONS } from '@/utilities/constants';
-import { getTypeKey } from '@/utilities/utils';
+import { FILTERS_COLLECTIONS } from '@/lib/constants';
 import { CollectionCard } from '@/components/shared';
-import { CollectionCollection } from '@/utilities/types';
+import type { List } from '@/payload-types';
 
 /**
  * Клиентский компонент страницы коллекций.
  * Реализует фильтрацию списков и отображение карточек.
  */
-const CollectionsPageClient: FC<{ collections: CollectionCollection[] }> = ({
+const CollectionsPageClient: FC<{ collections: List[] }> = ({
   collections,
 }): JSX.Element => {
-  const collectionsLists = collections || [];
+  const collectionsLists = useMemo(() => collections ?? [], [collections]);
   const [typeFilter, setTypeFilter] = useState<string>('all_type');
 
   /**
@@ -29,8 +28,17 @@ const CollectionsPageClient: FC<{ collections: CollectionCollection[] }> = ({
       if (typeFilter === 'all_type') return true;
       if (typeFilter === 'theme') return list.isTheme === true;
 
-      const typeKey = getTypeKey(list.title);
-      return typeKey === typeFilter;
+      // Извлекаем тип контента из slug (planned-film → film, liked-animation → cartoon)
+      const slug = list.slug || '';
+      const typeMap: Record<string, string> = {
+        film: 'film',
+        series: 'series',
+        animation: 'cartoon',
+      };
+      const matchedType = Object.entries(typeMap).find(([key]) =>
+        slug.includes(key)
+      );
+      return matchedType ? matchedType[1] === typeFilter : false;
     });
   }, [collectionsLists, typeFilter]);
 

@@ -1,11 +1,11 @@
 'use client';
 
 import { createContext, useContext, ReactNode } from 'react';
-import { MediaContentCollection } from '@/utilities/types';
+import type { Title } from '@/payload-types';
 
 // Тип для контекста медиа-контента
 type MediaContentsContextType = {
-  mediaContents: MediaContentCollection[] | null;
+  mediaContents: Title[] | null;
 };
 
 // Создание контекста медиа-контента
@@ -18,7 +18,7 @@ export const MediaContentsProvider = ({
   mediaContents,
   children,
 }: {
-  mediaContents: MediaContentCollection[] | null;
+  mediaContents: Title[] | null;
   children: ReactNode;
 }) => {
   return (

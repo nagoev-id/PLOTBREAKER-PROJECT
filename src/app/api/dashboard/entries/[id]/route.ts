@@ -1,17 +1,16 @@
 import { getPayload } from 'payload';
-import { headers } from 'next/headers';
 import configPromise from '@payload-config';
-import { COLLECTION_SLUGS } from '@/utilities/constants';
-import type { User } from '@/payload-types';
+import { COLLECTION_SLUGS } from '@/lib/constants';
+import { getAuthUser } from '@/lib/helpers';
 
 /**
  * Проверяет, что текущий пользователь — admin.
  */
 const requireAdmin = async () => {
   const payload = await getPayload({ config: configPromise });
-  const { user } = await payload.auth({ headers: await headers() });
+  const user = await getAuthUser();
 
-  if (!user || (user as User).role !== 'admin') {
+  if (!user) {
     return {
       error: Response.json({ error: 'Доступ запрещён' }, { status: 403 }),
       payload: null,
@@ -34,7 +33,7 @@ export async function GET(
   try {
     const { id } = await params;
     const doc = await payload!.findByID({
-      collection: COLLECTION_SLUGS.mediaContents,
+      collection: COLLECTION_SLUGS.titles,
       id,
       depth: 1,
     });
@@ -60,7 +59,7 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
     const doc = await payload!.update({
-      collection: COLLECTION_SLUGS.mediaContents,
+      collection: COLLECTION_SLUGS.titles,
       id,
       data: body,
     });
@@ -88,7 +87,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     await payload!.delete({
-      collection: COLLECTION_SLUGS.mediaContents,
+      collection: COLLECTION_SLUGS.titles,
       id,
     });
 

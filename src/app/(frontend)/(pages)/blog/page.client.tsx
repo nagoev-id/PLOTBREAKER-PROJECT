@@ -6,17 +6,17 @@ import { Search, X } from 'lucide-react';
 
 import { Badge, Input } from '@/components/ui';
 import { PaginationControls, PostCard } from '@/components/shared';
-import { PAGINATION_CONFIG } from '@/utilities/constants';
-import { PostCollection } from '@/utilities/types';
+import { PAGINATION_CONFIG } from '@/lib/constants';
+import type { Post } from '@/payload-types';
 
 /**
  * Клиентский компонент страницы блога.
  * Поиск, грид карточек постов, пагинация.
  */
-const BlogPageClient: FC<{ posts: PostCollection[] }> = ({
+const BlogPageClient: FC<{ posts: Post[] }> = ({
   posts: allPostsProp,
 }): JSX.Element => {
-  const posts = allPostsProp || [];
+  const posts = useMemo(() => allPostsProp ?? [], [allPostsProp]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION_CONFIG.defaultPageSize);
@@ -26,7 +26,7 @@ const BlogPageClient: FC<{ posts: PostCollection[] }> = ({
     const query = searchQuery.toLowerCase().trim();
     if (!query) return posts;
 
-    return posts.filter((post: PostCollection) =>
+    return posts.filter((post: Post) =>
       post.title?.toLowerCase().includes(query)
     );
   }, [posts, searchQuery]);
@@ -105,7 +105,7 @@ const BlogPageClient: FC<{ posts: PostCollection[] }> = ({
             transition={{ delay: 0.1, duration: 0.4 }}
             className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5"
           >
-            {paginatedPosts.map((post: PostCollection) => (
+            {paginatedPosts.map((post: Post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </motion.div>

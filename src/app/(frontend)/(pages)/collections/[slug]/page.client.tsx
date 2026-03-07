@@ -6,18 +6,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Badge, Separator } from '@/components/ui';
+import type { List, Title } from '@/payload-types';
 
-import {
-  CollectionCollection,
-  MediaContentCollection,
-} from '@/utilities/types';
-import { cn, configCollection } from '@/utilities/utils';
+import { cn, configCollection } from '@/lib/utils';
 import { PaginationControls, MovieCard } from '@/components/shared';
-import { PAGINATION_CONFIG } from '@/utilities/constants';
+import { PAGINATION_CONFIG } from '@/lib/constants';
 
 // Описание типов пропсов
 type CollectionDetailClientProps = {
-  collection: CollectionCollection;
+  collection: List;
 };
 
 /**
@@ -33,17 +30,20 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
   // Элементы коллекции (из join)
   const allItems = useMemo(() => {
     const items = (
-      collection as CollectionCollection & {
-        items?: { docs?: MediaContentCollection[] };
+      collection as List & {
+        items?: { docs?: Title[] };
       }
     ).items?.docs;
     return (items || []).filter(
-      (item): item is MediaContentCollection =>
+      (item: unknown): item is Title =>
         typeof item === 'object' && item !== null
     );
   }, [collection]);
 
-  const { type, TypeIcon } = configCollection(collection.title);
+  const { type, TypeIcon } = configCollection(
+    collection.title,
+    collection.slug
+  );
 
   // Читаем состояние пагинации из URL
   const currentPage = Number(searchParams.get('page')) || 1;
@@ -117,7 +117,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
           {/* Иконка */}
           <div
             className={cn(
-              'flex h-10 w-10 grid place-items-center rounded-none border shrink-0',
+              'h-10 w-10 grid place-items-center rounded-none border shrink-0',
               type.bg
             )}
           >
@@ -154,7 +154,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
       {/* Карточки контента */}
       <div className="container mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 px-2 sm:px-4">
         {paginatedItems.length > 0 ? (
-          paginatedItems.map((item, index) => {
+          paginatedItems.map((item: Title, index: number) => {
             return (
               <motion.div
                 key={item.id}

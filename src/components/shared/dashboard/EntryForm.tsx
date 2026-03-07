@@ -24,8 +24,11 @@ import {
   MEDIA_CONTENT_STATUS,
   MEDIA_CONTENT_PERSONAL_OPINION,
   GENRES,
-} from '@/utilities/constants';
-import type { MediaContent, Collection } from '@/payload-types';
+} from '@/lib/constants';
+import type {
+  Title as MediaContent,
+  List as Collection,
+} from '@/payload-types';
 import {
   KpSearchDashboard,
   TmdbSearchDashboard,
@@ -61,7 +64,6 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
   // Детали
   const [director, setDirector] = useState('');
   const [releaseYear, setReleaseYear] = useState<string>('');
-  const [duration, setDuration] = useState<string>('');
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
 
@@ -84,7 +86,7 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
       // review — richText, пустое значение (заполняется через paste markdown)
       setDirector(entry.director || '');
       setReleaseYear(entry.releaseYear?.toString() || '');
-      setDuration(entry.duration?.toString() || '');
+
       setSelectedGenres(entry.genres || []);
       setTmdbRating(entry.tmdbRating?.toString() || '');
       setKpRating(entry.kpRating?.toString() || '');
@@ -124,7 +126,7 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
     if (data.type) setType(data.type);
     if (data.kinopoiskId) setKinopoiskId(data.kinopoiskId);
     if (data.releaseYear) setReleaseYear(String(data.releaseYear));
-    if (data.duration) setDuration(String(data.duration));
+
     if (data.tmdbRating) setTmdbRating(String(data.tmdbRating));
     if (data.kpRating) setKpRating(String(data.kpRating));
     if (data.genres && data.genres.length > 0) setSelectedGenres(data.genres);
@@ -193,7 +195,7 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
         posterUrl: posterUrl.trim() || undefined,
         director: director.trim() || undefined,
         releaseYear: releaseYear ? parseInt(releaseYear, 10) : undefined,
-        duration: duration ? parseInt(duration, 10) : undefined,
+
         genres: selectedGenres.length > 0 ? selectedGenres : undefined,
         collections:
           selectedCollections.length > 0
@@ -476,19 +478,6 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
               placeholder="2024"
               min={1800}
               max={new Date().getFullYear() + 5}
-            />
-          </div>
-
-          {/* Длительность */}
-          <div className="space-y-2">
-            <Label htmlFor="entry-duration">Длительность (мин)</Label>
-            <Input
-              id="entry-duration"
-              type="number"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              placeholder="120"
-              min={1}
             />
           </div>
 

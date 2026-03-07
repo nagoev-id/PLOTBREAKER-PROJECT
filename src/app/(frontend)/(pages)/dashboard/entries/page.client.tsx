@@ -14,9 +14,9 @@ import {
 import { motion } from 'framer-motion';
 import { Button, Input } from '@/components/ui';
 import { DeleteConfirmDialog } from '@/components/shared/dashboard/DeleteConfirmDialog';
-import { ANIMATIONS, TYPE_CONFIG } from '@/utilities/constants';
+import { ANIMATIONS, TYPE_CONFIG } from '@/lib/constants';
 import { useDelete } from '@/hooks/useDelete';
-import type { MediaContent } from '@/payload-types';
+import type { Title as MediaContent } from '@/payload-types';
 
 interface DashboardEntriesClientProps {
   initialEntries: MediaContent[];

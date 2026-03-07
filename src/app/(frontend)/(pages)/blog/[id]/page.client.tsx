@@ -8,7 +8,7 @@ import { ArrowLeft, Calendar, Share2, Check, Tag } from 'lucide-react';
 
 import { Badge } from '@/components/ui';
 import { RichText } from '@/components/shared';
-import { PostCollection, MediaCollection } from '@/utilities/types';
+import type { Media, Post } from '@/payload-types';
 
 // Маппинг тегов
 const TAG_LABELS: Record<string, string> = {
@@ -21,7 +21,7 @@ const TAG_LABELS: Record<string, string> = {
 
 // Тип пропсов
 type BlogDetailClientProps = {
-  post: PostCollection;
+  post: Post;
 };
 
 /**
@@ -44,7 +44,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
 
   const heroImage =
     post.heroImage && typeof post.heroImage === 'object'
-      ? (post.heroImage as MediaCollection)
+      ? (post.heroImage as Media)
       : null;
 
   const handleShare = useCallback(async () => {
@@ -59,9 +59,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
 
   return (
     <article>
-      {/* ── Hero-секция ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b">
-        {/* Фоновый постер (размытый) */}
         {heroImage?.url && (
           <div className="absolute inset-0">
             <Image
@@ -72,7 +70,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+            <div className="absolute inset-0 bg-linear-to-b from-background/60 via-background/80 to-background" />
           </div>
         )}
 
@@ -102,7 +100,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
           >
             {/* Миниатюра */}
             {heroImage?.url && (
-              <div className="relative hidden aspect-[3/2] w-[160px] h-[260px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[200px]">
+              <div className="relative hidden aspect-3/2 w-[160px] h-[260px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[200px]">
                 <Image
                   src={heroImage.url}
                   alt={post.title}
@@ -124,7 +122,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
                 {/* Теги */}
                 {post.tags && post.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
-                    {post.tags.map((tag) => (
+                    {post.tags.map((tag: string) => (
                       <Badge
                         key={tag}
                         variant="secondary"

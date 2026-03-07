@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 
 import { LoadingSpinner } from '@/components/shared';
 import CollectionDetailClient from '@/app/(frontend)/(pages)/collections/[slug]/page.client';
-import { getCachedCollectionBySlug } from '@/utilities/helpers';
+import { getCachedListBySlug } from '@/lib/helpers';
 
 // Настройки кэширования страницы коллекции.
 export const revalidate = 60;
@@ -21,7 +21,7 @@ export const generateMetadata = async ({
   params,
 }: Props): Promise<Metadata> => {
   const { slug } = await params;
-  const collection = await getCachedCollectionBySlug(slug)();
+  const collection = await getCachedListBySlug(slug)();
 
   if (!collection) {
     return { title: 'Коллекция не найдена' };
@@ -39,7 +39,7 @@ export const generateMetadata = async ({
  */
 const CollectionDetailPage = async ({ params }: Props) => {
   const { slug } = await params;
-  const collection = await getCachedCollectionBySlug(slug)();
+  const collection = await getCachedListBySlug(slug)();
 
   if (!collection) {
     return notFound();

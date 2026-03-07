@@ -6,16 +6,16 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Film, Search, X, Tag } from 'lucide-react';
 
 import { MovieCard, PaginationControls } from '@/components/shared';
-import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/utilities/constants';
+import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/lib/constants';
 import { Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
-import { formatSlugString } from '@/utilities/utils';
+import { formatSlugString } from '@/lib/utils';
 
-import { MediaContentCollection } from '@/utilities/types';
+import type { Title } from '@/payload-types';
 
 // Тип пропсов компонента
 type TagPageClientProps = {
   tagSlug: string;
-  items: MediaContentCollection[];
+  items: Title[];
 };
 
 /**
@@ -36,8 +36,8 @@ export const TagPageClient: FC<TagPageClientProps> = ({
   const originalTag = useMemo(() => {
     for (const item of items) {
       if (item.visualTags && typeof item.visualTags === 'string') {
-        const tags = item.visualTags.split(',').map((t) => t.trim());
-        const found = tags.find((t) => formatSlugString(t) === tagSlug);
+        const tags = item.visualTags.split(',').map((t: string) => t.trim());
+        const found = tags.find((t: string) => formatSlugString(t) === tagSlug);
         if (found) return found;
       }
     }

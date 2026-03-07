@@ -4,7 +4,7 @@ export { MovieCard } from './MovieCard';
 export { PostCard } from './PostCard';
 export { RichText } from './RichText';
 export { CustomSelect } from './CustomSelect';
-export { SearchModal } from './SearchModal';
+export { SearchModal } from '@/features/search/components/SearchModal';
 export { ThemeProvider } from './ThemeProvider';
 export { ThemeToggle } from './ThemeToggle';
 export { SharedLink } from './SharedLink';

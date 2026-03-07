@@ -2,10 +2,10 @@ import { JSX, Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
-import { METADATA } from '@/utilities/constants';
+import { METADATA } from '@/lib/constants';
 import { LoadingSpinner } from '@/components/shared';
 import { TagPageClient } from '@/app/(frontend)/(pages)/reviews/tags/[tag]/page.client';
-import { getCachedMediaContentsByTag } from '@/utilities/helpers';
+import { getCachedTitlesByTag } from '@/lib/helpers';
 
 // Описание типов пропсов
 type Props = {
@@ -39,7 +39,7 @@ const TagPage = async ({ params }: Props): Promise<JSX.Element> => {
     notFound();
   }
 
-  const items = await getCachedMediaContentsByTag(tag)();
+  const items = await getCachedTitlesByTag(tag)();
 
   return (
     <Suspense fallback={<LoadingSpinner />}>

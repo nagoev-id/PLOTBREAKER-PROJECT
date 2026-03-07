@@ -1,11 +1,11 @@
 'use client';
 
 import { createContext, useContext, ReactNode } from 'react';
-import { CollectionCollection } from '@/utilities/types';
+import type { List } from '@/payload-types';
 
 // Тип для контекста аутентификации
 type CollectionsContextType = {
-  collections: CollectionCollection[] | null;
+  collections: List[] | null;
 };
 
 // Создание контекста аутентификации
@@ -18,7 +18,7 @@ export const CollectionsProvider = ({
   collections,
   children,
 }: {
-  collections: CollectionCollection[] | null;
+  collections: List[] | null;
   children: ReactNode;
 }) => {
   return (

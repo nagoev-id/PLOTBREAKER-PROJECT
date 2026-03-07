@@ -1,8 +1,8 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
-import { COLLECTION_SLUGS } from '@/utilities/constants';
+import { COLLECTION_SLUGS } from '@/lib/constants';
 import { EntryForm } from '@/components/shared/dashboard/EntryForm';
-import type { Collection } from '@/payload-types';
+import type { List as Collection } from '@/payload-types';
 
 /**
  * Страница создания новой записи медиа-контента.
@@ -12,7 +12,7 @@ const NewEntryPage = async () => {
 
   // Загружаем коллекции для выбора в форме
   const collectionsResult = await payload.find({
-    collection: COLLECTION_SLUGS.collections,
+    collection: COLLECTION_SLUGS.lists,
     sort: 'title',
     limit: 0,
     depth: 0,

@@ -2,11 +2,11 @@ import { JSX, Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
-import { getGenreLabel } from '@/utilities/utils';
-import { GENRES, METADATA } from '@/utilities/constants';
+import { getGenreLabel } from '@/lib/utils';
+import { GENRES, METADATA } from '@/lib/constants';
 import { LoadingSpinner } from '@/components/shared';
 import { GenrePageClient } from '@/app/(frontend)/(pages)/reviews/genres/[genre]/page.client';
-import { getCachedMediaContentsByGenre } from '@/utilities/helpers';
+import { getCachedTitlesByGenre } from '@/lib/helpers';
 
 /**
  * Генерация статических параметров для всех жанров
@@ -53,7 +53,7 @@ const GenrePage = async ({
     notFound();
   }
 
-  const items = await getCachedMediaContentsByGenre(genre)();
+  const items = await getCachedTitlesByGenre(genre)();
 
   return (
     <Suspense fallback={<LoadingSpinner />}>

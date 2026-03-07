@@ -3,35 +3,23 @@ import { ExternalLink, Play } from 'lucide-react';
 import Link from 'next/link';
 import { FC, JSX } from 'react';
 import { SidebarSection } from '@/components/shared/SidebarSection';
-import { cn } from '@/utilities/utils';
+import { cn } from '@/lib/utils';
 
 type ExternalLinksProps = {
   kinopoiskId: number | string;
-  kinoriumId?: number | string | null;
   originalTitle?: string | null;
   variant?: 'default' | 'secondary';
-  className?: string;
   showKinoBd?: boolean;
   onToggleKinoBd?: () => void;
 };
 
 /**
- * Внешние ссылки (Кинопоиск, Кинориум, FRKP, HDRezka, KinoBD)
- * @param kinopoiskId - ID фильма на Кинопоиске
- * @param kinoriumId - ID фильма на Кинориуме
- * @param originalTitle - Оригинальное название фильма
- * @param variant - Вариант отображения
- * @param className - Дополнительные классы
- * @param showKinoBd - Показывать KinoBD
- * @param onToggleKinoBd - Функция переключения KinoBD
- * @returns {JSX.Element}
+ * Внешние ссылки (Кинопоиск, FRKP, Tapeop, HDRezka, KinoBD)
  */
 export const ExternalLinks: FC<ExternalLinksProps> = ({
   kinopoiskId,
-  kinoriumId,
   originalTitle,
   variant,
-  className,
   showKinoBd,
   onToggleKinoBd,
 }): JSX.Element => (
@@ -53,25 +41,6 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
       </Badge>
     </Link>
 
-    {kinoriumId && (
-      <Link
-        href={`https://kinorium.com/${kinoriumId}/`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Badge
-          variant={variant}
-          className={cn(
-            'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
-            variant === 'default' ? 'hover:bg-primary/20' : ''
-          )}
-        >
-          <ExternalLink size={12} />
-          Кинориум
-        </Badge>
-      </Link>
-    )}
-
     <Link
       href={`https://www.kinopoisk.cx/film/${kinopoiskId}/`}
       target="_blank"
@@ -86,6 +55,23 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
       >
         <Play size={12} />
         FRKP
+      </Badge>
+    </Link>
+
+    <Link
+      href={`https://tapeop.dev/`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Badge
+        variant={variant}
+        className={cn(
+          'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
+          variant === 'default' ? 'hover:bg-primary/20' : ''
+        )}
+      >
+        <Play size={12} />
+        Tapeop
       </Badge>
     </Link>
 

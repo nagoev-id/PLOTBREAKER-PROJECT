@@ -1,11 +1,11 @@
 'use client';
 
 import { createContext, useContext, ReactNode } from 'react';
-import { PostCollection } from '@/utilities/types';
+import type { Post } from '@/payload-types';
 
 // Тип для контекста аутентификации
 type PostsContextType = {
-  posts: PostCollection[] | null;
+  posts: Post[] | null;
 };
 
 // Создание контекста аутентификации
@@ -16,7 +16,7 @@ export const PostsProvider = ({
   posts,
   children,
 }: {
-  posts: PostCollection[] | null;
+  posts: Post[] | null;
   children: ReactNode;
 }) => {
   return (

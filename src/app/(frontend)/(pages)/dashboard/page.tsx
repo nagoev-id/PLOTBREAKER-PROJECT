@@ -1,8 +1,8 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
-import { COLLECTION_SLUGS } from '@/utilities/constants';
+import { COLLECTION_SLUGS } from '@/lib/constants';
 import DashboardCollectionsClient from './page.client';
-import type { Collection } from '@/payload-types';
+import type { List as Collection } from '@/payload-types';
 
 /**
  * Server component для страницы управления коллекциями.
@@ -11,7 +11,7 @@ const DashboardCollectionsPage = async () => {
   const payload = await getPayload({ config: configPromise });
 
   const result = await payload.find({
-    collection: COLLECTION_SLUGS.collections,
+    collection: COLLECTION_SLUGS.lists,
     sort: '-createdAt',
     limit: 0,
     depth: 0,

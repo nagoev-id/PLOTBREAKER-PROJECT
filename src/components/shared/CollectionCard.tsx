@@ -7,13 +7,13 @@ import { motion } from 'framer-motion';
 import { Card, Separator } from '@/components/ui';
 import { toast } from 'sonner';
 
-import { cn, configCollection } from '@/utilities/utils';
-import { CollectionCollection } from '@/utilities/types';
+import { cn, configCollection } from '@/lib/utils';
+import type { List } from '@/payload-types';
 import { AdminActions } from '@/components/shared';
 import axios from 'axios';
 
 type CollectionCardProps = {
-  list: CollectionCollection;
+  list: List;
 };
 
 /**
@@ -24,7 +24,7 @@ type CollectionCardProps = {
 export const CollectionCard: FC<CollectionCardProps> = ({ list }) => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
-  const { type, TypeIcon } = configCollection(list.title);
+  const { type, TypeIcon } = configCollection(list.title, list.slug);
 
   /**
    * Удаляет коллекцию.
@@ -122,7 +122,7 @@ export const CollectionCard: FC<CollectionCardProps> = ({ list }) => {
             isDeleting={isDeleting}
             title={list.title}
             typeName="Коллекция"
-            classNames="!p-0 ml-auto"
+            classNames="!p-0 ml-auto grid-cols-3"
           />
         </div>
       </Card>

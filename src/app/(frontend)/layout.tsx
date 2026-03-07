@@ -1,16 +1,13 @@
 import React, { JSX, ReactNode } from 'react';
 import '@/app/(frontend)/globals.css';
 import { Toaster } from '@/components/ui';
-import { getPayload } from 'payload';
-import { headers } from 'next/headers';
-import configPromise from '@payload-config';
+import { getAuthUser } from '@/lib/helpers';
 
-import { UserCollection } from '@/utilities/types';
-import { METADATA } from '@/utilities/constants';
-import { cn } from '@/utilities/utils';
-import { euclid } from '@/utilities/fonts';
-import { Header } from '@/globals/Header';
-import { Footer } from '@/globals/Footer';
+import { User } from '@/payload-types';
+import { METADATA } from '@/lib/constants';
+import { cn } from '@/lib/utils';
+import { euclid } from '@/lib/fonts';
+import { Header, Footer } from '@/payload/globals';
 import { Preloader, ThemeProvider, AuthProvider } from '@/components/shared';
 
 export const metadata = {
@@ -65,8 +62,7 @@ const RootLayout = async ({
 }: {
   children: ReactNode;
 }): Promise<JSX.Element> => {
-  const payload = await getPayload({ config: configPromise });
-  const { user } = await payload.auth({ headers: await headers() });
+  const user = await getAuthUser();
 
   return (
     <html lang="ru" suppressHydrationWarning>
@@ -84,7 +80,7 @@ const RootLayout = async ({
           disableTransitionOnChange
           storageKey={METADATA.siteKey}
         >
-          <AuthProvider user={user as UserCollection | null}>
+          <AuthProvider user={user as User | null}>
             {/* <TelegramProvider> */}
             <Preloader />
             <div className="flex min-h-screen flex-col selection:bg-foreground selection:text-background">

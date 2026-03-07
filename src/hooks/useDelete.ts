@@ -1,20 +1,39 @@
+'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
+/**
+ * Параметры для выполнения операции удаления
+ */
 type DeleteOptions = {
+  /** URL API эндпоинта (без ID в конце) */
   url: string;
+  /** Обратный вызов, выполняемый после успешного удаления */
   onSuccess?: (id: number | string) => void;
+  /** Сообщение об успехе для уведомления */
   successMessage?: string;
+  /** Сообщение об ошибке для уведомления */
   errorMessage?: string;
 };
 
+/**
+ * Хук для управления состоянием и процессом удаления записей.
+ *
+ * @returns Объект с функцией удаления и состоянием загрузки.
+ */
 export const useDelete = () => {
   const router = useRouter();
   const [deleteLoading, setDeleteLoading] = useState<number | string | null>(
     null
   );
 
+  /**
+   * Выполняет DELETE запрос к API и обрабатывает результат.
+   *
+   * @param id - Идентификатор записи для удаления.
+   * @param options - Объект с настройками (url, callbacks, messages).
+   */
   const deleteRecord = async (id: number | string, options: DeleteOptions) => {
     const {
       url,
