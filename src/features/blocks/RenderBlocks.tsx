@@ -23,6 +23,7 @@ type RenderBlocksProps = {
    * - Если `undefined`, `null` или пустой массив — компонент ничего не рендерит.
    */
   blocks?: LayoutBlocks | null;
+  homeHeroVideo?: boolean;
 };
 
 /**
@@ -48,7 +49,10 @@ type RenderBlocksProps = {
  * <RenderBlocks blocks={null} /> // → null
  * <RenderBlocks blocks={[]}  /> // → null
  */
-export const RenderBlocks: FC<RenderBlocksProps> = ({ blocks }) => {
+export const RenderBlocks: FC<RenderBlocksProps> = ({
+  blocks,
+  homeHeroVideo = false,
+}) => {
   if (!blocks || !Array.isArray(blocks) || blocks.length === 0) {
     return null;
   }
@@ -60,7 +64,17 @@ export const RenderBlocks: FC<RenderBlocksProps> = ({ blocks }) => {
 
         switch (blockType) {
           case 'hero':
-            return <HeroBlock key={index} {...block} />;
+            return (
+              <HeroBlock
+                key={index}
+                {...block}
+                fullHeight={homeHeroVideo}
+                backgroundVideoSrc={
+                  homeHeroVideo ? '/video/video.mp4' : undefined
+                }
+                enableAudioToggle={homeHeroVideo}
+              />
+            );
           case 'about':
             return <AboutBlock key={index} {...block} />;
           default:

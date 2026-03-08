@@ -5,7 +5,7 @@ import { FC, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Menu, Search, ShieldUser, X } from 'lucide-react';
 
-import { getURL } from '@/lib/utils';
+import { cn, getURL } from '@/lib/utils';
 import { CMSLink } from '@/components/shared';
 
 import type { Header as HeaderGlobal, User } from '@/payload-types';
@@ -43,6 +43,7 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -59,6 +60,18 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
       }
     };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 16);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   if (!data) {
     return null;
@@ -89,7 +102,12 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
   return (
     <>
       <header
-        className="bg-background/80  supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur transition-all duration-300"
+        className={cn(
+          'sticky top-0 z-50 w-full border-b transition-all duration-300',
+          isScrolled
+            ? 'border-border/90 bg-background/96 shadow-[0_10px_30px_-22px_rgba(0,0,0,0.45)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/88'
+            : 'border-border/70 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/72'
+        )}
         role="banner"
       >
         <div className="container mx-auto flex h-16 items-center gap-4 px-4">

@@ -38,7 +38,7 @@ const HomePage = async () => {
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <RenderBlocks blocks={page.layout} />
+      <RenderBlocks blocks={page.layout} homeHeroVideo />
       <HomePageClient items={mediaContents as Title[]} />
     </Suspense>
   );

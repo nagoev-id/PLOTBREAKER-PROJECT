@@ -4,7 +4,17 @@ import { FC, JSX, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, Star, Timer } from 'lucide-react';
+import {
+  Calendar,
+  CircleSlash,
+  Clapperboard,
+  Eye,
+  Film,
+  Star,
+  Timer,
+  Tv2,
+  type LucideIcon,
+} from 'lucide-react';
 import { Card, Badge } from '@/components/ui';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -18,6 +28,35 @@ import { useAuth } from '@/components/context';
 type Props = {
   item: Title;
   priority?: boolean;
+};
+
+const TYPE_META: Record<
+  Title['type'],
+  {
+    label: string;
+    Icon: LucideIcon;
+    className: string;
+    placeholderGradient: string;
+  }
+> = {
+  film: {
+    label: 'Фильм',
+    Icon: Film,
+    className: 'bg-sky-500/90 text-white',
+    placeholderGradient: 'from-sky-700 to-sky-950',
+  },
+  series: {
+    label: 'Сериал',
+    Icon: Tv2,
+    className: 'bg-violet-500/90 text-white',
+    placeholderGradient: 'from-violet-700 to-violet-950',
+  },
+  cartoon: {
+    label: 'Мультфильм',
+    Icon: Clapperboard,
+    className: 'bg-rose-500/90 text-white',
+    placeholderGradient: 'from-rose-700 to-rose-950',
+  },
 };
 
 /**
@@ -34,11 +73,38 @@ export const MovieCard: FC<Props> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const posterSrc = getPosterUrl(item);
   const isPlanned = item.status === 'planned';
+  const reviewHref = item.slug ? `/reviews/${item.slug}` : undefined;
+  const typeMeta = TYPE_META[item.type];
 
   const opinionConfig = item.personalOpinion
     ? OPINION_CONFIG[item.personalOpinion]
     : null;
   const OpinionIcon = opinionConfig?.icon;
+  const StatusIcon = isPlanned
+    ? Timer
+    : item.status === 'watching'
+      ? Eye
+      : item.status === 'abandoned'
+        ? CircleSlash
+        : OpinionIcon;
+  const statusLabel = isPlanned
+    ? 'Планирую'
+    : item.status === 'watching'
+      ? 'Смотрю'
+      : item.status === 'abandoned'
+        ? 'Брошено'
+        : opinionConfig?.label;
+  const statusClassName = isPlanned
+    ? 'bg-sky-500/90 text-white'
+    : item.status === 'watching'
+      ? 'bg-emerald-500/90 text-white'
+      : item.status === 'abandoned'
+        ? 'bg-zinc-700/90 text-white'
+        : 'bg-black/70 text-white';
+  const statusIconClassName =
+    isPlanned || item.status === 'watching' || item.status === 'abandoned'
+      ? 'text-white'
+      : opinionConfig?.color || 'text-white';
 
   /**
    * Обработчик удаления фильма
@@ -65,10 +131,10 @@ export const MovieCard: FC<Props> = ({
   };
 
   return (
-    <div className="relative h-full group/card">
-      <Card className="group flex h-full flex-col overflow-hidden rounded-sm border shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div className="relative h-full">
+      <Card className="group/card flex h-full flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-zinc-500/30 hover:shadow-xl">
         {/* Постер с overlay-бейджами */}
-        <div className="relative aspect-2/3 w-full overflow-hidden bg-neutral-200">
+        <div className="relative aspect-2/3 w-full overflow-hidden bg-zinc-200 dark:bg-zinc-900">
           {user && (
             <AdminActions
               editUrl={`/admin/collections/titles/${item.id}`}
@@ -76,70 +142,119 @@ export const MovieCard: FC<Props> = ({
               isDeleting={isDeleting}
               title={item.title}
               typeName="Запись"
-              classNames="absolute top-1 left-1 z-10"
+              classNames="absolute top-1.5 left-1.5 z-30"
             />
           )}
-          {posterSrc && (
+
+          {reviewHref ? (
             <Link
-              href={`/reviews/${item.slug}`}
+              href={reviewHref}
               className="relative flex h-full w-full flex-1 flex-col"
             >
-              <Image
-                src={posterSrc}
-                alt={item.title}
-                fill
-                priority={priority}
-                className={cn(
-                  'object-cover transition-transform duration-300 group-hover:scale-105',
-                  isPlanned && 'grayscale'
-                )}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              />
-              <div className="absolute inset-0 bg-black/5 transition-colors group-hover:bg-black/10" />
-
-              {/* Рейтинг KP — overlay */}
-              {item.kpRating && (
-                <div className="absolute top-1.5 right-1.5 flex items-center gap-1 rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm">
-                  <Star size={10} className="fill-amber-400 text-amber-400" />
-                  {item.kpRating.toFixed(1)}
+              {posterSrc ? (
+                <>
+                  <Image
+                    src={posterSrc}
+                    alt={item.title}
+                    fill
+                    priority={priority}
+                    className={cn(
+                      'object-cover transition-transform duration-500 group-hover/card:scale-105',
+                      isPlanned && 'grayscale-[0.35] saturate-[0.85]'
+                    )}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent opacity-85 transition-opacity duration-300 group-hover/card:opacity-100" />
+                </>
+              ) : (
+                <div
+                  className={cn(
+                    'absolute inset-0 bg-gradient-to-br',
+                    typeMeta.placeholderGradient
+                  )}
+                >
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.24),transparent_50%)]" />
+                  <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2 px-4 text-center text-white/90">
+                    <typeMeta.Icon className="size-8" />
+                    <p className="text-xs font-semibold tracking-[0.14em] uppercase">
+                      Постер в обработке
+                    </p>
+                  </div>
                 </div>
               )}
-
-              {/* Статус «Планирую» или впечатление — overlay */}
-              {isPlanned ? (
-                <div className="absolute top-8 right-1.5 flex items-center gap-1 rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold backdrop-blur-sm">
-                  <Timer className="size-4 text-blue-400" />
-                  <span className="hidden text-[10px] text-blue-400 lg:text-[12px] md:inline">
-                    Планирую
-                  </span>
-                </div>
-              ) : OpinionIcon && opinionConfig ? (
-                <div className="absolute top-8 right-1.5 flex items-center gap-1 rounded-sm bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm">
-                  <OpinionIcon className={cn(opinionConfig.color, 'size-4')} />
-                  <span className="hidden text-[10px] text-white lg:text-[12px] md:inline">
-                    {opinionConfig.label}
-                  </span>
-                </div>
-              ) : null}
             </Link>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 to-zinc-900" />
           )}
+
+          <div className="absolute top-2 right-2 z-20 flex flex-col items-end gap-1.5">
+            {item.kpRating && (
+              <div className="inline-flex items-center gap-1 rounded-full border border-black/30 bg-black/70 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur">
+                <Star size={10} className="fill-amber-400 text-amber-400" />
+                {item.kpRating.toFixed(1)}
+              </div>
+            )}
+
+            {StatusIcon && statusLabel && (
+              <div
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold backdrop-blur',
+                  statusClassName
+                )}
+              >
+                <StatusIcon className={cn('size-3.5', statusIconClassName)} />
+                <span>{statusLabel}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="absolute bottom-2 left-2 z-20">
+            <div
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold tracking-[0.04em]',
+                typeMeta.className
+              )}
+            >
+              <typeMeta.Icon className="size-3.5" />
+              {typeMeta.label}
+            </div>
+          </div>
         </div>
 
         {/* Контент карточки */}
-        <div className="flex flex-1 flex-col gap-2 p-2 md:p-3">
-          <Link href={`/reviews/${item.slug}`} className="flex flex-col flex-1">
-            {/* Заголовок */}
-            <h3 className="line-clamp-2 text-xs font-medium leading-tight md:text-sm xl:text-base">
-              {item.title}
-            </h3>
+        <div className="flex flex-1 flex-col gap-2.5 p-3">
+          {reviewHref ? (
+            <Link href={reviewHref} className="flex flex-col gap-1">
+              {/* Заголовок */}
+              <h3 className="line-clamp-2 text-sm font-semibold leading-tight md:text-base">
+                {item.title}
+              </h3>
 
-            {/* Оригинальное название */}
-            {item.originalTitle && (
-              <p className="text-muted-foreground line-clamp-1 text-[11px] xl:text-xs">
-                {item.originalTitle}
-              </p>
-            )}
-          </Link>
+              {/* Оригинальное название */}
+              {item.originalTitle && (
+                <p className="text-muted-foreground line-clamp-1 text-sm">
+                  {item.originalTitle}
+                </p>
+              )}
+            </Link>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <h3 className="line-clamp-2 text-sm font-semibold leading-tight md:text-base">
+                {item.title}
+              </h3>
+              {item.originalTitle && (
+                <p className="text-muted-foreground line-clamp-1 text-sm">
+                  {item.originalTitle}
+                </p>
+              )}
+            </div>
+          )}
+
+          {item.director && (
+            <p className="text-muted-foreground line-clamp-1 text-xs">
+              Реж. {item.director}
+            </p>
+          )}
 
           {/* Жанры */}
           {item.genres && item.genres.length > 0 && (
@@ -151,8 +266,8 @@ export const MovieCard: FC<Props> = ({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Badge
-                    variant="default"
-                    className="rounded-sm px-1.5 py-0 text-[10px] font-normal transition-opacity hover:opacity-80"
+                    variant="secondary"
+                    className="rounded-full border border-zinc-300/70 bg-zinc-100 px-2 py-0 text-[10px] font-medium text-zinc-700 transition-colors hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                   >
                     {getGenreLabel(genre)}
                   </Badge>
@@ -162,11 +277,17 @@ export const MovieCard: FC<Props> = ({
           )}
 
           {/* Метаданные — прижаты к низу */}
-          <div className="mt-auto flex items-center gap-2 pt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
+          <div className="mt-auto flex items-center gap-3 pt-1 text-xs text-zinc-500 dark:text-zinc-400">
             {item.releaseYear && (
               <span className="flex items-center gap-1">
-                <Calendar size={11} className="opacity-60" />
+                <Calendar size={12} className="opacity-65" />
                 {item.releaseYear}
+              </span>
+            )}
+            {item.watchYear && item.watchYear !== item.releaseYear && (
+              <span className="flex items-center gap-1">
+                <Eye size={12} className="opacity-65" />
+                {item.watchYear}
               </span>
             )}
           </div>

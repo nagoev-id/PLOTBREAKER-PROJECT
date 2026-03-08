@@ -19,7 +19,14 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui';
-import { Search, X } from 'lucide-react';
+import {
+  Clapperboard,
+  Library,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  X,
+} from 'lucide-react';
 
 import {
   CustomSelect,
@@ -49,6 +56,15 @@ const HomePageClient: FC<{ items: Title[] }> = ({
   items: itemsProp,
 }): JSX.Element => {
   const items = useMemo(() => itemsProp ?? [], [itemsProp]);
+  const genreFilterOptions = useMemo(() => genreOptions(), []);
+  const releaseYearFilterOptions = useMemo(
+    () => releaseYearOptions(items),
+    [items]
+  );
+  const watchYearFilterOptions = useMemo(
+    () => watchYearOptions(items),
+    [items]
+  );
 
   // Ref для debounce поиска
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -102,6 +118,15 @@ const HomePageClient: FC<{ items: Title[] }> = ({
     setSelectedRating(searchParams.get('rating') || ALL_VALUE);
     setSelectedWatchYear(searchParams.get('watchYear') || ALL_VALUE);
   }, [searchParams]);
+
+  useEffect(
+    () => () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    },
+    []
+  );
 
   // Обновляет все параметры в URL
   const updateParams = useCallback(
@@ -308,177 +333,378 @@ const HomePageClient: FC<{ items: Title[] }> = ({
     currentPage > 1 ||
     pageSize !== PAGINATION_CONFIG.defaultPageSize;
 
+  const dashboardStats = useMemo(() => {
+    const planned = items.filter((item) => item.status === 'planned').length;
+    const liked = items.filter(
+      (item) => item.personalOpinion === 'like'
+    ).length;
+
+    return {
+      total: items.length,
+      planned,
+      liked,
+    };
+  }, [items]);
+
+  const activeFilterChips = useMemo(() => {
+    const chips: { key: string; label: string; value: string }[] = [];
+
+    if (searchQuery.trim()) {
+      chips.push({
+        key: 'q',
+        label: 'Поиск',
+        value: searchQuery.trim(),
+      });
+    }
+
+    if (activeType !== ALL_VALUE) {
+      chips.push({
+        key: 'type',
+        label: 'Тип',
+        value:
+          HOMEPAGE_FILTERS.types.find((option) => option.value === activeType)
+            ?.label ?? activeType,
+      });
+    }
+
+    if (selectedGenre !== ALL_VALUE) {
+      chips.push({
+        key: 'genre',
+        label: 'Жанр',
+        value:
+          genreFilterOptions.find((option) => option.value === selectedGenre)
+            ?.label ?? selectedGenre,
+      });
+    }
+
+    if (selectedReleaseYear !== ALL_VALUE) {
+      chips.push({
+        key: 'year',
+        label: 'Год выхода',
+        value: selectedReleaseYear,
+      });
+    }
+
+    if (selectedOpinion !== ALL_VALUE) {
+      chips.push({
+        key: 'opinion',
+        label: 'Оценка',
+        value:
+          HOMEPAGE_FILTERS.opinions.find(
+            (option) => option.value === selectedOpinion
+          )?.label ?? selectedOpinion,
+      });
+    }
+
+    if (selectedStatus !== 'watched') {
+      chips.push({
+        key: 'status',
+        label: 'Статус',
+        value:
+          HOMEPAGE_FILTERS.statuses.find(
+            (option) => option.value === selectedStatus
+          )?.label ?? selectedStatus,
+      });
+    }
+
+    if (selectedRating !== ALL_VALUE) {
+      chips.push({
+        key: 'rating',
+        label: 'Рейтинг',
+        value:
+          HOMEPAGE_FILTERS.ratings.find(
+            (option) => option.value === selectedRating
+          )?.label ?? selectedRating,
+      });
+    }
+
+    if (selectedWatchYear !== ALL_VALUE) {
+      chips.push({
+        key: 'watchYear',
+        label: 'Год просмотра',
+        value:
+          watchYearFilterOptions.find(
+            (option) => option.value === selectedWatchYear
+          )?.label ?? selectedWatchYear,
+      });
+    }
+
+    return chips;
+  }, [
+    searchQuery,
+    activeType,
+    selectedGenre,
+    selectedReleaseYear,
+    selectedOpinion,
+    selectedStatus,
+    selectedRating,
+    selectedWatchYear,
+    genreFilterOptions,
+    watchYearFilterOptions,
+  ]);
+
   return (
-    <section className="space-y-6 pb-8 lg:pb-11 border-t pt-8">
-      <div className="container mx-auto space-y-2 md:space-y-6 px-2 sm:px-4">
-        {/* Заголовок + Количество найденных записей */}
+    <section className="relative border-t border-border/60 bg-gradient-to-b from-white via-zinc-50/55 to-white pb-10 pt-8 dark:from-zinc-950 dark:via-zinc-950 dark:to-black lg:pb-14">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.14),transparent_55%),radial-gradient(circle_at_85%_15%,rgba(8,145,178,0.14),transparent_45%)] dark:bg-[radial-gradient(circle_at_top,rgba(244,114,182,0.18),transparent_52%),radial-gradient(circle_at_90%_10%,rgba(56,189,248,0.2),transparent_45%)]" />
+      <div className="container mx-auto space-y-5 px-2 sm:px-4 lg:space-y-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-2 md:space-y-4 md:flex md:items-center md:justify-between"
+          transition={{ duration: 0.45 }}
+          className="relative overflow-hidden rounded-3xl border border-zinc-900/10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800 p-5 text-white shadow-xl shadow-zinc-900/20 dark:border-zinc-700/60 dark:from-zinc-900 dark:via-zinc-950 dark:to-black dark:shadow-black/55 sm:p-7"
         >
-          {/* Заголовок */}
-          <h3 className="text-2xl font-bold lg:text-3xl md:mb-0">Записи</h3>
+          <div className="pointer-events-none absolute -top-16 right-8 h-40 w-40 rounded-full bg-amber-300/30 blur-3xl dark:bg-fuchsia-500/25" />
+          <div className="pointer-events-none absolute -bottom-24 left-14 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl dark:bg-sky-500/25" />
+          <div className="relative z-10 space-y-5">
+            <div className="space-y-2">
+              <Badge className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold tracking-[0.14em] uppercase">
+                Каталог пересказов
+              </Badge>
+              <h2 className="text-2xl font-semibold leading-tight sm:text-3xl">
+                Подборка без спойлерного шума
+              </h2>
+              <p className="max-w-2xl text-sm text-white/75 sm:text-base">
+                Фильтруйте библиотеку по настроению, жанру и личной оценке,
+                чтобы быстро найти стоящие истории.
+              </p>
+            </div>
 
-          {/* Вкладки по типу контента */}
-          <Tabs value={activeType} onValueChange={handleTypeChange}>
-            <TabsList className="flex h-auto justify-center max-w-max">
-              {HOMEPAGE_FILTERS.types.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value}>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur dark:border-white/10 dark:bg-white/[0.06]">
+                <div className="mb-2 flex items-center gap-2 text-xs text-white/75 dark:text-white/70">
+                  <Library className="size-4" />
+                  Всего записей
+                </div>
+                <div className="text-2xl font-semibold">
+                  {dashboardStats.total}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur dark:border-white/10 dark:bg-white/[0.06]">
+                <div className="mb-2 flex items-center gap-2 text-xs text-white/75 dark:text-white/70">
+                  <Clapperboard className="size-4" />
+                  Найдено сейчас
+                </div>
+                <div className="text-2xl font-semibold">
+                  {filteredItems.length}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur dark:border-white/10 dark:bg-white/[0.06]">
+                <div className="mb-2 flex items-center gap-2 text-xs text-white/75 dark:text-white/70">
+                  <Sparkles className="size-4" />
+                  Понравилось
+                </div>
+                <div className="text-2xl font-semibold">
+                  {dashboardStats.liked}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur dark:border-white/10 dark:bg-white/[0.06]">
+                <div className="mb-2 flex items-center gap-2 text-xs text-white/75 dark:text-white/70">
+                  <Search className="size-4" />
+                  Запланировано
+                </div>
+                <div className="text-2xl font-semibold">
+                  {dashboardStats.planned}
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Основной контент: Сайдбар + Сетка */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-[1.5fr_3fr] lg:grid-cols-[1fr_3fr]">
-          <aside className="">
-            {/* Фильтры */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(270px,0.3fr)_minmax(0,1fr)] xl:gap-5">
+          <aside className="xl:sticky xl:top-20 xl:h-fit">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.4 }}
-              className="grid gap-3 mb-4"
+              transition={{ delay: 0.05, duration: 0.35 }}
+              className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-5"
             >
-              <h3 className="text-sm font-medium uppercase">Фильтры</h3>
-              {/* Поиск */}
-              <div className="relative lg:col-span-1">
-                <Search
-                  size={14}
-                  className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
-                />
-                <Input
-                  placeholder="Поиск..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSearchQuery(value);
-                    if (searchDebounceRef.current)
-                      clearTimeout(searchDebounceRef.current);
-                    searchDebounceRef.current = setTimeout(() => {
-                      updateParams({ page: 1, q: value });
-                    }, 300);
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold tracking-wide uppercase">
+                    Фильтры
+                  </h3>
+                  <p className="text-muted-foreground text-xs">
+                    Настройте выдачу под себя
+                  </p>
+                </div>
+                <SlidersHorizontal className="text-muted-foreground size-4" />
+              </div>
+
+              <div className="grid gap-3">
+                <div className="relative">
+                  <Search
+                    size={14}
+                    className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
+                  />
+                  <Input
+                    placeholder="Название, режиссёр или оригинал"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSearchQuery(value);
+                      if (searchDebounceRef.current) {
+                        clearTimeout(searchDebounceRef.current);
+                      }
+                      searchDebounceRef.current = setTimeout(() => {
+                        updateParams({ page: 1, q: value });
+                      }, 300);
+                    }}
+                    className="h-10 rounded-xl border-border/70 bg-background pl-8 text-sm dark:border-zinc-700 dark:bg-zinc-950/80 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                  />
+                </div>
+
+                <CustomSelect
+                  label="Жанр"
+                  value={selectedGenre}
+                  onValueChange={(v) => {
+                    setSelectedGenre(v);
+                    updateParams({ page: 1, genre: v });
                   }}
-                  className="pl-8 text-sm"
+                  options={genreFilterOptions}
+                  placeholder="Все жанры"
+                />
+
+                <CustomSelect
+                  label="Год выхода"
+                  value={selectedReleaseYear}
+                  onValueChange={(v) => {
+                    setSelectedReleaseYear(v);
+                    updateParams({ page: 1, year: v });
+                  }}
+                  options={releaseYearFilterOptions}
+                  placeholder="Год выхода"
+                />
+
+                <CustomSelect
+                  label="Личная оценка"
+                  value={selectedOpinion}
+                  onValueChange={(v) => {
+                    setSelectedOpinion(v);
+                    updateParams({ page: 1, opinion: v });
+                  }}
+                  options={HOMEPAGE_FILTERS.opinions}
+                  placeholder="Впечатление"
+                />
+
+                <CustomSelect
+                  label="Статус"
+                  value={selectedStatus}
+                  onValueChange={(v) => {
+                    setSelectedStatus(v);
+                    updateParams({ page: 1, status: v });
+                  }}
+                  options={HOMEPAGE_FILTERS.statuses}
+                  placeholder="Статус"
+                />
+
+                <CustomSelect
+                  label="Рейтинг КП/IMDB"
+                  value={selectedRating}
+                  onValueChange={(v) => {
+                    setSelectedRating(v);
+                    updateParams({ page: 1, rating: v });
+                  }}
+                  options={HOMEPAGE_FILTERS.ratings}
+                  placeholder="Рейтинг КП"
+                />
+
+                <CustomSelect
+                  label="Год просмотра"
+                  value={selectedWatchYear}
+                  onValueChange={(v) => {
+                    setSelectedWatchYear(v);
+                    updateParams({ page: 1, watchYear: v });
+                  }}
+                  options={watchYearFilterOptions}
+                  placeholder="Год просмотра"
                 />
               </div>
 
-              {/* Жанры */}
-              <CustomSelect
-                label="Жанр"
-                value={selectedGenre}
-                onValueChange={(v) => {
-                  setSelectedGenre(v);
-                  updateParams({ page: 1, genre: v });
-                }}
-                options={genreOptions()}
-                placeholder="Все жанры"
-              />
-
-              {/* Год выхода */}
-              <CustomSelect
-                label="Год выхода"
-                value={selectedReleaseYear}
-                onValueChange={(v) => {
-                  setSelectedReleaseYear(v);
-                  updateParams({ page: 1, year: v });
-                }}
-                options={releaseYearOptions(items)}
-                placeholder="Год выхода"
-              />
-
-              {/* Впечатление */}
-              <CustomSelect
-                label="Личная оценка"
-                value={selectedOpinion}
-                onValueChange={(v) => {
-                  setSelectedOpinion(v);
-                  updateParams({ page: 1, opinion: v });
-                }}
-                options={HOMEPAGE_FILTERS.opinions}
-                placeholder="Впечатление"
-              />
-
-              {/* Статус */}
-              <CustomSelect
-                label="Статус"
-                value={selectedStatus}
-                onValueChange={(v) => {
-                  setSelectedStatus(v);
-                  updateParams({ page: 1, status: v });
-                }}
-                options={HOMEPAGE_FILTERS.statuses}
-                placeholder="Статус"
-              />
-
-              {/* Рейтинг КП */}
-              <CustomSelect
-                label="Рейтинг КП/IMDB"
-                value={selectedRating}
-                onValueChange={(v) => {
-                  setSelectedRating(v);
-                  updateParams({ page: 1, rating: v });
-                }}
-                options={HOMEPAGE_FILTERS.ratings}
-                placeholder="Рейтинг КП"
-              />
-
-              {/* Год просмотра */}
-              <CustomSelect
-                label="Год просмотра"
-                value={selectedWatchYear}
-                onValueChange={(v) => {
-                  setSelectedWatchYear(v);
-                  updateParams({ page: 1, watchYear: v });
-                }}
-                options={watchYearOptions(items)}
-                placeholder="Год просмотра"
-              />
+              {hasActiveFilters && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mt-4"
+                >
+                  <Button
+                    onClick={resetFilters}
+                    size="sm"
+                    variant="outline"
+                    className="w-full rounded-xl dark:border-zinc-700 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/70"
+                  >
+                    <X size={12} />
+                    Сбросить фильтры
+                  </Button>
+                </motion.div>
+              )}
             </motion.div>
-
-            {/* Кнопка сброса фильтров */}
-            {hasActiveFilters && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                <Button onClick={resetFilters} size="sm" variant="outline">
-                  <X size={12} />
-                  Сбросить фильтры
-                </Button>
-              </motion.div>
-            )}
           </aside>
 
-          {/* Правая колонка с карточками */}
-          <div className="space-y-6 md:space-y-2">
-            {/* Сетка карточек */}
+          <div className="space-y-4">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.4 }}
-              className="space-y-1 md:flex md:gap-2 lg:justify-between"
+              transition={{ delay: 0.1, duration: 0.35 }}
+              className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-5"
             >
-              <h3 className="text-sm font-medium uppercase">
-                Результат поиска:
-              </h3>
-              <Badge className="text-xs font-medium sm:text-sm rounded-sm">
-                Найдено · {filteredItems.length}
-              </Badge>
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div className="space-y-1">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+                    Раздел записей
+                  </p>
+                  <h3 className="text-xl font-semibold sm:text-2xl">
+                    Результат поиска
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    Переключайте тип и фильтры, чтобы собрать точную подборку.
+                  </p>
+                </div>
+
+                <Tabs value={activeType} onValueChange={handleTypeChange}>
+                  <TabsList className="h-auto w-full flex-wrap justify-start gap-1 rounded-xl bg-muted/70 p-1 dark:bg-zinc-900/80 dark:ring-1 dark:ring-zinc-800 lg:w-auto lg:justify-end">
+                    {HOMEPAGE_FILTERS.types.map((tab) => (
+                      <TabsTrigger
+                        key={tab.value}
+                        value={tab.value}
+                        className="rounded-lg px-3 text-xs dark:text-zinc-300 dark:data-[state=active]:bg-zinc-100 dark:data-[state=active]:text-zinc-900 dark:data-[state=active]:shadow-none sm:text-sm"
+                      >
+                        {tab.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <Badge className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white sm:text-sm dark:bg-zinc-100 dark:text-zinc-900">
+                  Найдено: {filteredItems.length}
+                </Badge>
+                <Badge
+                  variant="secondary"
+                  className="rounded-full px-3 py-1 text-xs font-medium dark:bg-zinc-800 dark:text-zinc-100"
+                >
+                  На странице: {paginatedItems.length}
+                </Badge>
+                {activeFilterChips.map((chip) => (
+                  <Badge
+                    key={chip.key}
+                    variant="outline"
+                    className="rounded-full border-zinc-300/90 bg-white/80 px-3 py-1 text-[11px] font-medium dark:border-zinc-700 dark:bg-zinc-900/70 dark:text-zinc-200"
+                  >
+                    {chip.label}: {chip.value}
+                  </Badge>
+                ))}
+              </div>
             </motion.div>
 
-            {/* Сетка карточек */}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {paginatedItems.length > 0 ? (
                 paginatedItems.map((item, index) => (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03, duration: 0.4 }}
+                    transition={{ delay: index * 0.02, duration: 0.35 }}
                   >
                     <MovieCard item={item} priority={index < 8} />
                   </motion.div>
@@ -487,7 +713,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="col-span-full py-20 text-center"
+                  className="col-span-full rounded-2xl border border-dashed border-zinc-300/70 bg-white/70 py-20 text-center dark:border-zinc-800 dark:bg-zinc-950/65"
                 >
                   <div className="text-muted-foreground">
                     {hasActiveFilters
@@ -498,16 +724,17 @@ const HomePageClient: FC<{ items: Title[] }> = ({
               )}
             </div>
 
-            {/* Пагинация (нижняя) */}
             {filteredItems.length > pageSize && (
-              <PaginationControls
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                pageSize={pageSize}
-                onPageSizeChange={handlePageSizeChange}
-                scrollToTop
-              />
+              <div className="rounded-2xl border border-zinc-200/80 bg-card/90 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-4">
+                <PaginationControls
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  pageSize={pageSize}
+                  onPageSizeChange={handlePageSizeChange}
+                  scrollToTop
+                />
+              </div>
             )}
           </div>
         </div>
