@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, JSX, useMemo, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+
 import { Search, X } from 'lucide-react';
 
 import { Badge, Input } from '@/components/ui';
@@ -52,12 +52,7 @@ const BlogPageClient: FC<{ posts: Post[] }> = ({
     <section className="px-4 py-8 border-t">
       <div className="container mx-auto">
         {/* Поиск */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mb-8"
-        >
+        <div className="mb-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             {/* Left side: Title + Count */}
             <div className="space-y-1">
@@ -95,20 +90,15 @@ const BlogPageClient: FC<{ posts: Post[] }> = ({
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Грид карточек постов */}
         {paginatedPosts.length > 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5"
-          >
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5">
             {paginatedPosts.map((post: Post) => (
               <PostCard key={post.id} post={post} />
             ))}
-          </motion.div>
+          </div>
         ) : (
           <div className="py-20 text-center">
             <p className="text-muted-foreground text-lg">

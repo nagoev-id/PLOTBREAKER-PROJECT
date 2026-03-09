@@ -1,7 +1,6 @@
 'use client';
 
 import { FC, JSX, useCallback, useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import type { Title } from '@/payload-types';
 
 import { searchMedia } from '@/features/search/actions';
@@ -77,38 +76,29 @@ export const SearchModal: FC<SearchModalProps> = ({
   if (!isSearchOpen) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-100 flex items-start justify-center bg-black/60 backdrop-blur-sm sm:items-center"
-        onClick={handleClose}
+    <div
+      className="fixed inset-0 z-100 flex items-start justify-center bg-black/60 backdrop-blur-sm sm:items-center"
+      onClick={handleClose}
+    >
+      <div
+        className="h-full w-full sm:mt-20 sm:h-auto sm:max-w-2xl sm:px-4"
+        onClick={(e) => e.stopPropagation()}
       >
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ delay: 0.1 }}
-          className="h-full w-full sm:mt-20 sm:h-auto sm:max-w-2xl sm:px-4"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="bg-background sm:border-border flex h-full flex-col overflow-hidden rounded-none border-0 shadow-2xl sm:rounded-lg sm:border">
-            <SearchForm
-              query={query}
-              onQueryChange={setQuery}
-              isLoading={isLoading}
-              onClose={handleClose}
-            />
-            <SearchResults
-              results={results}
-              query={query}
-              isLoading={isLoading}
-              onClose={handleClose}
-            />
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        <div className="bg-background sm:border-border flex h-full flex-col overflow-hidden rounded-none border-0 shadow-2xl sm:rounded-lg sm:border">
+          <SearchForm
+            query={query}
+            onQueryChange={setQuery}
+            isLoading={isLoading}
+            onClose={handleClose}
+          />
+          <SearchResults
+            results={results}
+            query={query}
+            isLoading={isLoading}
+            onClose={handleClose}
+          />
+        </div>
+      </div>
+    </div>
   );
 };

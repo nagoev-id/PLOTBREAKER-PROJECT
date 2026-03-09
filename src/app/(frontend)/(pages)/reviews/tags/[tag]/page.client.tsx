@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, JSX, useMemo, useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
+
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Film, Search, X, Tag } from 'lucide-react';
 
@@ -220,11 +220,7 @@ export const TagPageClient: FC<TagPageClientProps> = ({
         </button>
 
         {/* Заголовок */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
+        <div>
           <div className="flex items-center gap-2 mb-1">
             <Tag size={20} className="text-muted-foreground" />
             <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -240,7 +236,7 @@ export const TagPageClient: FC<TagPageClientProps> = ({
                 : 'записей'}{' '}
             с тегом «{originalTag}»
           </p>
-        </motion.div>
+        </div>
       </div>
 
       {/* Фильтры */}
@@ -295,14 +291,9 @@ export const TagPageClient: FC<TagPageClientProps> = ({
       {paginatedItems.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {paginatedItems.map((item, index) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.03, duration: 0.4 }}
-            >
+            <div key={item.id}>
               <MovieCard item={item} />
-            </motion.div>
+            </div>
           ))}
         </div>
       ) : (

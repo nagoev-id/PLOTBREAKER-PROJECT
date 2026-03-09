@@ -4,11 +4,10 @@ import { FC, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Globe, Lock, Tag } from 'lucide-react';
-import { motion } from 'framer-motion';
+
 import { Button } from '@/components/ui';
 import { CollectionFormDialog } from '@/components/shared/dashboard/CollectionFormDialog';
 import { DeleteConfirmDialog } from '@/components/shared/dashboard/DeleteConfirmDialog';
-import { ANIMATIONS } from '@/lib/constants';
 import { useDelete } from '@/hooks/useDelete';
 import type { List as Collection } from '@/payload-types';
 
@@ -107,12 +106,7 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
 
       {/* Таблица */}
       {collections.length > 0 ? (
-        <motion.div
-          variants={ANIMATIONS.containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="overflow-hidden rounded-lg border"
-        >
+        <div className="overflow-hidden rounded-lg border">
           <table className="w-full">
             <thead>
               <tr className="border-b bg-muted/50">
@@ -132,9 +126,8 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
             </thead>
             <tbody>
               {collections.map((collection) => (
-                <motion.tr
+                <tr
                   key={collection.id}
-                  variants={ANIMATIONS.itemVariants}
                   className="border-b transition-colors hover:bg-muted/30"
                 >
                   <td className="px-4 py-3">
@@ -194,11 +187,11 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
                       />
                     </div>
                   </td>
-                </motion.tr>
+                </tr>
               ))}
             </tbody>
           </table>
-        </motion.div>
+        </div>
       ) : (
         <div className="rounded-lg border border-dashed py-12 text-center">
           <p className="text-muted-foreground">Списков пока нет</p>

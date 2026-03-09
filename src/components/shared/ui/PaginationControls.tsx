@@ -1,7 +1,7 @@
 'use client';
 
 import React, { FC } from 'react';
-import { motion } from 'framer-motion';
+
 import {
   Pagination,
   PaginationContent,
@@ -84,12 +84,7 @@ export const PaginationControls: FC<PaginationControlsProps> = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 0.3 }}
-      className="grid place-items-center gap-2 md:flex md:items-center md:justify-between"
-    >
+    <div className="grid place-items-center gap-2 md:flex md:items-center md:justify-between">
       {/* Селектор количества записей на странице */}
       {onPageSizeChange && pageSize != null && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground md:shrink-0">
@@ -171,6 +166,6 @@ export const PaginationControls: FC<PaginationControlsProps> = ({
           </PaginationContent>
         </Pagination>
       )}
-    </motion.div>
+    </div>
   );
 };

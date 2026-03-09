@@ -4,7 +4,7 @@ import { FC, JSX, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { ArrowLeft, Star, Minus, Plus, Type } from 'lucide-react';
 import {
   Badge,
@@ -123,12 +123,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
         <div className="container relative mx-auto px-4 py-8">
           {/* Кнопка «Назад» */}
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mb-6"
-          >
+          <div className="mb-6">
             <Button
               onClick={() => router.back()}
               variant="ghost"
@@ -138,15 +133,10 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               <ArrowLeft size={16} />
               Назад
             </Button>
-          </motion.div>
+          </div>
 
           {/* Заголовок + Постер */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="grid gap-4"
-          >
+          <div className="grid gap-4">
             {/* <div className="flex items-start gap-4"> */}
             <div className="grid gap-2 md:gap-4 md:grid-cols-[200px_1fr]">
               {/* Миниатюра постера */}
@@ -305,7 +295,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 </SidebarSection>
               )}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -320,12 +310,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
       {/* Контент: Обзор + Сайдбар */}
       <section className="container mx-auto px-4 pb-8">
         {/* Левая колонка — обзор */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="min-w-0 pt-8"
-        >
+        <div className="min-w-0 pt-8">
           {item.review && (
             <RichText
               content={item.review}
@@ -392,42 +377,34 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 </Accordion>
               </div>
             )}
-        </motion.div>
+        </div>
       </section>
 
       {/* Плавающая кнопка размера шрифта */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
-        <AnimatePresence>
-          {showFontControls && (
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.9 }}
-              transition={{ duration: 0.2 }}
-              className="flex items-center gap-1 rounded-full border bg-background/95 backdrop-blur-sm px-2 py-1.5 shadow-lg"
+        {showFontControls && (
+          <div className="flex items-center gap-1 rounded-full border bg-background/95 backdrop-blur-sm px-2 py-1.5 shadow-lg">
+            <button
+              onClick={() => changeFontSize(-1)}
+              disabled={sizeIndex <= 0}
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:opacity-30 cursor-pointer"
+              title="Уменьшить шрифт"
             >
-              <button
-                onClick={() => changeFontSize(-1)}
-                disabled={sizeIndex <= 0}
-                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:opacity-30 cursor-pointer"
-                title="Уменьшить шрифт"
-              >
-                <Minus size={14} />
-              </button>
-              <span className="min-w-[36px] text-center text-xs font-medium tabular-nums">
-                {PROSE_SIZES[sizeIndex].label}
-              </span>
-              <button
-                onClick={() => changeFontSize(1)}
-                disabled={sizeIndex >= PROSE_SIZES.length - 1}
-                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:opacity-30 cursor-pointer"
-                title="Увеличить шрифт"
-              >
-                <Plus size={14} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <Minus size={14} />
+            </button>
+            <span className="min-w-[36px] text-center text-xs font-medium tabular-nums">
+              {PROSE_SIZES[sizeIndex].label}
+            </span>
+            <button
+              onClick={() => changeFontSize(1)}
+              disabled={sizeIndex >= PROSE_SIZES.length - 1}
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:opacity-30 cursor-pointer"
+              title="Увеличить шрифт"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+        )}
 
         <button
           onClick={() => setShowFontControls((prev) => !prev)}

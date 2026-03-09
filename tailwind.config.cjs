@@ -10,6 +10,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['var(--font-euclid)', 'system-ui', 'sans-serif'],
+        unbounded: ['var(--font-unbounded)', 'sans-serif'],
       },
       colors: {
         slate: require('tailwindcss/colors').neutral,
@@ -17,4 +18,4 @@ module.exports = {
     },
   },
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
-}
+};

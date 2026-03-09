@@ -6,7 +6,7 @@ import { getAuthUser } from '@/lib/helpers';
 import { User } from '@/payload-types';
 import { METADATA } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { euclid } from '@/lib/fonts';
+import { euclid, unbounded } from '@/lib/fonts';
 import { Header, Footer } from '@/payload/globals';
 import { Preloader } from '@/components/shared';
 import { ThemeProvider, AuthProvider } from '@/components/context';
@@ -70,6 +70,7 @@ const RootLayout = async ({
       <body
         className={cn(
           euclid.variable,
+          unbounded.variable,
           'flex min-h-full w-full flex-auto flex-col antialiased font-sans'
         )}
         suppressHydrationWarning

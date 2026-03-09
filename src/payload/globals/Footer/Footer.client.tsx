@@ -61,12 +61,15 @@ export const FooterClient: FC<FooterClientProps> = ({ data }) => {
   const watermarkText = 'ПРОСМОТРЕНО';
 
   return (
-    <footer className="relative w-full overflow-hidden border-t border-border/80 bg-background px-4 py-16 md:px-8 md:py-20">
-      <div className="mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-10 text-sm text-muted-foreground md:flex-row md:gap-8">
-        <div className="space-y-4">
+    <footer className="relative w-full overflow-hidden bg-background px-4 py-16 md:px-8 md:py-20">
+      <div
+        className="mx-auto  max-w-[1440px] w-full gap-10 text-sm text-muted-foreground  md:gap-8 grid place-items-center lg:flex lg:justify-between
+      "
+      >
+        <div className="space-y-2 grid place-items-center lg:place-items-start  mx-auto md:mx-0">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 transition-opacity hover:opacity-80"
+            className="grid place-items-center lg:place-items-start lg:text-left gap-2 transition-opacity hover:opacity-80"
             aria-label="Переход на главную страницу"
           >
             {logoIcon ? (
@@ -80,12 +83,13 @@ export const FooterClient: FC<FooterClientProps> = ({ data }) => {
               {logoText}
             </span>
           </Link>
-          <p className="max-w-md text-sm leading-relaxed">
-            © {currentYear}. Все права защищены.
-          </p>
+          <div className="max-w-md text-sm leading-relaxed flex items-center gap-2">
+            <p>© {currentYear}. Все права защищены.</p>
+            <ThemeToggle />
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 mx-auto md:mx-0">
           {footerColumns.map((column) => (
             <div key={column.title} className="space-y-3">
               <p className="text-xs font-bold tracking-[0.12em] text-foreground uppercase">
@@ -110,7 +114,7 @@ export const FooterClient: FC<FooterClientProps> = ({ data }) => {
 
       <p
         className={cn(
-          'mt-12 select-none bg-gradient-to-b from-zinc-200 via-zinc-300 to-zinc-50 bg-clip-text text-center text-5xl font-bold tracking-tight text-transparent sm:text-6xl md:mt-16 md:text-8xl lg:text-[10rem] xl:text-[12rem]',
+          'mt-12 select-none bg-linear-to-b from-zinc-200 via-zinc-300 to-zinc-50 bg-clip-text text-center text-5xl font-bold tracking-tight text-transparent sm:text-6xl md:mt-16 md:text-[5rem] lg:text-[8rem] xl:text-[10rem]',
           'dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-950'
         )}
       >

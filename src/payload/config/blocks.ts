@@ -208,5 +208,15 @@ export const HERO_BLOCK = {
         }),
       ],
     },
+    {
+      name: 'backgroundVideo',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Фоновое видео',
+      admin: {
+        description:
+          'Загрузите видео (mp4) для фона Hero-секции. Если не указано — стандартный фон.',
+      },
+    },
   ],
 } as unknown as Block;

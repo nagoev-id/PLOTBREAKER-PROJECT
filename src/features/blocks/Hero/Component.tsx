@@ -2,9 +2,7 @@
 
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import type { Page } from '@/payload-types';
-import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
-import { ANIMATIONS } from '@/lib/constants';
 import { CMSLink } from '@/components/shared';
 import { BLOCK_SLUGS } from '@/payload/config/blocks';
 
@@ -93,16 +91,13 @@ export const HeroBlock: FC<HeroBlockProps> = ({
   }, [hasVideoBg, isHeroInView]);
 
   return (
-    <motion.section
+    <section
       ref={sectionRef}
-      initial="hidden"
-      animate="visible"
-      variants={ANIMATIONS.containerVariants}
       onClick={toggleMute}
       className={`relative grid place-items-center overflow-hidden px-6 text-center ${
         fullHeight
-          ? 'min-h-[calc(100svh-4rem)] py-10 md:py-12 xl:py-18'
-          : 'space-y-6 bg-foreground/2 py-4 md:py-8 xl:space-y-10 xl:py-18'
+          ? 'min-h-svh py-10 md:py-12 xl:py-18'
+          : 'space-y-6 bg-foreground/2 py-4 md:py-8 pt-16 xl:space-y-10 xl:py-18 xl:pt-28'
       }`}
     >
       {hasVideoBg && (
@@ -133,12 +128,9 @@ export const HeroBlock: FC<HeroBlockProps> = ({
            * Заголовок H1 — виден поисковым роботам и скринридерам.
            * Анимируется через `ANIMATIONS.itemVariants` (fade + slide up).
            */
-          <motion.h1
-            variants={ANIMATIONS.itemVariants}
-            className="text-3xl leading-[1.08] font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
-          >
+          <h1 className="text-3xl leading-[1.08] font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
             {heroTitle}
-          </motion.h1>
+          </h1>
         )}
 
         {heroText && (
@@ -146,14 +138,13 @@ export const HeroBlock: FC<HeroBlockProps> = ({
            * Описательный параграф под заголовком.
            * Ограничен по ширине (`max-w-2xl`) для читаемости.
            */
-          <motion.p
-            variants={ANIMATIONS.itemVariants}
+          <p
             className={`mx-auto max-w-2xl text-base leading-relaxed md:text-lg ${
               hasVideoBg ? 'text-white/80' : 'text-muted-foreground'
             }`}
           >
             {heroText}
-          </motion.p>
+          </p>
         )}
 
         {Array.isArray(links) && links.length > 0 && (
@@ -162,10 +153,7 @@ export const HeroBlock: FC<HeroBlockProps> = ({
            * Рендерится только при наличии хотя бы одной ссылки.
            * Использует `flex-wrap` для корректного отображения на мобильных.
            */
-          <motion.div
-            variants={ANIMATIONS.itemVariants}
-            className="flex flex-wrap items-center justify-center gap-4 pt-4"
-          >
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             {links.map(({ link }, i) => {
               const isOutline = link.appearance === 'outline';
               const heroButtonClass = hasVideoBg
@@ -180,7 +168,7 @@ export const HeroBlock: FC<HeroBlockProps> = ({
 
               return <CMSLink key={i} {...link} className={heroButtonClass} />;
             })}
-          </motion.div>
+          </div>
         )}
       </div>
 
@@ -199,6 +187,6 @@ export const HeroBlock: FC<HeroBlockProps> = ({
           {isMuted ? 'Звук выкл' : 'Звук вкл'}
         </button>
       )}
-    </motion.section>
+    </section>
   );
 };

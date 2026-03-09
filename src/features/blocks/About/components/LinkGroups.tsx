@@ -1,7 +1,4 @@
 import { FC, JSX } from 'react';
-import { motion } from 'framer-motion';
-
-import { ANIMATIONS } from '@/lib/constants';
 import { AboutBlockProps } from '@/features/blocks/About/Component';
 import { CMSLink } from '@/components/shared';
 
@@ -17,19 +14,9 @@ type Props = {
 
 export const LinkGroups: FC<Props> = ({ items }): JSX.Element => {
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-100px' }}
-      variants={ANIMATIONS.containerVariants}
-      className="grid gap-10 md:grid-cols-2 lg:grid-cols-3"
-    >
+    <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
       {items?.map((column: UsefulLinksColumn) => (
-        <motion.div
-          key={column.id}
-          variants={ANIMATIONS.itemVariants}
-          className="flex flex-col space-y-6"
-        >
+        <div key={column.id} className="flex flex-col space-y-6">
           <h3 className="text-xl font-bold tracking-tight">{column.title}</h3>
           <div className="flex flex-col space-y-4">
             {column.links?.map((linkItem: UsefulLinksItem) => (
@@ -52,8 +39,8 @@ export const LinkGroups: FC<Props> = ({ items }): JSX.Element => {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       ))}
-    </motion.div>
+    </div>
   );
 };

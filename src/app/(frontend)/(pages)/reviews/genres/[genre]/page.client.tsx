@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, JSX, useMemo, useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
+
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Film, Search, X } from 'lucide-react';
@@ -210,11 +210,7 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
         </Link>
 
         {/* Заголовок */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
+        <div>
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
             {label}
           </h1>
@@ -227,7 +223,7 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
                 : 'записей'}{' '}
             в жанре «{label}»
           </p>
-        </motion.div>
+        </div>
       </div>
 
       {/* Фильтры */}
@@ -282,14 +278,9 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
       {paginatedItems.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {paginatedItems.map((item, index) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.03, duration: 0.4 }}
-            >
+            <div key={item.id}>
               <MovieCard item={item} />
-            </motion.div>
+            </div>
           ))}
         </div>
       ) : (

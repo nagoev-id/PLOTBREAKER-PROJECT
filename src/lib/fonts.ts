@@ -1,4 +1,5 @@
 import localFont from 'next/font/local';
+import { Unbounded } from 'next/font/google';
 
 /**
  * Конфигурация локального шрифта Euclid Circular B.
@@ -35,4 +36,11 @@ export const euclid = localFont({
   ],
   display: 'swap',
   variable: '--font-euclid',
+});
+
+export const unbounded = Unbounded({
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  variable: '--font-unbounded',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
 });

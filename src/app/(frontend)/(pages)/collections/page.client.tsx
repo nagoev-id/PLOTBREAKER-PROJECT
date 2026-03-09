@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, JSX, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
 
 import { FILTERS_COLLECTIONS } from '@/lib/constants';
@@ -44,17 +44,11 @@ const CollectionsPageClient: FC<{ collections: List[] }> = ({
 
   return (
     <section className="border-t">
-      <div className="container mx-auto space-y-6 px-4 py-6">
+      <div className="space-y-6 px-4 py-6">
         {/* Фильтры */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="grid place-items-center"
-        >
+        <div className="grid place-items-center lg:flex w-full">
           {/* Заголовок */}
-          <div className="grid place-items-center gap-2 ">
-            <h3 className="text-2xl font-bold">Список коллекции</h3>
+          <div className="grid place-items-center gap-2 lg:flex lg:items-center lg:justify-between w-full">
             <div className="text-muted-foreground text-sm">
               Найдено списков:{' '}
               <span className="font-bold text-foreground">
@@ -84,10 +78,10 @@ const CollectionsPageClient: FC<{ collections: List[] }> = ({
               ))}
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Сетка карточек */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredLists.length > 0 ? (
             filteredLists.map((list) => (
               <CollectionCard key={list.id} list={list} />

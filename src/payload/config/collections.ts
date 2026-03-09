@@ -28,6 +28,7 @@ import { ABOUT_BLOCK, HERO_BLOCK } from '@/payload/config/blocks';
 
 export const MIME_TYPES = [
   'image/*',
+  'video/*',
   'application/pdf',
   'application/zip',
   'application/msword',

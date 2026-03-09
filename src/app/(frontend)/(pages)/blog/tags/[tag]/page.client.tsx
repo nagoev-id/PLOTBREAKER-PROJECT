@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, JSX, useMemo, useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
+
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, FileText, Search, X, Tag } from 'lucide-react';
 
@@ -172,11 +172,7 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
         </button>
 
         {/* Заголовок */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
+        <div>
           <div className="flex items-center gap-2 mb-1">
             <Tag size={20} className="text-muted-foreground" />
             <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -192,7 +188,7 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
                 : 'статей'}{' '}
             с тегом «{tagLabel}»
           </p>
-        </motion.div>
+        </div>
       </div>
 
       {/* Поиск */}
@@ -228,14 +224,9 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
       {paginatedPosts.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5">
           {paginatedPosts.map((post: Post, index: number) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.03, duration: 0.4 }}
-            >
+            <div key={post.id}>
               <PostCard post={post} />
-            </motion.div>
+            </div>
           ))}
         </div>
       ) : (

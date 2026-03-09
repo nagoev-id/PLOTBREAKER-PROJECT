@@ -42,19 +42,19 @@ const TYPE_META: Record<
   film: {
     label: 'Фильм',
     Icon: Film,
-    className: 'bg-sky-500/90 text-white',
+    className: 'border border-sky-500/35 bg-sky-500/12 text-sky-300',
     placeholderGradient: 'from-sky-700 to-sky-950',
   },
   series: {
     label: 'Сериал',
     Icon: Tv2,
-    className: 'bg-violet-500/90 text-white',
+    className: 'border border-violet-500/35 bg-violet-500/12 text-violet-300',
     placeholderGradient: 'from-violet-700 to-violet-950',
   },
   cartoon: {
     label: 'Мультфильм',
     Icon: Clapperboard,
-    className: 'bg-rose-500/90 text-white',
+    className: 'border border-rose-500/35 bg-rose-500/12 text-rose-300',
     placeholderGradient: 'from-rose-700 to-rose-950',
   },
 };
@@ -95,12 +95,12 @@ export const MovieCard: FC<Props> = ({
         ? 'Брошено'
         : opinionConfig?.label;
   const statusClassName = isPlanned
-    ? 'bg-sky-500/90 text-white'
+    ? 'border border-sky-500/35 bg-sky-500/12 text-sky-200'
     : item.status === 'watching'
-      ? 'bg-emerald-500/90 text-white'
+      ? 'border border-emerald-500/35 bg-emerald-500/12 text-emerald-200'
       : item.status === 'abandoned'
-        ? 'bg-zinc-700/90 text-white'
-        : 'bg-black/70 text-white';
+        ? 'border border-zinc-500/45 bg-zinc-500/12 text-zinc-200'
+        : 'border border-border/75 bg-background/75 text-foreground/90';
   const statusIconClassName =
     isPlanned || item.status === 'watching' || item.status === 'abandoned'
       ? 'text-white'
@@ -132,9 +132,14 @@ export const MovieCard: FC<Props> = ({
 
   return (
     <div className="relative h-full">
-      <Card className="group/card flex h-full flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-zinc-500/30 hover:shadow-xl">
+      <Card className="group/card relative flex h-full flex-col overflow-hidden rounded-none border border-border bg-background/30 shadow-none transition-all duration-300 hover:border-foreground/30 hover:bg-background/60">
+        <div className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
+          <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-foreground/[0.04] to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-foreground/[0.06] to-transparent" />
+        </div>
+
         {/* Постер с overlay-бейджами */}
-        <div className="relative aspect-2/3 w-full overflow-hidden bg-zinc-200 dark:bg-zinc-900">
+        <div className="relative z-20 aspect-2/3 w-full overflow-hidden border-b border-border/70 bg-zinc-200 dark:bg-zinc-900">
           {user && (
             <AdminActions
               editUrl={`/admin/collections/titles/${item.id}`}
@@ -159,12 +164,12 @@ export const MovieCard: FC<Props> = ({
                     fill
                     priority={priority}
                     className={cn(
-                      'object-cover transition-transform duration-500 group-hover/card:scale-105',
+                      'object-cover transition-transform duration-500 group-hover/card:scale-[1.03]',
                       isPlanned && 'grayscale-[0.35] saturate-[0.85]'
                     )}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent opacity-85 transition-opacity duration-300 group-hover/card:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent opacity-85 transition-opacity duration-300 group-hover/card:opacity-95" />
                 </>
               ) : (
                 <div
@@ -189,7 +194,7 @@ export const MovieCard: FC<Props> = ({
 
           <div className="absolute top-2 right-2 z-20 flex flex-col items-end gap-1.5">
             {item.kpRating && (
-              <div className="inline-flex items-center gap-1 rounded-full border border-black/30 bg-black/70 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur">
+              <div className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/75 px-2 py-1 text-[11px] font-semibold text-foreground backdrop-blur">
                 <Star size={10} className="fill-amber-400 text-amber-400" />
                 {item.kpRating.toFixed(1)}
               </div>
@@ -211,7 +216,7 @@ export const MovieCard: FC<Props> = ({
           <div className="absolute bottom-2 left-2 z-20">
             <div
               className={cn(
-                'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold tracking-[0.04em]',
+                'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold tracking-[0.04em] uppercase',
                 typeMeta.className
               )}
             >
@@ -222,11 +227,11 @@ export const MovieCard: FC<Props> = ({
         </div>
 
         {/* Контент карточки */}
-        <div className="flex flex-1 flex-col gap-2.5 p-3">
+        <div className="relative z-20 flex flex-1 flex-col gap-3 p-4">
           {reviewHref ? (
             <Link href={reviewHref} className="flex flex-col gap-1">
               {/* Заголовок */}
-              <h3 className="line-clamp-2 text-sm font-semibold leading-tight md:text-base">
+              <h3 className="line-clamp-2 text-sm font-semibold leading-tight tracking-tight md:text-base">
                 {item.title}
               </h3>
 
@@ -251,7 +256,7 @@ export const MovieCard: FC<Props> = ({
           )}
 
           {item.director && (
-            <p className="text-muted-foreground line-clamp-1 text-xs">
+            <p className="text-muted-foreground/90 line-clamp-1 text-xs">
               Реж. {item.director}
             </p>
           )}
@@ -267,7 +272,7 @@ export const MovieCard: FC<Props> = ({
                 >
                   <Badge
                     variant="secondary"
-                    className="rounded-full border border-zinc-300/70 bg-zinc-100 px-2 py-0 text-[10px] font-medium text-zinc-700 transition-colors hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                    className="rounded-full border border-border/70 bg-background/45 px-2 py-0 text-[10px] font-medium text-foreground/85 transition-colors hover:bg-background/70"
                   >
                     {getGenreLabel(genre)}
                   </Badge>
@@ -277,7 +282,7 @@ export const MovieCard: FC<Props> = ({
           )}
 
           {/* Метаданные — прижаты к низу */}
-          <div className="mt-auto flex items-center gap-3 pt-1 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="mt-auto flex items-center gap-3 pt-2 text-xs text-muted-foreground">
             {item.releaseYear && (
               <span className="flex items-center gap-1">
                 <Calendar size={12} className="opacity-65" />
@@ -291,6 +296,12 @@ export const MovieCard: FC<Props> = ({
               </span>
             )}
           </div>
+
+          {/* {reviewHref && (
+            <div className="pt-1 text-xs text-muted-foreground transition-colors group-hover/card:text-foreground/85">
+              Открыть рецензию
+            </div>
+          )} */}
         </div>
       </Card>
     </div>

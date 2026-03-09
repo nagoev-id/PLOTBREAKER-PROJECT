@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { motion } from 'framer-motion';
+
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Badge,
@@ -447,12 +447,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
     <section className="relative border-t border-border/60 bg-gradient-to-b from-white via-zinc-50/55 to-white pb-10 pt-8 dark:from-zinc-950 dark:via-zinc-950 dark:to-black lg:pb-14">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.14),transparent_55%),radial-gradient(circle_at_85%_15%,rgba(8,145,178,0.14),transparent_45%)] dark:bg-[radial-gradient(circle_at_top,rgba(244,114,182,0.18),transparent_52%),radial-gradient(circle_at_90%_10%,rgba(56,189,248,0.2),transparent_45%)]" />
       <div className="container mx-auto space-y-5 px-2 sm:px-4 lg:space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="relative overflow-hidden rounded-3xl border border-zinc-900/10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800 p-5 text-white shadow-xl shadow-zinc-900/20 dark:border-zinc-700/60 dark:from-zinc-900 dark:via-zinc-950 dark:to-black dark:shadow-black/55 sm:p-7"
-        >
+        <div className="relative overflow-hidden rounded-3xl border border-zinc-900/10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800 p-5 text-white shadow-xl shadow-zinc-900/20 dark:border-zinc-700/60 dark:from-zinc-900 dark:via-zinc-950 dark:to-black dark:shadow-black/55 sm:p-7">
           <div className="pointer-events-none absolute -top-16 right-8 h-40 w-40 rounded-full bg-amber-300/30 blur-3xl dark:bg-fuchsia-500/25" />
           <div className="pointer-events-none absolute -bottom-24 left-14 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl dark:bg-sky-500/25" />
           <div className="relative z-10 space-y-5">
@@ -508,16 +503,11 @@ const HomePageClient: FC<{ items: Title[] }> = ({
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(270px,0.3fr)_minmax(0,1fr)] xl:gap-5">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(270px,0.2fr)_minmax(0,1fr)] xl:gap-5">
           <aside className="xl:sticky xl:top-20 xl:h-fit">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05, duration: 0.35 }}
-              className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-5"
-            >
+            <div className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <h3 className="text-sm font-semibold tracking-wide uppercase">
@@ -621,11 +611,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
               </div>
 
               {hasActiveFilters && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.97 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mt-4"
-                >
+                <div className="mt-4">
                   <Button
                     onClick={resetFilters}
                     size="sm"
@@ -635,18 +621,13 @@ const HomePageClient: FC<{ items: Title[] }> = ({
                     <X size={12} />
                     Сбросить фильтры
                   </Button>
-                </motion.div>
+                </div>
               )}
-            </motion.div>
+            </div>
           </aside>
 
           <div className="space-y-4">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.35 }}
-              className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-5"
-            >
+            <div className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-5">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="space-y-1">
                   <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
@@ -695,32 +676,23 @@ const HomePageClient: FC<{ items: Title[] }> = ({
                   </Badge>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {paginatedItems.length > 0 ? (
                 paginatedItems.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.02, duration: 0.35 }}
-                  >
+                  <div key={item.id}>
                     <MovieCard item={item} priority={index < 8} />
-                  </motion.div>
+                  </div>
                 ))
               ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="col-span-full rounded-2xl border border-dashed border-zinc-300/70 bg-white/70 py-20 text-center dark:border-zinc-800 dark:bg-zinc-950/65"
-                >
+                <div className="col-span-full rounded-2xl border border-dashed border-zinc-300/70 bg-white/70 py-20 text-center dark:border-zinc-800 dark:bg-zinc-950/65">
                   <div className="text-muted-foreground">
                     {hasActiveFilters
                       ? 'По выбранным фильтрам ничего не найдено'
                       : 'Нет записей'}
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
 

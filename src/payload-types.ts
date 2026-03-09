@@ -292,6 +292,10 @@ export interface HeroBlock {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Загрузите видео (mp4) для фона Hero-секции. Если не указано — стандартный фон.
+   */
+  backgroundVideo?: (number | null) | Media;
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
@@ -1007,6 +1011,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  backgroundVideo?: T;
   id?: T;
   blockName?: T;
 }

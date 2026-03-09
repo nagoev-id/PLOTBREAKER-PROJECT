@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, JSX, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
+
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -107,12 +107,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
       </div>
 
       {/* Заголовок */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="space-y-4 container mx-auto px-2 sm:px-4"
-      >
+      <div className="space-y-4 container mx-auto px-2 sm:px-4">
         <div className="space-y-1">
           {/* Иконка */}
           <div
@@ -133,7 +128,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
                 : 'записей'}
           </Badge>
         </div>
-      </motion.div>
+      </div>
 
       <Separator />
 
@@ -156,26 +151,17 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
         {paginatedItems.length > 0 ? (
           paginatedItems.map((item: Title, index: number) => {
             return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.03, duration: 0.4 }}
-              >
+              <div key={item.id}>
                 <MovieCard item={item} priority={index < 10} />
-              </motion.div>
+              </div>
             );
           })
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="col-span-full py-20 text-center"
-          >
+          <div className="col-span-full py-20 text-center">
             <div className="text-muted-foreground">
               В этой коллекции пока нет записей
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
       {/* Пагинация */}

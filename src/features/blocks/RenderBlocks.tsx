@@ -1,7 +1,7 @@
 'use client';
 
 import React, { FC } from 'react';
-import type { Page } from '@/payload-types';
+import type { Page, Media } from '@/payload-types';
 import { HeroBlock } from '@/features/blocks/Hero/Component';
 import { AboutBlock } from '@/features/blocks/About/Component';
 
@@ -23,7 +23,17 @@ type RenderBlocksProps = {
    * - Если `undefined`, `null` или пустой массив — компонент ничего не рендерит.
    */
   blocks?: LayoutBlocks | null;
-  homeHeroVideo?: boolean;
+};
+
+/**
+ * Извлекает URL видео из поля `backgroundVideo` блока.
+ * Поле может быть числом (ID) или объектом Media с полем `url`.
+ */
+const getVideoUrl = (
+  backgroundVideo: number | Media | null | undefined
+): string | undefined => {
+  if (!backgroundVideo || typeof backgroundVideo === 'number') return undefined;
+  return backgroundVideo.url ?? undefined;
 };
 
 /**
@@ -37,22 +47,8 @@ type RenderBlocksProps = {
  * @param props - Пропсы компонента {@link RenderBlocksProps}
  * @param props.blocks - Массив блоков для рендера
  * @returns Фрагмент React с набором блок-компонентов или `null`
- *
- * @example
- * // Базовое использование на странице
- * const page = await getPageBySlug('home');
- *
- * return <RenderBlocks blocks={page.layout} />;
- *
- * @example
- * // Если blocks пустой или null — рендерится null
- * <RenderBlocks blocks={null} /> // → null
- * <RenderBlocks blocks={[]}  /> // → null
  */
-export const RenderBlocks: FC<RenderBlocksProps> = ({
-  blocks,
-  homeHeroVideo = false,
-}) => {
+export const RenderBlocks: FC<RenderBlocksProps> = ({ blocks }) => {
   if (!blocks || !Array.isArray(blocks) || blocks.length === 0) {
     return null;
   }
@@ -63,18 +59,23 @@ export const RenderBlocks: FC<RenderBlocksProps> = ({
         const { blockType } = block;
 
         switch (blockType) {
-          case 'hero':
+          case 'hero': {
+            const videoUrl = getVideoUrl(
+              'backgroundVideo' in block
+                ? (block.backgroundVideo as number | Media | null | undefined)
+                : undefined
+            );
+
             return (
               <HeroBlock
                 key={index}
                 {...block}
-                fullHeight={homeHeroVideo}
-                backgroundVideoSrc={
-                  homeHeroVideo ? '/video/video.mp4' : undefined
-                }
-                enableAudioToggle={homeHeroVideo}
+                fullHeight={Boolean(videoUrl)}
+                backgroundVideoSrc={videoUrl}
+                enableAudioToggle={Boolean(videoUrl)}
               />
             );
+          }
           case 'about':
             return <AboutBlock key={index} {...block} />;
           default:

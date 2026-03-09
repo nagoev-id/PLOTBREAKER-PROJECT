@@ -101,93 +101,95 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
 
   return (
     <>
-      <header
-        className={cn(
-          'sticky top-0 z-50 w-full border-b transition-all duration-300',
-          isScrolled
-            ? 'border-border/90 bg-background/96 shadow-[0_10px_30px_-22px_rgba(0,0,0,0.45)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/88'
-            : 'border-border/70 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/72'
-        )}
-        role="banner"
-      >
-        <div className="container mx-auto flex h-16 items-center gap-4 px-4">
-          {/* Логотип */}
-          <Link
-            href="/"
-            className="mr-auto flex items-center gap-2"
-            aria-label="На главную страницу"
-          >
-            {data.logo?.logoIcon ? (
-              <span
-                className="[&>svg]:h-8 [&>svg]:w-8 dark:[&>svg]:fill-white"
-                dangerouslySetInnerHTML={{ __html: data.logo.logoIcon }}
-                aria-hidden="true"
-              />
-            ) : data.logo?.logoText ? (
-              <span className="text-xl font-bold tracking-tight uppercase">
-                {data.logo.logoText}
-              </span>
-            ) : null}
-
-            {data.logo?.logoIcon && data.logo?.logoText && (
-              <span className="hidden text-sm font-bold tracking-tight uppercase sm:text-xl sm:block">
-                {data.logo.logoText}
-              </span>
+      <div className="fixed inset-x-0 top-3 z-50">
+        <div className="container mx-auto px-2 sm:px-4">
+          <header
+            className={cn(
+              'w-full rounded-2xl border transition-all duration-300',
+              'border-border/70 bg-background/88 shadow-[0_16px_38px_-24px_rgba(0,0,0,0.55)] backdrop-blur-2xl supports-[backdrop-filter]:bg-background/72'
             )}
-          </Link>
-
-          {/* Десктопное меню */}
-          <nav
-            className="text-muted-foreground hidden items-center gap-6 text-sm font-medium md:flex"
-            aria-label="Основная навигация"
+            role="banner"
           >
-            {renderedNavItems}
-            {user && (
-              <div className="flex items-center gap-2 border-l pl-4">
-                <Link
-                  href="/dashboard"
-                  className={`transition-colors hover:text-foreground ${
-                    pathname?.startsWith('/dashboard')
-                      ? 'text-foreground'
-                      : 'text-muted-foreground'
-                  }`}
-                  aria-label="Перейти в дэшборд"
-                >
-                  <LayoutDashboard size={18} />
-                </Link>
-                <Link
-                  href="/admin"
-                  aria-label="Перейти в панель управления"
-                  target="_blank"
+            <div className="flex h-16 items-center gap-4 px-4 sm:px-5 lg:px-6">
+              {/* Логотип */}
+              <Link
+                href="/"
+                className="mr-auto flex items-center gap-2"
+                aria-label="На главную страницу"
+              >
+                {data.logo?.logoIcon ? (
+                  <span
+                    className="[&>svg]:h-8 [&>svg]:w-8 dark:[&>svg]:fill-white"
+                    dangerouslySetInnerHTML={{ __html: data.logo.logoIcon }}
+                    aria-hidden="true"
+                  />
+                ) : data.logo?.logoText ? (
+                  <span className="text-xl font-bold tracking-tight uppercase">
+                    {data.logo.logoText}
+                  </span>
+                ) : null}
+
+                {data.logo?.logoIcon && data.logo?.logoText && (
+                  <span className="hidden text-sm font-bold tracking-tight uppercase sm:block sm:text-xl">
+                    {data.logo.logoText}
+                  </span>
+                )}
+              </Link>
+
+              {/* Десктопное меню */}
+              <nav
+                className="text-muted-foreground hidden items-center gap-6 text-sm font-medium md:flex"
+                aria-label="Основная навигация"
+              >
+                {renderedNavItems}
+                {user && (
+                  <div className="flex items-center gap-2 border-l border-border/70 pl-4">
+                    <Link
+                      href="/dashboard"
+                      className={`transition-colors hover:text-foreground ${
+                        pathname?.startsWith('/dashboard')
+                          ? 'text-foreground'
+                          : 'text-muted-foreground'
+                      }`}
+                      aria-label="Перейти в дэшборд"
+                    >
+                      <LayoutDashboard size={18} />
+                    </Link>
+                    <Link
+                      href="/admin"
+                      aria-label="Перейти в панель управления"
+                      target="_blank"
+                      className="hover:bg-accent rounded-full p-2 transition-colors"
+                    >
+                      <ShieldUser size={18} />
+                    </Link>
+                  </div>
+                )}
+              </nav>
+
+              <div className="flex items-center gap-2 md:gap-3">
+                <button
+                  onClick={toggleSearch}
                   className="hover:bg-accent rounded-full p-2 transition-colors"
+                  aria-label="Поиск по сайту"
+                  type="button"
                 >
-                  <ShieldUser size={18} />
-                </Link>
+                  <Search size={18} />
+                </button>
+                <button
+                  onClick={toggleMenu}
+                  className="hover:bg-accent relative z-50 rounded-full p-2 transition-colors md:hidden"
+                  aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+                  aria-expanded={isMenuOpen}
+                  type="button"
+                >
+                  {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
               </div>
-            )}
-          </nav>
-
-          <div className="flex items-center gap-2 md:gap-4">
-            <button
-              onClick={toggleSearch}
-              className="hover:bg-accent rounded-full p-2 transition-colors"
-              aria-label="Поиск по сайту"
-              type="button"
-            >
-              <Search size={18} />
-            </button>
-            <button
-              onClick={toggleMenu}
-              className="hover:bg-accent relative z-50 rounded-full p-2 transition-colors md:hidden"
-              aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
-              aria-expanded={isMenuOpen}
-              type="button"
-            >
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
+            </div>
+          </header>
         </div>
-      </header>
+      </div>
 
       {/* Мобильное меню */}
       <div

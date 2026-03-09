@@ -11,10 +11,10 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+
 import { Button, Input } from '@/components/ui';
 import { DeleteConfirmDialog } from '@/components/shared/dashboard/DeleteConfirmDialog';
-import { ANIMATIONS, TYPE_CONFIG } from '@/lib/constants';
+import { TYPE_CONFIG } from '@/lib/constants';
 import { useDelete } from '@/hooks/useDelete';
 import type { Title as MediaContent } from '@/payload-types';
 
@@ -129,12 +129,7 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
 
       {/* Таблица */}
       {entries.length > 0 ? (
-        <motion.div
-          variants={ANIMATIONS.containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="overflow-hidden rounded-lg border"
-        >
+        <div className="overflow-hidden rounded-lg border">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -162,9 +157,8 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
                     TYPE_CONFIG[entry.type || ''] || TYPE_CONFIG.film;
 
                   return (
-                    <motion.tr
+                    <tr
                       key={entry.id}
-                      variants={ANIMATIONS.itemVariants}
                       className="border-b transition-colors hover:bg-muted/30"
                     >
                       <td className="px-4 py-3">
@@ -215,13 +209,13 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
                           />
                         </div>
                       </td>
-                    </motion.tr>
+                    </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-        </motion.div>
+        </div>
       ) : (
         <div className="rounded-lg border border-dashed py-12 text-center">
           <p className="text-muted-foreground">
