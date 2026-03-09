@@ -77,7 +77,7 @@ const RootLayout = async ({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
           storageKey={METADATA.siteKey}

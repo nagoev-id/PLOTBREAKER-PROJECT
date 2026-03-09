@@ -58,6 +58,11 @@ const nextConfig = {
 
     return webpackConfig;
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
 };
 
 export default withPayload(nextConfig, { devBundleServerPackages: false });

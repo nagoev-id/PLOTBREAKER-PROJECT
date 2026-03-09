@@ -62,6 +62,13 @@ export default buildConfig({
   // Глобальные настройки
   globals: [GLOBAL_HEADER, GLOBAL_FOOTER],
 
+  // Настройки загрузки файлов
+  upload: {
+    limits: {
+      fileSize: 10000000, // 10MB
+    },
+  },
+
   // Редактор
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

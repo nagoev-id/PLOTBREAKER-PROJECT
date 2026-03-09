@@ -1,17 +1,24 @@
 'use client';
 
-import { FC, JSX, useEffect, useState } from 'react';
+import { FC, JSX, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { ArrowLeft, Star, Minus, Plus, Type } from 'lucide-react';
 import {
-  Badge,
+  ArrowLeft,
+  CalendarDays,
+  Minus,
+  Plus,
+  Star,
+  Type,
+} from 'lucide-react';
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Badge,
   Button,
 } from '@/components/ui';
 
@@ -30,7 +37,6 @@ import {
   RichText,
   SharedLink,
   SidebarSection,
-  SynopsisBlock,
 } from '@/components/shared';
 import { useDelete } from '@/hooks/useDelete';
 
@@ -91,6 +97,31 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
     : null;
   const OpinionIcon = opinionConfig?.icon;
   const typeConfig = TYPE_CONFIG[item.type];
+  const TypeIcon = typeConfig?.icon;
+
+  const directors = useMemo(
+    () =>
+      item.director
+        ?.split(',')
+        .map((director: string) => director.trim())
+        .filter(Boolean) ?? [],
+    [item.director]
+  );
+
+  const visualTags = useMemo(
+    () =>
+      typeof item.visualTags === 'string'
+        ? item.visualTags
+            .split(',')
+            .map((tag: string) => tag.trim())
+            .filter(Boolean)
+        : [],
+    [item.visualTags]
+  );
+
+  const hasSeasonBreakdown =
+    (item.type === 'series' || item.type === 'cartoon') &&
+    Boolean(item.seasons?.length);
 
   /**
    * Обработчик удаления фильма
@@ -104,8 +135,10 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
   };
 
   return (
-    <article>
-      <section className="relative overflow-hidden border-b">
+    <article className="relative border-t border-border/60 bg-gradient-to-b from-white via-zinc-50/55 to-white dark:from-zinc-950 dark:via-zinc-950 dark:to-black">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.15),transparent_55%),radial-gradient(circle_at_85%_15%,rgba(8,145,178,0.16),transparent_45%)] dark:bg-[radial-gradient(circle_at_top,rgba(244,114,182,0.18),transparent_52%),radial-gradient(circle_at_90%_10%,rgba(56,189,248,0.2),transparent_45%)]" />
+
+      <section className="relative overflow-hidden border-b border-border/60">
         {/* Фоновый постер (размытый) */}
         {posterSrc && (
           <div className="absolute inset-0">
@@ -113,187 +146,158 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               src={posterSrc}
               alt={item.title}
               fill
-              className="object-cover blur-xl scale-110"
+              className="scale-110 object-cover opacity-35 blur-xl"
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-linear-to-b from-background/80 via-background/80 to-background" />
+            <div className="absolute inset-0 bg-linear-to-b from-background/70 via-background/85 to-background" />
           </div>
         )}
 
-        <div className="container relative mx-auto px-4 py-8">
+        <div className="container relative mx-auto px-4 py-8 lg:py-10">
           {/* Кнопка «Назад» */}
           <div className="mb-6">
             <Button
               onClick={() => router.back()}
               variant="ghost"
               size="sm"
-              className="inline-flex items-center gap-2 text-sm transition-colors cursor-pointer"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border/60 bg-background/70 text-sm shadow-sm backdrop-blur-sm transition-colors hover:bg-muted/70"
             >
               <ArrowLeft size={16} />
               Назад
             </Button>
           </div>
 
-          {/* Заголовок + Постер */}
-          <div className="grid gap-4">
-            {/* <div className="flex items-start gap-4"> */}
-            <div className="grid gap-2 md:gap-4 md:grid-cols-[200px_1fr]">
+          <div className="relative overflow-hidden rounded-3xl border border-zinc-200/70 bg-card/95 p-4 shadow-xl shadow-zinc-900/10 backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/70 dark:bg-zinc-950/80 dark:shadow-black/35 sm:p-6 lg:p-8">
+            <div className="pointer-events-none absolute -right-16 -bottom-24 h-56 w-56 rounded-full bg-amber-300/20 blur-3xl dark:bg-fuchsia-500/20" />
+            <div className="pointer-events-none absolute -left-12 -top-16 h-48 w-48 rounded-full bg-cyan-300/15 blur-3xl dark:bg-sky-500/20" />
+
+            {/* Заголовок + Постер */}
+            <div className="relative z-10 grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
               {/* Миниатюра постера */}
               {posterSrc && (
-                <div className="relative aspect-2/3 w-full max-w-[300px] mx-auto shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block ">
+                <div className="relative mx-auto aspect-2/3 w-full max-w-[260px] shrink-0 overflow-hidden rounded-2xl border border-zinc-300/70 shadow-lg shadow-zinc-900/20 dark:border-zinc-700/80">
                   <Image
                     src={posterSrc}
                     alt={item.title}
                     fill
                     className="object-cover"
-                    sizes="150px"
+                    sizes="(max-width: 1024px) 240px, 220px"
                   />
+                </div>
+              )}
+              {!posterSrc && (
+                <div className="mx-auto flex aspect-2/3 w-full max-w-[260px] shrink-0 items-center justify-center rounded-2xl border border-dashed border-zinc-300/70 bg-zinc-100/80 dark:border-zinc-700 dark:bg-zinc-900/70">
+                  <p className="text-muted-foreground px-4 text-center text-sm">
+                    Постер не загружен
+                  </p>
                 </div>
               )}
 
               {/* Текстовый блок */}
-              <div className="space-y-1.5">
-                <h1 className="text-2xl font-bold tracking-tight lg:text-5xl">
-                  {item.title}
-                </h1>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+                    Детальный пересказ
+                  </p>
+                  <h1 className="text-3xl font-semibold leading-tight tracking-tight lg:text-5xl">
+                    {item.title}
+                  </h1>
 
-                {item.originalTitle && (
-                  <div className="flex items-center gap-2 text-muted-foreground text-lg italic lg:text-xl">
-                    {item.originalTitle}
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {item.originalTitle && (
+                      <p className="text-muted-foreground text-base italic sm:text-lg">
+                        {item.originalTitle}
+                      </p>
+                    )}
+                    <SharedLink
+                      className="max-w-max"
+                      showText
+                      buttonVariant="outline"
+                    />
+                  </div>
+                </div>
 
-                    {/* Поделиться */}
-                    <div className="max-w-max">
-                      <SharedLink showText={false} buttonSize="icon" />
-                    </div>
+                {/* Метаданные: год • режиссёр */}
+                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm">
+                  {item.releaseYear && <span>{item.releaseYear}</span>}
+                  {item.releaseYear && directors.length > 0 && (
+                    <span className="opacity-40">•</span>
+                  )}
+                  {directors.map((director: string, index: number) => (
+                    <span key={`${director}-${index}`}>
+                      {director}
+                      {index < directors.length - 1 && ', '}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {/* Тип */}
+                  {typeConfig && (
+                    <Badge
+                      variant="secondary"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1 text-xs sm:text-sm dark:bg-zinc-900/80"
+                    >
+                      {TypeIcon && <TypeIcon size={14} className={typeConfig.color} />}
+                      {typeConfig.label}
+                    </Badge>
+                  )}
+
+                  {/* Рейтинг */}
+                  {typeof item.kpRating === 'number' && (
+                    <Badge className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-amber-900 dark:text-amber-300">
+                      <Star size={14} className="fill-amber-400 text-amber-400" />
+                      <span className="font-semibold">{item.kpRating.toFixed(1)}</span>
+                    </Badge>
+                  )}
+
+                  {/* Моя оценка */}
+                  {opinionConfig && OpinionIcon && (
+                    <Badge
+                      variant="outline"
+                      className="inline-flex items-center gap-1.5 rounded-full border-border/70 bg-background/70 px-3 py-1 dark:bg-zinc-900/70"
+                    >
+                      <OpinionIcon size={14} className={opinionConfig.color} />
+                      <span>{opinionConfig.label}</span>
+                    </Badge>
+                  )}
+
+                  {/* Дата просмотра */}
+                  {item.watchDate && (
+                    <Badge
+                      variant="outline"
+                      className="inline-flex items-center gap-1.5 rounded-full border-border/70 bg-background/70 px-3 py-1 dark:bg-zinc-900/70"
+                    >
+                      <CalendarDays size={14} />
+                      <span>{formatDate(item.watchDate)}</span>
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Синопсис */}
+                {item.synopsis && (
+                  <div className="rounded-2xl border border-zinc-200/80 bg-background/75 p-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-950/70">
+                    <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+                      Краткое описание
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed sm:text-base">
+                      {item.synopsis}
+                    </p>
                   </div>
                 )}
 
-                {/* Метаданные: год • режиссёр • длительность */}
-                <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                  {item.releaseYear && <span>{item.releaseYear}</span>}
-                  {item.releaseYear && item.director && (
-                    <span className="opacity-40">•</span>
-                  )}
-                  {item.director &&
-                    item.director
-                      .split(',')
-                      .map((d: string) => d.trim())
-                      .filter(Boolean)
-                      .map((d: string, i: number, arr: string[]) => (
-                        <span key={d}>
-                          {d}
-                          {i < arr.length - 1 && ', '}
-                        </span>
-                      ))}
+                <div className="max-w-max rounded-2xl border border-zinc-200/80 bg-background/75 p-1 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-950/70">
+                  <AdminActions
+                    editUrl={`/admin/collections/titles/${item.id}`}
+                    onDelete={handleDelete}
+                    isDeleting={deleteLoading === item.id}
+                    title={item.title}
+                    typeName="Запись"
+                    classNames="!grid-cols-3 !p-1"
+                  />
                 </div>
-
-                <AdminActions
-                  editUrl={`/admin/collections/titles/${item.id}`}
-                  onDelete={handleDelete}
-                  isDeleting={deleteLoading === item.id}
-                  title={item.title}
-                  typeName="Запись"
-                  classNames="!p-0 max-w-max !grid-cols-3"
-                />
               </div>
-            </div>
-
-            <div className="grid gap-2">
-              {/* Синопсис */}
-              {item.synopsis && <SynopsisBlock synopsis={item.synopsis} />}
-
-              {/* Тип */}
-              {typeConfig && (
-                <SidebarSection title="Тип">
-                  <Badge className="rounded-sm px-3 py-1">
-                    {typeConfig.label}
-                  </Badge>
-                </SidebarSection>
-              )}
-
-              {/* Рейтинг */}
-              {item.kpRating && (
-                <SidebarSection
-                  title="Рейтинг КП"
-                  contentClassName="flex items-center gap-2"
-                >
-                  <Badge className="inline-flex gap-1">
-                    <Star size={15} className="fill-amber-400 text-amber-400" />
-                    <span className="text-lg font-bold">
-                      {item.kpRating.toFixed(1)}
-                    </span>
-                  </Badge>
-                </SidebarSection>
-              )}
-
-              {/* Моя оценка */}
-              {opinionConfig && OpinionIcon && (
-                <SidebarSection title="Моя оценка">
-                  <Badge className="inline-flex gap-1 rounded-sm px-3 py-1 transition-colors">
-                    <OpinionIcon size={14} className={opinionConfig.color} />
-                    <span>{opinionConfig.label}</span>
-                  </Badge>
-                </SidebarSection>
-              )}
-
-              {/* Дата просмота */}
-              {item.watchDate && (
-                <SidebarSection title="Дата просмотра">
-                  <Badge className="inline-flex items-center gap-1.5 rounded-sm px-3 py-1">
-                    {formatDate(item.watchDate)}
-                  </Badge>
-                </SidebarSection>
-              )}
-
-              {/* Жанры */}
-              {item.genres && item.genres.length > 0 && (
-                <SidebarSection
-                  title="Жанры"
-                  contentClassName="flex flex-wrap gap-1.5"
-                >
-                  {item.genres.map((genre: string) => (
-                    <Link key={genre} href={`/reviews/genres/${genre}`}>
-                      <Badge className="rounded-sm px-3 py-1 cursor-pointer transition-colors">
-                        {getGenreLabel(genre)}
-                      </Badge>
-                    </Link>
-                  ))}
-                </SidebarSection>
-              )}
-
-              {/* Ссылки */}
-              {item.kinopoiskId && (
-                <ExternalLinks
-                  kinopoiskId={item.kinopoiskId}
-                  originalTitle={item.originalTitle}
-                  showKinoBd={showKinoBd}
-                  onToggleKinoBd={() => setShowKinoBd((p) => !p)}
-                />
-              )}
-
-              {/* Визуальные теги */}
-              {item.visualTags && typeof item.visualTags === 'string' && (
-                <SidebarSection
-                  title="Визуальные теги"
-                  contentClassName="flex flex-wrap gap-1.5"
-                >
-                  {item.visualTags
-                    .split(',')
-                    .map((tag: string) => tag.trim())
-                    .filter(Boolean)
-                    .map((tag: string, i: number) => (
-                      <Link
-                        key={`vtag-${i}-${tag}`}
-                        href={`/reviews/tags/${formatSlugString(tag)}`}
-                      >
-                        <Badge className="rounded-sm px-3 py-1 cursor-pointer transition-colors">
-                          # {tag}
-                        </Badge>
-                      </Link>
-                    ))}
-                </SidebarSection>
-              )}
             </div>
           </div>
         </div>
@@ -307,27 +311,52 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
         />
       )}
 
-      {/* Контент: Обзор + Сайдбар */}
-      <section className="container mx-auto px-4 pb-8">
-        {/* Левая колонка — обзор */}
-        <div className="min-w-0 pt-8">
-          {item.review && (
-            <RichText
-              content={item.review}
-              className={`prose-hr:my-4 prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-headings:uppercase prose-h2:mt-6 prose-h2:mb-2 prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-li:my-0.5`}
-            />
-          )}
+      {/* Контент: обзор + сайдбар */}
+      <section className="container mx-auto px-4 py-8 lg:py-10">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          {/* Левая колонка — обзор */}
+          <div className="min-w-0 space-y-5">
+            <div className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-6">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+                    Основной текст
+                  </p>
+                  <h2 className="text-xl font-semibold sm:text-2xl">Обзор</h2>
+                </div>
+                <Badge
+                  variant="secondary"
+                  className="rounded-full px-3 py-1 text-xs dark:bg-zinc-900 dark:text-zinc-100"
+                >
+                  Размер: {PROSE_SIZES[sizeIndex].label}
+                </Badge>
+              </div>
 
-          {/* Обзоры по сезонам (для сериалов и мультфильмов) */}
-          {(item.type === 'series' || item.type === 'cartoon') &&
-            item.seasons &&
-            item.seasons.length > 0 && (
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold uppercase">
-                  Подробный пересказ
-                </h2>
+              {item.review ? (
+                <RichText
+                  content={item.review}
+                  className={`prose prose-zinc ${proseSize} prose-hr:my-4 prose-headings:mb-3 prose-headings:mt-6 prose-headings:font-bold prose-headings:uppercase prose-li:my-0.5 prose-p:my-2 prose-p:text-justify prose-p:leading-relaxed dark:prose-invert max-w-none`}
+                />
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  Текст обзора пока не добавлен.
+                </p>
+              )}
+            </div>
+
+            {/* Обзоры по сезонам (для сериалов и мультфильмов) */}
+            {hasSeasonBreakdown && (
+              <div className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-6">
+                <div className="mb-3 space-y-1">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+                    Эпизодная структура
+                  </p>
+                  <h2 className="text-xl font-semibold sm:text-2xl">
+                    Подробный пересказ
+                  </h2>
+                </div>
                 <Accordion type="multiple" className="w-full">
-                  {item.seasons.map(
+                  {item.seasons?.map(
                     (season: NonNullable<Title['seasons']>[number]) => {
                       const seasonOpinion = season.personalOpinion
                         ? OPINION_CONFIG[season.personalOpinion]
@@ -338,19 +367,18 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                         <AccordionItem
                           key={season.id ?? season.seasonNumber}
                           value={`season-${season.seasonNumber}`}
+                          className="border-border/70"
                         >
-                          <AccordionTrigger className="text-base font-semibold hover:no-underline">
-                            <div className="flex items-center gap-3">
-                              <span className="sm:text-base">
-                                Сезон {season.seasonNumber}
-                              </span>
+                          <AccordionTrigger className="text-left text-base font-semibold hover:no-underline">
+                            <div className="flex flex-wrap items-center gap-2.5">
+                              <span>Сезон {season.seasonNumber}</span>
                               {SeasonOpinionIcon && seasonOpinion && (
                                 <Badge
                                   variant="secondary"
-                                  className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs sm:text-sm border border-muted-foreground/50"
+                                  className="inline-flex items-center gap-1 rounded-full border border-border/60 px-2.5 py-0.5 text-xs dark:bg-zinc-900/80"
                                 >
                                   <SeasonOpinionIcon
-                                    size={14}
+                                    size={13}
                                     className={seasonOpinion.color}
                                   />
                                   {seasonOpinion.label}
@@ -362,11 +390,11 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                             {season.review ? (
                               <RichText
                                 content={season.review}
-                                className={`prose ${proseSize} prose-zinc dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-headings:my-2 prose-li:my-0.5 prose-hr:my-4`}
+                                className={`prose prose-zinc ${proseSize} prose-headings:my-2 prose-hr:my-4 prose-li:my-0.5 prose-p:my-2 prose-p:text-justify prose-p:leading-relaxed dark:prose-invert max-w-none`}
                               />
                             ) : (
                               <p className="text-muted-foreground text-sm">
-                                Обзор пока не добавлен
+                                Обзор сезона пока не добавлен.
                               </p>
                             )}
                           </AccordionContent>
@@ -377,17 +405,109 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 </Accordion>
               </div>
             )}
+          </div>
+
+          {/* Правая колонка */}
+          <aside className="xl:sticky xl:top-20 xl:h-fit">
+            <div className="space-y-4 rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-5">
+              <div>
+                <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+                  Метаданные
+                </p>
+                <h3 className="text-lg font-semibold">Навигация по записи</h3>
+              </div>
+
+              {(item.releaseYear || directors.length > 0) && (
+                <div className="rounded-xl border border-zinc-200/80 bg-background/70 p-3 dark:border-zinc-800 dark:bg-zinc-950/70">
+                  <div className="grid gap-2 text-sm">
+                    {item.releaseYear && (
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-muted-foreground">Год выхода</span>
+                        <span className="font-medium">{item.releaseYear}</span>
+                      </div>
+                    )}
+                    {directors.length > 0 && (
+                      <div className="grid gap-1">
+                        <span className="text-muted-foreground">Режиссёр</span>
+                        <span className="font-medium">{directors.join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Жанры */}
+              {item.genres && item.genres.length > 0 && (
+                <SidebarSection
+                  title="Жанры"
+                  contentClassName="flex flex-wrap gap-1.5"
+                >
+                  {item.genres.map((genre: string) => (
+                    <Link key={genre} href={`/reviews/genres/${genre}`}>
+                      <Badge
+                        variant="outline"
+                        className="cursor-pointer rounded-full border-zinc-300/90 bg-white/80 px-3 py-1 text-xs transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/70 dark:hover:bg-zinc-800/90"
+                      >
+                        {getGenreLabel(genre)}
+                      </Badge>
+                    </Link>
+                  ))}
+                </SidebarSection>
+              )}
+
+              {/* Ссылки */}
+              {item.kinopoiskId && (
+                <ExternalLinks
+                  kinopoiskId={item.kinopoiskId}
+                  originalTitle={item.originalTitle}
+                  variant="secondary"
+                  showKinoBd={showKinoBd}
+                  onToggleKinoBd={() => setShowKinoBd((prev) => !prev)}
+                />
+              )}
+
+              {/* Визуальные теги */}
+              {visualTags.length > 0 && (
+                <SidebarSection
+                  title="Визуальные теги"
+                  contentClassName="flex flex-wrap gap-1.5"
+                >
+                  {visualTags.map((tag: string, index: number) => (
+                    <Link
+                      key={`vtag-${index}-${tag}`}
+                      href={`/reviews/tags/${formatSlugString(tag)}`}
+                    >
+                      <Badge
+                        variant="outline"
+                        className="cursor-pointer rounded-full border-zinc-300/90 bg-white/80 px-3 py-1 text-xs transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/70 dark:hover:bg-zinc-800/90"
+                      >
+                        #{tag}
+                      </Badge>
+                    </Link>
+                  ))}
+                </SidebarSection>
+              )}
+
+              {!item.kinopoiskId &&
+                (!item.genres || item.genres.length === 0) &&
+                visualTags.length === 0 && (
+                  <p className="text-muted-foreground rounded-xl border border-dashed border-zinc-300/70 bg-white/70 px-3 py-4 text-sm dark:border-zinc-800 dark:bg-zinc-950/65">
+                    Дополнительные данные для этой записи пока не заполнены.
+                  </p>
+                )}
+            </div>
+          </aside>
         </div>
       </section>
 
       {/* Плавающая кнопка размера шрифта */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+      <div className="fixed bottom-5 right-4 z-50 flex flex-col items-end gap-2 sm:bottom-6 sm:right-6">
         {showFontControls && (
-          <div className="flex items-center gap-1 rounded-full border bg-background/95 backdrop-blur-sm px-2 py-1.5 shadow-lg">
+          <div className="flex items-center gap-1 rounded-2xl border border-zinc-200/80 bg-background/95 px-2 py-1.5 shadow-lg backdrop-blur-sm dark:border-zinc-800/80 dark:bg-zinc-950/85">
             <button
               onClick={() => changeFontSize(-1)}
               disabled={sizeIndex <= 0}
-              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:opacity-30 cursor-pointer"
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-30"
               title="Уменьшить шрифт"
             >
               <Minus size={14} />
@@ -398,7 +518,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             <button
               onClick={() => changeFontSize(1)}
               disabled={sizeIndex >= PROSE_SIZES.length - 1}
-              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:opacity-30 cursor-pointer"
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-30"
               title="Увеличить шрифт"
             >
               <Plus size={14} />
@@ -408,7 +528,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
         <button
           onClick={() => setShowFontControls((prev) => !prev)}
-          className="flex h-11 w-11 items-center justify-center rounded-full border bg-background/95 backdrop-blur-sm shadow-lg transition-colors hover:bg-muted cursor-pointer"
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-2xl border border-zinc-200/80 bg-background/95 shadow-lg backdrop-blur-sm transition-colors hover:bg-muted dark:border-zinc-800/80 dark:bg-zinc-950/85"
           title="Размер шрифта"
         >
           <Type size={18} />
