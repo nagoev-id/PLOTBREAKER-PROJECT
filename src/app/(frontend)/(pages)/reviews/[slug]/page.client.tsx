@@ -5,14 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import {
-  ArrowLeft,
-  CalendarDays,
-  Minus,
-  Plus,
-  Star,
-  Type,
-} from 'lucide-react';
+import { ArrowLeft, CalendarDays, Minus, Plus, Star, Type } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -239,7 +232,9 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                       variant="secondary"
                       className="inline-flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1 text-xs sm:text-sm dark:bg-zinc-900/80"
                     >
-                      {TypeIcon && <TypeIcon size={14} className={typeConfig.color} />}
+                      {TypeIcon && (
+                        <TypeIcon size={14} className={typeConfig.color} />
+                      )}
                       {typeConfig.label}
                     </Badge>
                   )}
@@ -247,8 +242,13 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   {/* Рейтинг */}
                   {typeof item.kpRating === 'number' && (
                     <Badge className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-amber-900 dark:text-amber-300">
-                      <Star size={14} className="fill-amber-400 text-amber-400" />
-                      <span className="font-semibold">{item.kpRating.toFixed(1)}</span>
+                      <Star
+                        size={14}
+                        className="fill-amber-400 text-amber-400"
+                      />
+                      <span className="font-semibold">
+                        {item.kpRating.toFixed(1)}
+                      </span>
                     </Badge>
                   )}
 
@@ -422,14 +422,18 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   <div className="grid gap-2 text-sm">
                     {item.releaseYear && (
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-muted-foreground">Год выхода</span>
+                        <span className="text-muted-foreground">
+                          Год выхода
+                        </span>
                         <span className="font-medium">{item.releaseYear}</span>
                       </div>
                     )}
                     {directors.length > 0 && (
                       <div className="grid gap-1">
                         <span className="text-muted-foreground">Режиссёр</span>
-                        <span className="font-medium">{directors.join(', ')}</span>
+                        <span className="font-medium">
+                          {directors.join(', ')}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -455,17 +459,6 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 </SidebarSection>
               )}
 
-              {/* Ссылки */}
-              {item.kinopoiskId && (
-                <ExternalLinks
-                  kinopoiskId={item.kinopoiskId}
-                  originalTitle={item.originalTitle}
-                  variant="secondary"
-                  showKinoBd={showKinoBd}
-                  onToggleKinoBd={() => setShowKinoBd((prev) => !prev)}
-                />
-              )}
-
               {/* Визуальные теги */}
               {visualTags.length > 0 && (
                 <SidebarSection
@@ -486,6 +479,17 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                     </Link>
                   ))}
                 </SidebarSection>
+              )}
+
+              {/* Ссылки */}
+              {item.kinopoiskId && (
+                <ExternalLinks
+                  kinopoiskId={item.kinopoiskId}
+                  originalTitle={item.originalTitle}
+                  variant="secondary"
+                  showKinoBd={showKinoBd}
+                  onToggleKinoBd={() => setShowKinoBd((prev) => !prev)}
+                />
               )}
 
               {!item.kinopoiskId &&

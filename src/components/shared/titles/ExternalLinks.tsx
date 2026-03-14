@@ -32,7 +32,7 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
       <Badge
         variant={variant}
         className={cn(
-          'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
+          'flex justify-center items-center border-zinc-300/90 rounded-full cursor-pointer gap-1.5 px-3 py-1 transition-colors ',
           variant === 'default' ? 'hover:bg-primary/20' : ''
         )}
       >
@@ -49,7 +49,7 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
       <Badge
         variant={variant}
         className={cn(
-          'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
+          'flex justify-center items-center border-zinc-300/90 rounded-full cursor-pointer gap-1.5 px-3 py-1 transition-colors ',
           variant === 'default' ? 'hover:bg-primary/20' : ''
         )}
       >
@@ -67,12 +67,44 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
       <Badge
         variant={variant}
         className={cn(
-          'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
+          'flex justify-center items-center border-zinc-300/90 rounded-full cursor-pointer gap-1.5 px-3 py-1 transition-colors ',
           variant === 'default' ? 'hover:bg-primary/20' : ''
         )}
       >
         <Play size={12} />
         KinoHub
+      </Badge>
+    </Link>
+    <Link
+      href={`https://www.kinopoisk.film/film/${kinopoiskId}/`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Badge
+        variant={variant}
+        className={cn(
+          'flex justify-center items-center border-zinc-300/90 rounded-full cursor-pointer gap-1.5 px-3 py-1 transition-colors ',
+          variant === 'default' ? 'hover:bg-primary/20' : ''
+        )}
+      >
+        <Play size={12} />
+        KP.Film
+      </Badge>
+    </Link>
+    <Link
+      href={`https://www.kinopoisk.one/film/${kinopoiskId}/`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Badge
+        variant={variant}
+        className={cn(
+          'flex justify-center items-center border-zinc-300/90 rounded-full cursor-pointer gap-1.5 px-3 py-1 transition-colors ',
+          variant === 'default' ? 'hover:bg-primary/20' : ''
+        )}
+      >
+        <Play size={12} />
+        KP.One
       </Badge>
     </Link>
 
@@ -81,7 +113,7 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
         variant={variant}
         onClick={onToggleKinoBd}
         className={cn(
-          'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
+          'flex justify-center items-center border-zinc-300/90 rounded-full cursor-pointer gap-1.5 px-3 py-1 transition-colors ',
           variant === 'default' ? 'hover:bg-primary/20' : ''
         )}
       >
@@ -97,7 +129,7 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({
       <Badge
         variant={variant}
         className={cn(
-          'inline-flex cursor-pointer items-center gap-1.5 rounded-sm px-3 py-1 transition-colors ',
+          'flex justify-center items-center border-zinc-300/90 rounded-full cursor-pointer gap-1.5 px-3 py-1 transition-colors ',
           variant === 'default' ? 'hover:bg-primary/20' : ''
         )}
       >

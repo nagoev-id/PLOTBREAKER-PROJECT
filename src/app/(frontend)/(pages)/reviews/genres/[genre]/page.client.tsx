@@ -277,7 +277,7 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
       {/* Грид карточек */}
       {paginatedItems.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {paginatedItems.map((item, index) => (
+          {paginatedItems.map((item) => (
             <div key={item.id}>
               <MovieCard item={item} />
             </div>

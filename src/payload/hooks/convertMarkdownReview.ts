@@ -7,6 +7,7 @@ import {
 type LexicalNode = {
   type?: string;
   text?: string;
+  format?: number;
   children?: LexicalNode[];
   [key: string]: unknown;
 };
@@ -20,26 +21,64 @@ type LexicalState = {
 };
 
 /**
- * Извлекает весь текст из Lexical JSON в виде строки.
+ * Проверяет, является ли контент «сырым текстом без форматирования».
+ * True = все корневые ноды — обычные параграфы, содержащие только
+ * неформатированные текстовые ноды (format === 0 или отсутствует).
+ *
+ * Это означает, что пользователь вставил markdown как plain text,
+ * а не через форматирование редактора.
+ */
+const isPlainTextOnly = (state: LexicalState): boolean => {
+  const root = state?.root;
+  if (!root?.children?.length) return false;
+
+  return root.children.every((child) => {
+    // Только параграфы и linebreak на уровне root
+    if (child.type === 'linebreak') return true;
+    if (child.type !== 'paragraph') return false;
+
+    // Внутри параграфа — только text и linebreak, без форматирования
+    if (!child.children) return true;
+    return child.children.every(
+      (node) =>
+        node.type === 'linebreak' ||
+        (node.type === 'text' && (!node.format || node.format === 0)),
+    );
+  });
+};
+
+/**
+ * Извлекает весь текст из plain-text Lexical JSON.
  * Параграфы разделяются двойным переносом строки.
  */
-const extractTextFromLexical = (state: LexicalState): string => {
+const extractPlainText = (state: LexicalState): string => {
   const root = state?.root;
   if (!root?.children) return '';
 
   const lines: string[] = [];
 
-  const extractNode = (node: LexicalNode): string => {
-    if (node.type === 'text') return node.text ?? '';
-    if (node.children) return node.children.map(extractNode).join('');
-    return '';
-  };
-
   for (const child of root.children) {
-    lines.push(extractNode(child));
+    if (child.type === 'linebreak') {
+      lines.push('');
+      continue;
+    }
+    if (!child.children) {
+      lines.push('');
+      continue;
+    }
+
+    const parts: string[] = [];
+    for (const node of child.children) {
+      if (node.type === 'text') {
+        parts.push(node.text ?? '');
+      } else if (node.type === 'linebreak') {
+        parts.push('\n');
+      }
+    }
+    lines.push(parts.join(''));
   }
 
-  return lines.join('\n\n');
+  return lines.join('\n');
 };
 
 /**
@@ -62,11 +101,11 @@ const looksLikeMarkdown = (text: string): boolean => {
 /**
  * Field hook для поля `review` (richText).
  *
- * Если вставленный текст содержит Markdown-разметку (##, **, ***, > и т.д.),
- * хук автоматически конвертирует его в Lexical JSON перед сохранением.
+ * Конвертирует markdown в Lexical JSON ТОЛЬКО если вставленный текст —
+ * это raw markdown (все ноды — plain paragraphs без форматирования).
  *
- * Это позволяет вставлять текст из AI (ChatGPT/Claude) в формате Markdown
- * и получать корректно отформатированный контент в редакторе.
+ * Если редактор уже распарсил контент (heading, list, formatted text),
+ * хук НЕ трогает данные — они уже в правильном формате.
  */
 export const convertMarkdownReview: FieldHook = async ({
   value,
@@ -76,8 +115,14 @@ export const convertMarkdownReview: FieldHook = async ({
   // Если значение пустое — пропускаем
   if (!value) return value;
 
-  // Извлекаем текст из Lexical JSON
-  const rawText = extractTextFromLexical(value as LexicalState);
+  const state = value as LexicalState;
+
+  // Если контент уже содержит структурированные ноды (heading, list и т.д.)
+  // — НЕ конвертируем, редактор уже распарсил markdown
+  if (!isPlainTextOnly(state)) return value;
+
+  // Извлекаем текст из plain-text нод
+  const rawText = extractPlainText(state);
   if (!rawText.trim()) return value;
 
   // Если текст не содержит Markdown — оставляем как есть
@@ -96,13 +141,13 @@ export const convertMarkdownReview: FieldHook = async ({
     });
 
     req.payload.logger.info(
-      '[convertMarkdownReview] Markdown detected and converted to Lexical'
+      '[convertMarkdownReview] Markdown detected and converted to Lexical',
     );
 
     return lexicalState;
   } catch (error) {
     req.payload.logger.error(
-      `[convertMarkdownReview] Failed to convert markdown: ${String(error)}`
+      `[convertMarkdownReview] Failed to convert markdown: ${String(error)}`,
     );
     // При ошибке возвращаем оригинальное значение
     return value;

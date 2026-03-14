@@ -19,22 +19,21 @@ export const KinoBdContainer: FC<KinoBdContainerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
     const playerDiv = document.createElement('div');
     playerDiv.id = 'kinobd';
     playerDiv.setAttribute('data-kinopoisk', kinopoiskId);
-    containerRef.current.appendChild(playerDiv);
+    container.appendChild(playerDiv);
 
     const script = document.createElement('script');
     script.src = '//kinobd.net/js/player_.js';
     script.async = true;
-    containerRef.current.appendChild(script);
+    container.appendChild(script);
 
     return () => {
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
-      }
+      container.innerHTML = '';
     };
   }, [kinopoiskId]);
 

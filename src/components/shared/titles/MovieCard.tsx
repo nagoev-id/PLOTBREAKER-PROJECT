@@ -10,6 +10,7 @@ import {
   Clapperboard,
   Eye,
   Film,
+  MessageSquareText,
   Star,
   Timer,
   Tv2,
@@ -60,6 +61,25 @@ const TYPE_META: Record<
 };
 
 /**
+ * Проверяет, содержит ли Lexical rich text поле реальный контент
+ */
+const hasRichTextContent = (
+  field?: Title['review'] | null,
+): boolean => {
+  if (!field?.root?.children) return false;
+  return field.root.children.some((child) => {
+    if (child.type !== 'paragraph') return true;
+    const childNode = child as Record<string, unknown>;
+    const nested = childNode.children;
+    if (!Array.isArray(nested) || nested.length === 0) return false;
+    return nested.some(
+      (c: Record<string, unknown>) =>
+        typeof c.text === 'string' && c.text.trim().length > 0,
+    );
+  });
+};
+
+/**
  * Компонент карточки фильма
  * @param item - объект фильма
  * @returns {JSX.Element}
@@ -75,6 +95,11 @@ export const MovieCard: FC<Props> = ({
   const isPlanned = item.status === 'planned';
   const reviewHref = item.slug ? `/reviews/${item.slug}` : undefined;
   const typeMeta = TYPE_META[item.type];
+
+  const hasReview =
+    item.isPublished &&
+    (hasRichTextContent(item.review) ||
+      item.seasons?.some((s) => hasRichTextContent(s.review)));
 
   const opinionConfig = item.personalOpinion
     ? OPINION_CONFIG[item.personalOpinion]
@@ -213,7 +238,7 @@ export const MovieCard: FC<Props> = ({
             )}
           </div>
 
-          <div className="absolute bottom-2 left-2 z-20">
+          <div className="absolute bottom-2 left-2 z-20 flex items-center gap-1.5">
             <div
               className={cn(
                 'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold tracking-[0.04em] uppercase',
@@ -223,6 +248,13 @@ export const MovieCard: FC<Props> = ({
               <typeMeta.Icon className="size-3.5" />
               {typeMeta.label}
             </div>
+
+            {hasReview && (
+              <div className="inline-flex items-center gap-1 rounded-full border border-emerald-500/35 bg-emerald-500/12 px-2 py-1 text-[10px] font-semibold tracking-[0.04em] text-emerald-300 uppercase">
+                <MessageSquareText className="size-3" />
+                Обзор
+              </div>
+            )}
           </div>
         </div>
 
@@ -296,12 +328,6 @@ export const MovieCard: FC<Props> = ({
               </span>
             )}
           </div>
-
-          {/* {reviewHref && (
-            <div className="pt-1 text-xs text-muted-foreground transition-colors group-hover/card:text-foreground/85">
-              Открыть рецензию
-            </div>
-          )} */}
         </div>
       </Card>
     </div>

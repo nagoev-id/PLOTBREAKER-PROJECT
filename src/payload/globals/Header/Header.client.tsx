@@ -43,7 +43,7 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [_isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     setIsMenuOpen(false);
