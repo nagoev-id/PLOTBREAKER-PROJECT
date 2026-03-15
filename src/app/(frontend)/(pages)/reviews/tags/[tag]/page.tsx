@@ -5,7 +5,25 @@ import type { Metadata } from 'next';
 import { METADATA } from '@/lib/constants';
 import { LoadingSpinner } from '@/components/shared';
 import { TagPageClient } from '@/app/(frontend)/(pages)/reviews/tags/[tag]/page.client';
-import { getCachedTitlesByTag } from '@/lib/helpers';
+import { getCachedTitles, getCachedTitlesByTag } from '@/lib/helpers';
+import { formatSlug } from '@/payload/utilities/utils';
+
+/**
+ * Генерация статических параметров для всех тегов
+ */
+export async function generateStaticParams() {
+  const titles = await getCachedTitles()();
+  const tagSet = new Set<string>();
+  for (const t of titles) {
+    if (t.visualTags) {
+      t.visualTags.split(',').forEach((tag: string) => {
+        const slug = formatSlug(tag.trim());
+        if (slug) tagSet.add(slug);
+      });
+    }
+  }
+  return Array.from(tagSet).map((tag) => ({ tag }));
+}
 
 // Описание типов пропсов
 type Props = {

@@ -35,7 +35,6 @@ export const PostCard: FC<Props> = ({ post }): JSX.Element => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  console.log(post);
   const heroImage =
     post.heroImage && typeof post.heroImage === 'object'
       ? (post.heroImage as Media)

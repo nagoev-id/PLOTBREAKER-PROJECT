@@ -65,6 +65,7 @@ export const getTitles = async (): Promise<Title[]> => {
         director: true,
         status: true,
         collections: true,
+        visualTags: true,
       },
     });
     return result.docs as Title[];

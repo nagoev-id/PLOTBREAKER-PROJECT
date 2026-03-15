@@ -2,12 +2,22 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { METADATA } from '@/lib/constants';
-import { getCachedTitleBySlug } from '@/lib/helpers';
+import { getCachedTitleBySlug, getCachedTitles } from '@/lib/helpers';
 import { getPosterUrl } from '@/lib/utils';
 import ReviewDetailClient from '@/app/(frontend)/(pages)/reviews/[slug]/page.client';
 
 // Настройка времени повторной валидации (ISR) — 60 секунд.
 export const revalidate = 60;
+
+/**
+ * Генерация статических параметров для всех обзоров
+ */
+export async function generateStaticParams() {
+  const titles = await getCachedTitles()();
+  return titles
+    .filter((t) => t.slug)
+    .map((t) => ({ slug: t.slug! }));
+}
 
 // Описание типов пропсов
 type Props = {

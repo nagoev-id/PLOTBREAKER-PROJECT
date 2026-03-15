@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { METADATA, PAGE_SLUGS } from '@/lib/constants';
-import { getPageBySlug, getCachedTitles } from '@/lib/helpers';
+import { getCachedPageBySlug, getCachedTitles } from '@/lib/helpers';
 import { RenderBlocks } from '@/features/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared';
 import HomePageClient from '@/app/(frontend)/page.client';
@@ -27,14 +27,15 @@ export async function generateMetadata(): Promise<Metadata> {
  * Загружает layout-блоки и медиа-контент на сервере.
  */
 const HomePage = async () => {
-  const page = await getPageBySlug(PAGE_SLUGS.home);
+  const [page, mediaContents] = await Promise.all([
+    getCachedPageBySlug(PAGE_SLUGS.home)(),
+    getCachedTitles()(),
+  ]);
 
   // Проверяем, что данные получены
   if (!page || !page.layout) {
     return notFound();
   }
-
-  const mediaContents = await getCachedTitles()();
 
   return (
     <Suspense fallback={<LoadingSpinner />}>

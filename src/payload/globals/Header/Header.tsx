@@ -27,12 +27,10 @@ import { GLOBAL_SLUGS } from '@/payload/config/globals';
  */
 export const Header: FC = async () => {
   try {
-    const user = await getAuthUser();
-
-    const headerData: HeaderGlobal = (await getCachedGlobal(
-      GLOBAL_SLUGS.header,
-      1
-    )()) as unknown as HeaderGlobal;
+    const [user, headerData] = await Promise.all([
+      getAuthUser(),
+      getCachedGlobal(GLOBAL_SLUGS.header, 1)() as Promise<HeaderGlobal>,
+    ]);
 
     return <HeaderClient data={headerData} user={user} />;
   } catch (error) {

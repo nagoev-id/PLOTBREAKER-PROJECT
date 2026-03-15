@@ -159,8 +159,8 @@ export const MovieCard: FC<Props> = ({
     <div className="relative h-full">
       <Card className="group/card relative flex h-full flex-col overflow-hidden rounded-none border border-border bg-background/30 shadow-none transition-all duration-300 hover:border-foreground/30 hover:bg-background/60">
         <div className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
-          <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-foreground/[0.04] to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-foreground/[0.06] to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-14 bg-linear-to-b from-foreground/4 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-foreground/6 to-transparent" />
         </div>
 
         {/* Постер с overlay-бейджами */}
@@ -194,12 +194,12 @@ export const MovieCard: FC<Props> = ({
                     )}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent opacity-85 transition-opacity duration-300 group-hover/card:opacity-95" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/65 via-black/15 to-transparent opacity-85 transition-opacity duration-300 group-hover/card:opacity-95" />
                 </>
               ) : (
                 <div
                   className={cn(
-                    'absolute inset-0 bg-gradient-to-br',
+                    'absolute inset-0 bg-linear-to-br',
                     typeMeta.placeholderGradient
                   )}
                 >
@@ -214,7 +214,7 @@ export const MovieCard: FC<Props> = ({
               )}
             </Link>
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 to-zinc-900" />
+            <div className="absolute inset-0 bg-linear-to-br from-zinc-700 to-zinc-900" />
           )}
 
           <div className="absolute top-2 right-2 z-20 flex flex-col items-end gap-1.5">

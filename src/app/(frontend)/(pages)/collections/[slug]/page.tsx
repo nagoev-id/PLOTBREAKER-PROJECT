@@ -4,10 +4,20 @@ import { Suspense } from 'react';
 
 import { LoadingSpinner } from '@/components/shared';
 import CollectionDetailClient from '@/app/(frontend)/(pages)/collections/[slug]/page.client';
-import { getCachedListBySlug } from '@/lib/helpers';
+import { getCachedListBySlug, getCachedLists } from '@/lib/helpers';
 
 // Настройки кэширования страницы коллекции.
 export const revalidate = 60;
+
+/**
+ * Генерация статических параметров для всех коллекций
+ */
+export async function generateStaticParams() {
+  const lists = await getCachedLists()();
+  return lists
+    .filter((l) => l.slug)
+    .map((l) => ({ slug: l.slug! }));
+}
 
 // Описание типов пропсов
 type Props = {
