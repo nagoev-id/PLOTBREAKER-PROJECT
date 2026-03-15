@@ -162,10 +162,16 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
                       className="border-b transition-colors hover:bg-muted/30"
                     >
                       <td className="px-4 py-3">
-                        <div className="font-medium">{entry.title}</div>
+                        <div className="font-medium">
+                          <Link href={`/reviews/${entry.slug}`}>
+                            {entry.title}
+                          </Link>
+                        </div>
                         {entry.originalTitle && (
                           <div className="text-muted-foreground text-xs">
-                            {entry.originalTitle}
+                            <Link href={`/reviews/${entry.slug}`}>
+                              {entry.originalTitle}
+                            </Link>
                           </div>
                         )}
                       </td>

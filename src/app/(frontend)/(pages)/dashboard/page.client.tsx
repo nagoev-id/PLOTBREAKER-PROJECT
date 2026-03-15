@@ -3,6 +3,7 @@
 import { FC, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Link from 'next/link';
 import { Plus, Pencil, Trash2, Globe, Lock, Tag } from 'lucide-react';
 
 import { Button } from '@/components/ui';
@@ -131,7 +132,11 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
                   className="border-b transition-colors hover:bg-muted/30"
                 >
                   <td className="px-4 py-3">
-                    <div className="font-medium">{collection.title}</div>
+                    <div className="font-medium">
+                      <Link href={`/collections/${collection.slug}`}>
+                        {collection.title}
+                      </Link>
+                    </div>
                     <div className="text-muted-foreground text-xs">
                       /{collection.slug}
                     </div>

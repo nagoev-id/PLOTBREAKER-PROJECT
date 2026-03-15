@@ -2,6 +2,7 @@ import { getPayload } from 'payload';
 import configPromise from '@payload-config';
 import { COLLECTION_SLUGS } from '@/lib/constants';
 import { getAuthUser } from '@/lib/helpers';
+import { convertReviewMarkdown } from '@/lib/markdownToLexical';
 
 /**
  * Проверяет, что текущий пользователь — admin.
@@ -58,6 +59,12 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
+
+    // Конвертируем markdown-строку в Lexical JSON
+    if (typeof body.review === 'string' && body.review.trim()) {
+      body.review = await convertReviewMarkdown(body.review);
+    }
+
     const doc = await payload!.update({
       collection: COLLECTION_SLUGS.titles,
       id,

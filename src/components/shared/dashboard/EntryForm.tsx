@@ -80,8 +80,8 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
       setOriginalTitle(entry.originalTitle || '');
       setSynopsis(entry.synopsis || '');
       setType(entry.type || 'film');
-      setStatus(entry.status || 'planned');
-      setPersonalOpinion(entry.personalOpinion || 'neutral');
+      setStatus(entry.status ?? 'planned');
+      setPersonalOpinion(entry.personalOpinion ?? 'neutral');
       setPosterUrl(entry.posterUrl || '');
       // review — richText, пустое значение (заполняется через paste markdown)
       setDirector(entry.director || '');
@@ -457,7 +457,7 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
             <Label>Тип контента</Label>
             <Select value={type} onValueChange={setType}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Выберите тип" />
               </SelectTrigger>
               <SelectContent>
                 {MEDIA_CONTENT_TYPES.select.map((opt) => (
@@ -474,7 +474,10 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
             <Label>Статус</Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger>
-                <SelectValue />
+                <span className="truncate">
+                  {MEDIA_CONTENT_STATUS.select.find((o) => o.value === status)
+                    ?.label ?? 'Выберите статус'}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {MEDIA_CONTENT_STATUS.select.map((opt) => (
@@ -491,7 +494,11 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
             <Label>Впечатление</Label>
             <Select value={personalOpinion} onValueChange={setPersonalOpinion}>
               <SelectTrigger>
-                <SelectValue />
+                <span className="truncate">
+                  {MEDIA_CONTENT_PERSONAL_OPINION.select.find(
+                    (o) => o.value === personalOpinion
+                  )?.label ?? 'Выберите впечатление'}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {MEDIA_CONTENT_PERSONAL_OPINION.select.map((opt) => (

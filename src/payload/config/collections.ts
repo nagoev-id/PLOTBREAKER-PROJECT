@@ -195,8 +195,7 @@ export const TITLES_COLLECTION = {
     preview: (doc: Record<string, unknown>) => {
       const slug = typeof doc?.slug === 'string' ? doc.slug : undefined;
       if (!slug) return null;
-      const base =
-        process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+      const base = process.env.SITE_DOMAIN || 'http://localhost:3000';
       return `${base}/reviews/${slug}`;
     },
   },

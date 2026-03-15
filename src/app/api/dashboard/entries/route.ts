@@ -3,6 +3,7 @@ import type { Where } from 'payload';
 import configPromise from '@payload-config';
 import { COLLECTION_SLUGS } from '@/lib/constants';
 import { getAuthUser } from '@/lib/helpers';
+import { convertReviewMarkdown } from '@/lib/markdownToLexical';
 
 /**
  * Проверяет, что текущий пользователь — admin.
@@ -87,6 +88,12 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
+
+    // Конвертируем markdown-строку в Lexical JSON
+    if (typeof body.review === 'string' && body.review.trim()) {
+      body.review = await convertReviewMarkdown(body.review);
+    }
+
     const doc = await payload!.create({
       collection: COLLECTION_SLUGS.titles,
       data: body,
@@ -101,3 +108,4 @@ export async function POST(request: Request) {
     );
   }
 }
+
