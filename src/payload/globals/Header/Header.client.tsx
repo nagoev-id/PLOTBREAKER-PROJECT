@@ -105,8 +105,8 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
         <div className="container mx-auto px-2 sm:px-4">
           <header
             className={cn(
-              'w-full rounded-2xl border transition-all duration-300',
-              'border-border/70 bg-background/88 shadow-[0_16px_38px_-24px_rgba(0,0,0,0.55)] backdrop-blur-2xl supports-backdrop-filter:bg-background/72'
+              'w-full rounded-sm border transition-all duration-300',
+              'border-border/80 border-2 bg-background/88 backdrop-blur-sm supports-backdrop-filter:bg-background/90'
             )}
             role="banner"
           >

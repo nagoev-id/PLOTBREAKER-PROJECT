@@ -3,9 +3,11 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { METADATA, PAGE_SLUGS } from '@/lib/constants';
-import { getCachedPageBySlug } from '@/lib/helpers';
+import { getCachedPageBySlug, getCachedTitles } from '@/lib/helpers';
 import { RenderBlocks } from '@/features/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared';
+import ReviewsPageClient from '@/app/(frontend)/(pages)/reviews/page.client';
+import type { Title } from '@/payload-types';
 
 // Настройки кэширования главной страницы.
 export const revalidate = 60;
@@ -24,8 +26,11 @@ export async function generateMetadata(): Promise<Metadata> {
  * Основной компонент страницы (Server Component).
  * Загружает layout-блоки и медиа-контент на сервере.
  */
-const HomePage = async () => {
-  const [page] = await Promise.all([getCachedPageBySlug(PAGE_SLUGS.home)()]);
+const ReviewsPage = async () => {
+  const [page, mediaContents] = await Promise.all([
+    getCachedPageBySlug(PAGE_SLUGS.reviews)(),
+    getCachedTitles()(),
+  ]);
 
   // Проверяем, что данные получены
   if (!page || !page.layout) {
@@ -35,8 +40,9 @@ const HomePage = async () => {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <RenderBlocks blocks={page.layout} />
+      <ReviewsPageClient items={mediaContents as Title[]} />
     </Suspense>
   );
 };
 
-export default HomePage;
+export default ReviewsPage;

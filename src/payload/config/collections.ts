@@ -638,12 +638,7 @@ export const POSTS_COLLECTION = {
       required: true,
       description: 'Основной текст статьи.',
     }),
-    {
-      name: 'content',
-      type: 'richText',
-      label: 'Контент',
-      required: true,
-    },
+
     {
       name: 'heroImage',
       type: 'upload',
@@ -662,15 +657,7 @@ export const POSTS_COLLECTION = {
         position: 'sidebar',
       },
     },
-    {
-      name: 'image',
-      type: 'upload',
-      label: 'Изображение поста',
-      relationTo: 'media',
-      admin: {
-        position: 'sidebar',
-      },
-    },
+
     {
       name: 'tags',
       type: 'select',

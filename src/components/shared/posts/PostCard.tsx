@@ -96,6 +96,7 @@ export const PostCard: FC<Props> = ({ post }): JSX.Element => {
             title={post.title}
             typeName="Пост"
             classNames="absolute top-1 left-1 z-10"
+            disableDashboardLink
           />
         </div>
 
@@ -107,29 +108,33 @@ export const PostCard: FC<Props> = ({ post }): JSX.Element => {
               {post.title}
             </h3>
 
-            {/* Теги */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {post.tags.map((tag: string) => (
-                  <Link key={tag} href={`/blog/tags/${tag}`}>
-                    <Badge
-                      variant="secondary"
-                      className="rounded-sm px-1.5 py-0 text-[10px] font-normal cursor-pointer hover:bg-accent transition-colors"
-                    >
-                      <Tag size={8} className="mr-0.5" />
-                      {TAG_LABELS[tag] ?? tag}
-                    </Badge>
-                  </Link>
-                ))}
-              </div>
-            )}
-
             {/* Дата — прижата к низу */}
             <div className="mt-auto flex items-center gap-1 pt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
               <Calendar size={11} className="opacity-60" />
               {formatDate(post.publishedAt || post.createdAt)}
             </div>
           </Link>
+
+          {/* Теги — вне Link чтобы избежать вложенных <a> */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {post.tags.map((tag: string) => (
+                <Link
+                  key={tag}
+                  href={`/blog/tags/${tag}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Badge
+                    variant="secondary"
+                    className="rounded-sm px-1.5 py-0 text-[10px] font-normal cursor-pointer hover:bg-accent transition-colors"
+                  >
+                    <Tag size={8} className="mr-0.5" />
+                    {TAG_LABELS[tag] ?? tag}
+                  </Badge>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </Card>
     </div>

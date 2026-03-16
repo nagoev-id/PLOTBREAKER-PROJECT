@@ -159,7 +159,7 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
   }, [filteredPosts, currentPage, pageSize]);
 
   return (
-    <section className="container mx-auto px-4 py-8">
+    <section className="container mx-auto px-4 py-8 pt-24">
       {/* Заголовок и кнопка назад */}
       <div className="mb-8">
         {/* Кнопка назад */}

@@ -592,24 +592,8 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
   heroImage?: (number | null) | Media;
   isPublished?: boolean | null;
-  image?: (number | null) | Media;
   tags?: ('review' | 'news' | 'collection' | 'opinion' | 'guide')[] | null;
   publishedAt?: string | null;
   updatedAt: string;
@@ -1130,10 +1114,8 @@ export interface PostsSelect<T extends boolean = true> {
   slug?: T;
   annotation?: T;
   body?: T;
-  content?: T;
   heroImage?: T;
   isPublished?: T;
-  image?: T;
   tags?: T;
   publishedAt?: T;
   updatedAt?: T;

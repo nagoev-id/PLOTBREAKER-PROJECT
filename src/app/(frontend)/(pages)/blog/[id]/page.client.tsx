@@ -59,18 +59,18 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
 
   return (
     <article>
-      <section className="relative overflow-hidden border-b">
+      <section className="relative overflow-hidden border-b pt-8 lg:pt-24">
         {heroImage?.url && (
           <div className="absolute inset-0">
             <Image
               src={heroImage.url}
               alt=""
               fill
-              className="object-cover blur-2xl scale-110 opacity-20"
+              className="object-cover blur-lg scale-110 opacity-20"
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-linear-to-b from-background/60 via-background/80 to-background" />
+            <div className="absolute inset-0 bg-linear-to-b from-background/60 via-background/80 to-background opacity-80" />
           </div>
         )}
 
@@ -90,7 +90,7 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
           <div className="flex items-end gap-6">
             {/* Миниатюра */}
             {heroImage?.url && (
-              <div className="relative hidden aspect-3/2 w-[160px] h-[260px] shrink-0 overflow-hidden rounded-sm border shadow-sm sm:block lg:w-[200px]">
+              <div className="relative hidden aspect-3/2 w-[160px] h-[260px] shrink-0 overflow-hidden rounded-sm border shadow-xs sm:block lg:w-[200px]">
                 <Image
                   src={heroImage.url}
                   alt={post.title}
@@ -137,11 +137,11 @@ const BlogDetailClient: FC<BlogDetailClientProps> = ({ post }): JSX.Element => {
       </section>
 
       {/* ── Контент ─────────────────────────────────────────────── */}
-      <section className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 py-8 pt-24">
         <div className="mx-auto max-w-5xl">
           <div>
             <RichText
-              content={post.content}
+              content={post.body}
               className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-2 prose-p:text-base prose-p:leading-relaxed prose-p:text-justify prose-p:my-2 prose-li:my-0.5 prose-hr:my-4"
             />
           </div>

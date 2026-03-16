@@ -24,6 +24,7 @@ type AdminActionsProps = {
   title: string;
   typeName: string;
   classNames?: string;
+  disableDashboardLink?: boolean;
 };
 
 /**
@@ -42,6 +43,7 @@ export const AdminActions: FC<AdminActionsProps> = ({
   title,
   typeName = 'Запись',
   classNames,
+  disableDashboardLink = false,
 }): JSX.Element | null => {
   const { user } = useAuth();
 
@@ -54,29 +56,31 @@ export const AdminActions: FC<AdminActionsProps> = ({
       <Link
         href={editUrl}
         target="_blank"
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm dark:bg-white dark:text-black"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-xs dark:bg-white dark:text-black border"
         onClick={(e) => e.stopPropagation()}
         title="Редактировать"
       >
-        <Pencil size={16} />
+        <ShieldUser size={16} />
         <span className="sr-only">Редактировать</span>
       </Link>
 
-      <Link
-        href={`/dashboard/entries/${editUrl.split('/').pop()}/edit`}
-        target="_blank"
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm dark:bg-white dark:text-black"
-        onClick={(e) => e.stopPropagation()}
-        title="Дашборд записи"
-      >
-        <ShieldUser size={16} />
-        <span className="sr-only">Дашборд записи</span>
-      </Link>
+      {!disableDashboardLink && (
+        <Link
+          href={`/dashboard/entries/${editUrl.split('/').pop()}/edit`}
+          target="_blank"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-xs dark:bg-white dark:text-black border"
+          onClick={(e) => e.stopPropagation()}
+          title="Дашборд записи"
+        >
+          <Pencil size={16} />
+          <span className="sr-only">Дашборд записи</span>
+        </Link>
+      )}
 
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <button
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm dark:bg-white dark:text-black cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-xs dark:bg-white dark:text-black cursor-pointer border"
             onClick={(e) => e.stopPropagation()}
             title="Удалить"
           >

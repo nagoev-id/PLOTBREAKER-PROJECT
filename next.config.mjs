@@ -62,6 +62,11 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '10mb',
     },
+    // Отключаем кеш клиентского роутера в dev
+    // staleTimes: {
+    //   dynamic: 0,
+    //   static: 0,
+    // },
   },
 };
 

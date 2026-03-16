@@ -23,9 +23,9 @@ const DashboardLayout = async ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-8 pt-24">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Панель управления</h1>
         <p className="text-muted-foreground mt-1">Управление контентом сайта</p>
       </div>
 

@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { Button, Input, Label, Textarea } from '@/components/ui';
+import { lexicalToMarkdown } from '@/lib/lexicalToMarkdown';
 import {
   Select,
   SelectContent,
@@ -49,33 +50,60 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
   const [loading, setLoading] = useState(false);
 
   // Основная информация
-  const [title, setTitle] = useState('');
-  const [originalTitle, setOriginalTitle] = useState('');
-  const [synopsis, setSynopsis] = useState('');
-  const [type, setType] = useState('film');
-  const [status, setStatus] = useState('planned');
-  const [personalOpinion, setPersonalOpinion] = useState('neutral');
-  const [posterUrl, setPosterUrl] = useState('');
-  const [review, setReview] = useState('');
+  const [title, setTitle] = useState(entry?.title || '');
+  const [originalTitle, setOriginalTitle] = useState(
+    entry?.originalTitle || ''
+  );
+  const [synopsis, setSynopsis] = useState(entry?.synopsis || '');
+  const [type, setType] = useState<string>(entry?.type || 'film');
+  const [status, setStatus] = useState<string>(entry?.status ?? 'planned');
+  const [personalOpinion, setPersonalOpinion] = useState<string>(
+    entry?.personalOpinion ?? 'neutral'
+  );
+  const [posterUrl, setPosterUrl] = useState(entry?.posterUrl || '');
+  const [review, setReview] = useState(() =>
+    entry?.review ? lexicalToMarkdown(entry.review) : ''
+  );
   const [promptStatus, setPromptStatus] = useState<'idle' | 'copied' | 'error'>(
     'idle'
   );
 
   // Детали
-  const [director, setDirector] = useState('');
-  const [releaseYear, setReleaseYear] = useState<string>('');
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
+  const [director, setDirector] = useState(entry?.director || '');
+  const [releaseYear, setReleaseYear] = useState<string>(
+    entry?.releaseYear?.toString() || ''
+  );
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(
+    entry?.genres || []
+  );
+  const [selectedCollections, setSelectedCollections] = useState<string[]>(
+    () => {
+      if (!entry?.collections) return [];
+      return (entry.collections as (number | Collection)[]).map((c) =>
+        typeof c === 'number' ? String(c) : String(c.id)
+      );
+    }
+  );
 
   // Рейтинги
-  const [tmdbRating, setTmdbRating] = useState<string>('');
-  const [kpRating, setKpRating] = useState<string>('');
+  const [tmdbRating, setTmdbRating] = useState<string>(
+    entry?.tmdbRating?.toString() || ''
+  );
+  const [kpRating, setKpRating] = useState<string>(
+    entry?.kpRating?.toString() || ''
+  );
 
   // Внешние ID
-  const [kinopoiskId, setKinopoiskId] = useState('');
+  const [kinopoiskId, setKinopoiskId] = useState(entry?.kinopoiskId || '');
+
+  // Публикация и даты
+  const [isPublished, setIsPublished] = useState(entry?.isPublished ?? false);
+  const [watchDate, setWatchDate] = useState(entry?.watchDate?.split('T')[0] || '');
+  const [visualTags, setVisualTags] = useState(entry?.visualTags || '');
 
   useEffect(() => {
     if (entry) {
+      console.log(entry);
       setTitle(entry.title || '');
       setOriginalTitle(entry.originalTitle || '');
       setSynopsis(entry.synopsis || '');
@@ -83,7 +111,6 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
       setStatus(entry.status ?? 'planned');
       setPersonalOpinion(entry.personalOpinion ?? 'neutral');
       setPosterUrl(entry.posterUrl || '');
-      // review — richText, пустое значение (заполняется через paste markdown)
       setDirector(entry.director || '');
       setReleaseYear(entry.releaseYear?.toString() || '');
 
@@ -91,6 +118,9 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
       setTmdbRating(entry.tmdbRating?.toString() || '');
       setKpRating(entry.kpRating?.toString() || '');
       setKinopoiskId(entry.kinopoiskId || '');
+      setIsPublished(entry.isPublished ?? false);
+      setWatchDate(entry.watchDate?.split('T')[0] || '');
+      setVisualTags(entry.visualTags || '');
 
       // Коллекции могут быть ID или объектами
       const collIds = (entry.collections || []).map((c: number | Collection) =>
@@ -241,6 +271,9 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
         kpRating: kpRating ? parseFloat(kpRating) : undefined,
         kinopoiskId: kinopoiskId.trim() || undefined,
         review: review.trim() || undefined,
+        isPublished,
+        watchDate: watchDate || undefined,
+        visualTags: visualTags.trim() || undefined,
       };
 
       const url = isEditing
@@ -292,7 +325,7 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
       </div>
 
       {/* Кнопки поиска KP и TMDB */}
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 md:grid-cols-2">
         <KpSearchDashboard
           onFill={handleExternalFill}
           originalTitle={originalTitle}
@@ -563,6 +596,42 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
               onChange={(e) => setKinopoiskId(e.target.value)}
               placeholder="12345"
             />
+          </div>
+
+          {/* Дата просмотра */}
+          <div className="space-y-2">
+            <Label htmlFor="entry-watch-date">Дата просмотра</Label>
+            <Input
+              id="entry-watch-date"
+              type="date"
+              value={watchDate}
+              onChange={(e) => setWatchDate(e.target.value)}
+            />
+          </div>
+
+          {/* Визуальные теги */}
+          <div className="space-y-2">
+            <Label htmlFor="entry-visual-tags">Визуальные теги</Label>
+            <Input
+              id="entry-visual-tags"
+              value={visualTags}
+              onChange={(e) => setVisualTags(e.target.value)}
+              placeholder="Теги через запятую"
+            />
+          </div>
+
+          {/* Опубликовано */}
+          <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+            <input
+              id="entry-published"
+              type="checkbox"
+              checked={isPublished}
+              onChange={(e) => setIsPublished(e.target.checked)}
+              className="h-4 w-4 rounded border-border accent-primary"
+            />
+            <Label htmlFor="entry-published" className="cursor-pointer text-sm">
+              Опубликовано
+            </Label>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import type { Page } from '@/payload-types';
 import { Volume2, VolumeX } from 'lucide-react';
 import { CMSLink } from '@/components/shared';
@@ -42,6 +43,8 @@ export const HeroBlock: FC<HeroBlockProps> = ({
   backgroundVideoSrc,
   enableAudioToggle = false,
 }) => {
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
   const [isMuted, setIsMuted] = useState(true);
   const [isHeroInView, setIsHeroInView] = useState(true);
   const hasVideoBg = Boolean(backgroundVideoSrc);
@@ -94,7 +97,7 @@ export const HeroBlock: FC<HeroBlockProps> = ({
     <section
       ref={sectionRef}
       onClick={toggleMute}
-      className={`relative grid place-items-center overflow-hidden px-6 text-center ${
+      className={`relative grid place-items-center overflow-hidden px-6 text-center bg-foreground/2 ${
         fullHeight
           ? 'min-h-svh py-10 md:py-12 xl:py-18'
           : 'space-y-6 bg-foreground/2 py-4 md:py-8 pt-16 xl:space-y-10 xl:py-18 xl:pt-28'
@@ -112,7 +115,7 @@ export const HeroBlock: FC<HeroBlockProps> = ({
             muted={isMuted}
             preload="metadata"
           />
-          <div className="absolute inset-0 z-10 bg-black/45 backdrop-brightness-75" />
+          <div className="absolute inset-0 z-10 bg-black/50 backdrop-brightness-65" />
           <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_center,transparent_10%,rgba(0,0,0,0.55)_90%)]" />
         </>
       )}
@@ -126,9 +129,12 @@ export const HeroBlock: FC<HeroBlockProps> = ({
         {heroTitle && (
           /**
            * Заголовок H1 — виден поисковым роботам и скринридерам.
-           * Анимируется через `ANIMATIONS.itemVariants` (fade + slide up).
+           * На главной странице применяется glitch-эффект.
            */
-          <h1 className="text-3xl leading-[1.08] font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
+          <h1
+            className={`text-3xl leading-[1.08] font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl font-title ${isHomePage ? 'hero-glitch' : ''}`}
+            data-text={isHomePage ? heroTitle : undefined}
+          >
             {heroTitle}
           </h1>
         )}
@@ -158,7 +164,7 @@ export const HeroBlock: FC<HeroBlockProps> = ({
               const isOutline = link.appearance === 'outline';
               const heroButtonClass = hasVideoBg
                 ? [
-                    'min-w-[220px] rounded-2xl px-6 py-6 text-base font-semibold',
+                    'min-w-[220px] rounded-sm px-6 py-6 text-base font-semibold',
                     'shadow-lg shadow-black/25 transition-all duration-300',
                     isOutline
                       ? 'border-zinc-300/90 bg-white/95 text-zinc-900 hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900/55 dark:text-white dark:hover:bg-zinc-800/85'

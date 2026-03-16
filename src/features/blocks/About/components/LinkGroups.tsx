@@ -23,7 +23,7 @@ export const LinkGroups: FC<Props> = ({ items }): JSX.Element => {
               <div key={linkItem.id} className="group">
                 <CMSLink
                   {...linkItem.link}
-                  className="border-border bg-card hover:border-primary/50 hover:bg-primary/5 block border p-5 transition-all hover:shadow-sm"
+                  className="border-border bg-card hover:border-primary/50 hover:bg-primary/5 block border p-5 transition-all hover:shadow-xs"
                   appearance="inline"
                   newTab={true}
                 >

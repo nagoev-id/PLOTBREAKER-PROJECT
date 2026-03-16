@@ -10,11 +10,19 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  X,
 } from 'lucide-react';
 
 import { Button, Input } from '@/components/ui';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui';
 import { DeleteConfirmDialog } from '@/components/shared/dashboard/DeleteConfirmDialog';
-import { TYPE_CONFIG } from '@/lib/constants';
+import { MEDIA_CONTENT_TYPES, MEDIA_CONTENT_STATUS, TYPE_CONFIG } from '@/lib/constants';
 import { useDelete } from '@/hooks/useDelete';
 import type { Title as MediaContent } from '@/payload-types';
 
@@ -37,32 +45,44 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
   const [totalDocs, setTotalDocs] = useState(initialTotalDocs);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const { deleteRecord, deleteLoading } = useDelete();
 
-  const fetchEntries = useCallback(async (p: number, s: string) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: p.toString(),
-        limit: '20',
-      });
-      if (s) params.set('search', s);
+  const fetchEntries = useCallback(
+    async (
+      p: number,
+      s: string,
+      type: string = filterType,
+      status: string = filterStatus
+    ) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: p.toString(),
+          limit: '20',
+        });
+        if (s) params.set('search', s);
+        if (type) params.set('type', type);
+        if (status) params.set('status', status);
 
-      const res = await fetch(`/api/dashboard/entries?${params}`);
-      if (!res.ok) throw new Error('Ошибка загрузки');
-      const data = await res.json();
+        const res = await fetch(`/api/dashboard/entries?${params}`);
+        if (!res.ok) throw new Error('Ошибка загрузки');
+        const data = await res.json();
 
-      setEntries(data.docs);
-      setTotalPages(data.totalPages);
-      setTotalDocs(data.totalDocs);
-      setPage(p);
-    } catch {
-      toast.error('Не удалось загрузить записи');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        setEntries(data.docs);
+        setTotalPages(data.totalPages);
+        setTotalDocs(data.totalDocs);
+        setPage(p);
+      } catch {
+        toast.error('Не удалось загрузить записи');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [filterType, filterStatus]
+  );
 
   const handleSearch = () => {
     fetchEntries(1, search);
@@ -110,8 +130,8 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
         </Link>
       </div>
 
-      {/* Поиск */}
-      <div className="flex gap-2">
+      {/* Поиск и фильтры */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
@@ -122,6 +142,64 @@ const DashboardEntriesClient: FC<DashboardEntriesClientProps> = ({
             className="pl-10"
           />
         </div>
+
+        {/* Фильтр по типу */}
+        <Select
+          value={filterType}
+          onValueChange={(val) => {
+            setFilterType(val);
+            fetchEntries(1, search, val, filterStatus);
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-[150px]">
+            <SelectValue placeholder="Тип" />
+          </SelectTrigger>
+          <SelectContent>
+            {MEDIA_CONTENT_TYPES.select.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Фильтр по статусу */}
+        <Select
+          value={filterStatus}
+          onValueChange={(val) => {
+            setFilterStatus(val);
+            fetchEntries(1, search, filterType, val);
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Статус" />
+          </SelectTrigger>
+          <SelectContent>
+            {MEDIA_CONTENT_STATUS.select.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Кнопка сброса фильтров */}
+        {(filterType || filterStatus) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setFilterType('');
+              setFilterStatus('');
+              fetchEntries(1, search, '', '');
+            }}
+            className="gap-1 text-muted-foreground"
+          >
+            <X className="h-3.5 w-3.5" />
+            Сброс
+          </Button>
+        )}
+
         <Button variant="outline" onClick={handleSearch} disabled={loading}>
           Найти
         </Button>

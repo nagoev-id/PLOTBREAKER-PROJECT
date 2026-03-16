@@ -1,12 +1,19 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, Globe, Lock, Tag } from 'lucide-react';
+import { Plus, Pencil, Trash2, Globe, Lock, Tag, Search, X } from 'lucide-react';
 
-import { Button } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui';
 import { CollectionFormDialog } from '@/components/shared/dashboard/CollectionFormDialog';
 import { DeleteConfirmDialog } from '@/components/shared/dashboard/DeleteConfirmDialog';
 import { useDelete } from '@/hooks/useDelete';
@@ -31,6 +38,37 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
   );
   const { deleteRecord, deleteLoading } = useDelete();
 
+  // Фильтры
+  const [search, setSearch] = useState('');
+  const [filterVisibility, setFilterVisibility] = useState('');
+  const [filterTheme, setFilterTheme] = useState('');
+
+  const filteredCollections = useMemo(() => {
+    return collections.filter((c) => {
+      // Поиск по названию
+      if (search) {
+        const q = search.toLowerCase();
+        if (
+          !c.title.toLowerCase().includes(q) &&
+          !(c.slug || '').toLowerCase().includes(q)
+        )
+          return false;
+      }
+
+      // Фильтр по видимости
+      if (filterVisibility === 'public' && !c.isPublic) return false;
+      if (filterVisibility === 'private' && c.isPublic) return false;
+
+      // Фильтр по теме
+      if (filterTheme === 'theme' && !c.isTheme) return false;
+      if (filterTheme === 'not-theme' && c.isTheme) return false;
+
+      return true;
+    });
+  }, [collections, search, filterVisibility, filterTheme]);
+
+  const hasActiveFilters = search || filterVisibility || filterTheme;
+
   const handleCreate = () => {
     setEditingCollection(null);
     setDialogOpen(true);
@@ -44,7 +82,6 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
   const handleSubmit = async (data: Partial<Collection>) => {
     try {
       if (editingCollection) {
-        // Обновление
         const res = await fetch(
           `/api/dashboard/collections/${editingCollection.id}`,
           {
@@ -60,7 +97,6 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
         );
         toast.success('Список обновлён');
       } else {
-        // Создание
         const res = await fetch('/api/dashboard/collections', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -96,7 +132,7 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
         <div>
           <h2 className="text-xl font-semibold">Коллекции</h2>
           <p className="text-muted-foreground text-sm">
-            {collections.length} списков
+            {filteredCollections.length} из {collections.length} списков
           </p>
         </div>
         <Button onClick={handleCreate}>
@@ -105,8 +141,60 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
         </Button>
       </div>
 
+      {/* Поиск и фильтры */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Input
+            placeholder="Поиск по названию..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Фильтр видимости */}
+        <Select value={filterVisibility} onValueChange={setFilterVisibility}>
+          <SelectTrigger className="w-full sm:w-[160px]">
+            <SelectValue placeholder="Видимость" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="public">Публичные</SelectItem>
+            <SelectItem value="private">Приватные</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Фильтр по теме */}
+        <Select value={filterTheme} onValueChange={setFilterTheme}>
+          <SelectTrigger className="w-full sm:w-[150px]">
+            <SelectValue placeholder="Тема" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="theme">Темы</SelectItem>
+            <SelectItem value="not-theme">Не темы</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Сброс фильтров */}
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSearch('');
+              setFilterVisibility('');
+              setFilterTheme('');
+            }}
+            className="gap-1 text-muted-foreground"
+          >
+            <X className="h-3.5 w-3.5" />
+            Сброс
+          </Button>
+        )}
+      </div>
+
       {/* Таблица */}
-      {collections.length > 0 ? (
+      {filteredCollections.length > 0 ? (
         <div className="overflow-hidden rounded-lg border">
           <table className="w-full">
             <thead>
@@ -126,7 +214,7 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
               </tr>
             </thead>
             <tbody>
-              {collections.map((collection) => (
+              {filteredCollections.map((collection) => (
                 <tr
                   key={collection.id}
                   className="border-b transition-colors hover:bg-muted/30"
@@ -199,11 +287,15 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
         </div>
       ) : (
         <div className="rounded-lg border border-dashed py-12 text-center">
-          <p className="text-muted-foreground">Списков пока нет</p>
-          <Button variant="outline" className="mt-4" onClick={handleCreate}>
-            <Plus className="mr-2 h-4 w-4" />
-            Создать первый список
-          </Button>
+          <p className="text-muted-foreground">
+            {hasActiveFilters ? 'Списков не найдено' : 'Списков пока нет'}
+          </p>
+          {!hasActiveFilters && (
+            <Button variant="outline" className="mt-4" onClick={handleCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              Создать первый список
+            </Button>
+          )}
         </div>
       )}
 

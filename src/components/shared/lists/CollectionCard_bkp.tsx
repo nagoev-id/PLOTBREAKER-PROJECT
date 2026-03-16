@@ -54,7 +54,7 @@ export const CollectionCard: FC<CollectionCardProps> = ({ list }) => {
     <div className="group h-full">
       <Card
         className={cn(
-          'hover:bg-muted-foreground/2 h-full rounded-none border shadow-none transition-all hover:shadow-sm',
+          'hover:bg-muted-foreground/2 h-full rounded-none border shadow-none transition-all hover:shadow-xs',
           type.border
         )}
       >

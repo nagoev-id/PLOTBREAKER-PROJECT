@@ -146,7 +146,7 @@ export const MovieCard: FC<Props> = ({
       }
 
       toast.success('Запись удалена');
-      router.refresh();
+      router.back();
     } catch (error) {
       console.error('Error deleting item:', error);
       toast.error('Ошибка при удалении');

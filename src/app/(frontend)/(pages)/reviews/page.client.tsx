@@ -52,7 +52,7 @@ import {
  * @param items - Массив медиа-контента
  * @returns {JSX.Element}
  */
-const HomePageClient: FC<{ items: Title[] }> = ({
+const ReviewsPageClient: FC<{ items: Title[] }> = ({
   items: itemsProp,
 }): JSX.Element => {
   const items = useMemo(() => itemsProp ?? [], [itemsProp]);
@@ -452,7 +452,7 @@ const HomePageClient: FC<{ items: Title[] }> = ({
           <div className="pointer-events-none absolute -bottom-24 left-14 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl dark:bg-sky-500/25" />
           <div className="relative z-10 space-y-5">
             <div className="space-y-2">
-              <Badge className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold tracking-[0.14em] uppercase">
+              <Badge className="rounded-full border dark:text-white border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold tracking-[0.14em] uppercase hover:border-white/20 hover:bg-white/10">
                 Каталог пересказов
               </Badge>
               <h2 className="text-2xl font-semibold leading-tight sm:text-3xl">
@@ -715,4 +715,4 @@ const HomePageClient: FC<{ items: Title[] }> = ({
   );
 };
 
-export default HomePageClient;
+export default ReviewsPageClient;

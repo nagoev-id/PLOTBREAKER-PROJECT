@@ -34,16 +34,30 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '20', 10);
     const search = searchParams.get('search') || '';
+    const typeFilter = searchParams.get('type') || '';
+    const statusFilter = searchParams.get('status') || '';
 
-    let where: Where | undefined;
+    const conditions: Where[] = [];
+
     if (search) {
-      where = {
+      conditions.push({
         or: [
           { title: { contains: search } },
           { originalTitle: { contains: search } },
         ],
-      };
+      });
     }
+
+    if (typeFilter) {
+      conditions.push({ type: { equals: typeFilter } });
+    }
+
+    if (statusFilter) {
+      conditions.push({ status: { equals: statusFilter } });
+    }
+
+    const where: Where | undefined =
+      conditions.length > 0 ? { and: conditions } : undefined;
 
     const result = await payload!.find({
       collection: COLLECTION_SLUGS.titles,

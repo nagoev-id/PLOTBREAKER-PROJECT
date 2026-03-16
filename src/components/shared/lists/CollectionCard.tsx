@@ -33,8 +33,8 @@ export const CollectionCard: FC<CollectionCardProps> = ({ list }) => {
         )}
       >
         <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-foreground/[0.04] to-transparent sm:h-20" />
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-foreground/[0.06] to-transparent sm:h-24" />
+          <div className="absolute inset-x-0 top-0 h-14 bg-linear-to-b from-foreground/4 to-transparent sm:h-20" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-foreground/6 to-transparent sm:h-24" />
         </div>
 
         <div className="relative z-10 flex h-full flex-col justify-between">
@@ -49,10 +49,10 @@ export const CollectionCard: FC<CollectionCardProps> = ({ list }) => {
           </div>
 
           <h3 className="space-y-0.5 pt-5 text-center sm:space-y-1 sm:pt-8">
-            <span className="block break-words font-title text-[1.55rem] leading-[0.92] font-bold tracking-tight uppercase sm:text-3xl md:text-[2.05rem] lg:text-4xl">
+            <span className="block wrap-break-word font-title text-[1.55rem] leading-[0.92] font-bold tracking-tight uppercase sm:text-3xl md:text-[2.05rem] lg:text-3xl">
               {titleMain}
             </span>
-            <span className="block break-words text-[1.5rem] leading-[0.92] font-semibold tracking-tight uppercase sm:text-3xl md:text-[2.05rem] lg:text-4xl">
+            <span className="block wrap-break-word text-[1.5rem] leading-[0.92] font-semibold tracking-tight uppercase sm:text-3xl md:text-[2.05rem] lg:text-4xl">
               {titleSecondary || 'Коллекция'}
             </span>
           </h3>

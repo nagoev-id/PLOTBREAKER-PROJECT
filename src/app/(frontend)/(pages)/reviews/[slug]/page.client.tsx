@@ -124,11 +124,12 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
       url: '/api/titles',
       successMessage: 'Запись удалена',
       errorMessage: 'Ошибка при удалении',
+      onSuccess: () => router.back(),
     });
   };
 
   return (
-    <article className="relative border-t border-border/60 bg-gradient-to-b from-white via-zinc-50/55 to-white dark:from-zinc-950 dark:via-zinc-950 dark:to-black">
+    <article className="relative border-t border-border/60 bg-linear-to-b from-white via-zinc-50/55 to-white dark:from-zinc-950 dark:via-zinc-950 dark:to-black">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.15),transparent_55%),radial-gradient(circle_at_85%_15%,rgba(8,145,178,0.16),transparent_45%)] dark:bg-[radial-gradient(circle_at_top,rgba(244,114,182,0.18),transparent_52%),radial-gradient(circle_at_90%_10%,rgba(56,189,248,0.2),transparent_45%)]" />
 
       <section className="relative overflow-hidden border-b border-border/60">
@@ -154,14 +155,14 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
               onClick={() => router.back()}
               variant="ghost"
               size="sm"
-              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border/60 bg-background/70 text-sm shadow-sm backdrop-blur-sm transition-colors hover:bg-muted/70"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border/60 bg-background/70 text-sm shadow-xs backdrop-blur-sm transition-colors hover:bg-muted/70"
             >
               <ArrowLeft size={16} />
               Назад
             </Button>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-zinc-200/70 bg-card/95 p-4 shadow-xl shadow-zinc-900/10 backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/70 dark:bg-zinc-950/80 dark:shadow-black/35 sm:p-6 lg:p-8">
+          <div className="relative overflow-hidden rounded-sm border border-zinc-200/70 bg-card/95 p-4 shadow-xs shadow-zinc-900/10 backdrop-blur supports-backdrop-filter:bg-card/70 dark:border-zinc-700/80 dark:bg-zinc-850/75 dark:shadow-black/35 sm:p-6 lg:p-8">
             <div className="pointer-events-none absolute -right-16 -bottom-24 h-56 w-56 rounded-full bg-amber-300/20 blur-3xl dark:bg-fuchsia-500/20" />
             <div className="pointer-events-none absolute -left-12 -top-16 h-48 w-48 rounded-full bg-cyan-300/15 blur-3xl dark:bg-sky-500/20" />
 
@@ -169,7 +170,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
             <div className="relative z-10 grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
               {/* Миниатюра постера */}
               {posterSrc && (
-                <div className="relative mx-auto aspect-2/3 w-full max-w-[260px] shrink-0 overflow-hidden rounded-2xl border border-zinc-300/70 shadow-lg shadow-zinc-900/20 dark:border-zinc-700/80">
+                <div className="relative mx-auto aspect-2/3 w-full max-w-[260px] shrink-0 overflow-hidden rounded-sm border border-zinc-300/70 shadow-lg shadow-zinc-900/20 dark:border-zinc-700/80">
                   <Image
                     src={posterSrc}
                     alt={item.title}
@@ -180,7 +181,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                 </div>
               )}
               {!posterSrc && (
-                <div className="mx-auto flex aspect-2/3 w-full max-w-[260px] shrink-0 items-center justify-center rounded-2xl border border-dashed border-zinc-300/70 bg-zinc-100/80 dark:border-zinc-700 dark:bg-zinc-900/70">
+                <div className="mx-auto flex aspect-2/3 w-full max-w-[260px] shrink-0 items-center justify-center rounded-sm border border-dashed border-zinc-300/70 bg-zinc-100/80 dark:border-zinc-700 dark:bg-zinc-900/70">
                   <p className="text-muted-foreground px-4 text-center text-sm">
                     Постер не загружен
                   </p>
@@ -277,7 +278,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
                 {/* Синопсис */}
                 {item.synopsis && (
-                  <div className="rounded-2xl border border-zinc-200/80 bg-background/75 p-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-950/70">
+                  <div className="rounded-sm border border-zinc-200/80 bg-background/75 p-4 shadow-xs dark:border-zinc-800/80 dark:bg-zinc-950/70">
                     <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
                       Краткое описание
                     </p>
@@ -287,7 +288,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   </div>
                 )}
 
-                <div className="max-w-max rounded-2xl border border-zinc-200/80 bg-background/75 p-1 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-950/70">
+                <div className="max-w-max rounded-sm border border-zinc-200/80 bg-background/75 p-1 shadow-xs dark:border-zinc-800/80 dark:bg-zinc-950/70">
                   <AdminActions
                     editUrl={`/admin/collections/titles/${item.id}`}
                     onDelete={handleDelete}
@@ -316,37 +317,39 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
           {/* Левая колонка — обзор */}
           <div className="min-w-0 space-y-5">
-            <div className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-6">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
-                    Основной текст
-                  </p>
-                  <h2 className="text-xl font-semibold sm:text-2xl">Обзор</h2>
+            {!hasSeasonBreakdown && (
+              <div className="rounded-sm border border-zinc-200/80 bg-card/90 p-4 shadow-xs backdrop-blur supports-backdrop-filter:bg-card/70 dark:border-zinc-700/80 dark:bg-zinc-850/75 dark:shadow-black/30 sm:p-6">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+                      Основной текст
+                    </p>
+                    <h2 className="text-xl font-semibold sm:text-2xl">Обзор</h2>
+                  </div>
+                  <Badge
+                    variant="secondary"
+                    className="rounded-full px-3 py-1 text-xs dark:bg-zinc-900 dark:text-zinc-100"
+                  >
+                    Размер: {PROSE_SIZES[sizeIndex].label}
+                  </Badge>
                 </div>
-                <Badge
-                  variant="secondary"
-                  className="rounded-full px-3 py-1 text-xs dark:bg-zinc-900 dark:text-zinc-100"
-                >
-                  Размер: {PROSE_SIZES[sizeIndex].label}
-                </Badge>
-              </div>
 
-              {item.review ? (
-                <RichText
-                  content={item.review}
-                  className={`prose prose-zinc ${proseSize} prose-hr:my-4 prose-headings:mb-3 prose-headings:mt-6 prose-headings:font-bold prose-headings:uppercase prose-li:my-0.5 prose-p:my-2 prose-p:text-justify prose-p:leading-relaxed dark:prose-invert max-w-none`}
-                />
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  Текст обзора пока не добавлен.
-                </p>
-              )}
-            </div>
+                {item.review ? (
+                  <RichText
+                    content={item.review}
+                    className={`prose prose-zinc ${proseSize} prose-hr:my-4 prose-headings:mb-3 prose-headings:mt-6 prose-headings:font-bold prose-headings:uppercase prose-li:my-0.5 prose-p:my-2 prose-p:text-justify prose-p:leading-relaxed dark:prose-invert max-w-none`}
+                  />
+                ) : (
+                  <p className="text-muted-foreground text-sm">
+                    Текст обзора пока не добавлен.
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Обзоры по сезонам (для сериалов и мультфильмов) */}
             {hasSeasonBreakdown && (
-              <div className="rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-6">
+              <div className="rounded-sm border border-zinc-200/80 bg-card/90 p-4 shadow-xs backdrop-blur supports-backdrop-filter:bg-card/70 dark:border-zinc-700/80 dark:bg-zinc-850/75 dark:shadow-black/30 sm:p-6">
                 <div className="mb-3 space-y-1">
                   <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
                     Эпизодная структура
@@ -409,7 +412,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
           {/* Правая колонка */}
           <aside className="xl:sticky xl:top-20 xl:h-fit">
-            <div className="space-y-4 rounded-2xl border border-zinc-200/80 bg-card/90 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/70 dark:border-zinc-800/80 dark:bg-zinc-950/75 dark:shadow-black/30 sm:p-5">
+            <div className="space-y-4 rounded-sm border border-zinc-200/80 bg-card/90 p-4 shadow-xs backdrop-blur supports-backdrop-filter:bg-card/70 dark:border-zinc-700/80 dark:bg-zinc-850/75 dark:shadow-black/30 sm:p-5">
               <div>
                 <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
                   Метаданные
@@ -507,7 +510,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
       {/* Плавающая кнопка размера шрифта */}
       <div className="fixed bottom-5 right-4 z-50 flex flex-col items-end gap-2 sm:bottom-6 sm:right-6">
         {showFontControls && (
-          <div className="flex items-center gap-1 rounded-2xl border border-zinc-200/80 bg-background/95 px-2 py-1.5 shadow-lg backdrop-blur-sm dark:border-zinc-800/80 dark:bg-zinc-950/85">
+          <div className="flex items-center gap-1 rounded-sm border border-zinc-200/80 bg-background/95 px-2 py-1.5 shadow-lg backdrop-blur-sm dark:border-zinc-800/80 dark:bg-zinc-950/85">
             <button
               onClick={() => changeFontSize(-1)}
               disabled={sizeIndex <= 0}
@@ -532,7 +535,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
         <button
           onClick={() => setShowFontControls((prev) => !prev)}
-          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-2xl border border-zinc-200/80 bg-background/95 shadow-lg backdrop-blur-sm transition-colors hover:bg-muted dark:border-zinc-800/80 dark:bg-zinc-950/85"
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-sm border border-zinc-200/80 bg-background/95 shadow-lg backdrop-blur-sm transition-colors hover:bg-muted dark:border-zinc-800/80 dark:bg-zinc-950/85"
           title="Размер шрифта"
         >
           <Type size={18} />

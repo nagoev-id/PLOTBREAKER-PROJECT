@@ -94,7 +94,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
   );
 
   return (
-    <section className="space-y-4 py-8 lg:py-11">
+    <section className="space-y-4 py-8 lg:py-11 lg:pt-24">
       {/* Навигация назад */}
       <div className="container mx-auto px-2 sm:px-4">
         <Link
