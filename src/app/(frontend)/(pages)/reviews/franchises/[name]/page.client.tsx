@@ -3,48 +3,29 @@
 import { FC, JSX, useMemo, useState, useCallback } from 'react';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Film, Search, X, Tag } from 'lucide-react';
+import { ArrowLeft, Film, Search, X, Layers } from 'lucide-react';
 
 import { MovieCard, PaginationControls } from '@/components/shared';
 import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/lib/constants';
 import { Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
-import { formatSlugString } from '@/lib/utils';
 
 import type { Title } from '@/payload-types';
 
-// Тип пропсов компонента
-type TagPageClientProps = {
-  tagSlug: string;
+type FranchisePageClientProps = {
+  franchise: string;
   items: Title[];
 };
 
 /**
- * Клиентский компонент страницы тега
- * @param tagSlug - Slug визуального тега из URL
- * @returns {JSX.Element}
+ * Клиентский компонент страницы франшизы
  */
-export const TagPageClient: FC<TagPageClientProps> = ({
-  tagSlug,
+export const FranchisePageClient: FC<FranchisePageClientProps> = ({
+  franchise,
   items,
 }): JSX.Element => {
-  // Роутер
   const router = useRouter();
-  // Параметры поиска
   const searchParams = useSearchParams();
 
-  // Находим оригинальное название тега из данных
-  const originalTag = useMemo(() => {
-    for (const item of items) {
-      if (item.visualTags && typeof item.visualTags === 'string') {
-        const tags = item.visualTags.split(',').map((t: string) => t.trim());
-        const found = tags.find((t: string) => formatSlugString(t) === tagSlug);
-        if (found) return found;
-      }
-    }
-    return tagSlug;
-  }, [items, tagSlug]);
-
-  // Фильтры из searchParams (single source of truth)
   const activeType = searchParams.get('type') || ALL_VALUE;
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
   const pageSize = PAGINATION_CONFIG.pageSizeOptions.includes(
@@ -53,15 +34,8 @@ export const TagPageClient: FC<TagPageClientProps> = ({
     ? Number(searchParams.get('size'))
     : PAGINATION_CONFIG.defaultPageSize;
 
-  // Поиск — локальное состояние для немедленного отклика ввода
   const [searchQuery, setSearchQuery] = useState('');
 
-  /**
-   * Обновление параметров в URL
-   * @param page - Номер страницы
-   * @param size - Размер страницы
-   * @param type - Тип фильма
-   */
   const updateUrlParams = useCallback(
     (page: number, size: number, type: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -81,26 +55,19 @@ export const TagPageClient: FC<TagPageClientProps> = ({
         params.set('type', type);
       }
       const qs = params.toString();
-      router.replace(`/reviews/tags/${tagSlug}${qs ? `?${qs}` : ''}`, {
-        scroll: false,
-      });
+      router.replace(
+        `/reviews/franchises/${encodeURIComponent(franchise)}${qs ? `?${qs}` : ''}`,
+        { scroll: false }
+      );
     },
-    [searchParams, router, tagSlug]
+    [searchParams, router, franchise]
   );
 
-  /**
-   * Обработка изменения страницы
-   * @param page - Номер страницы
-   */
   const handlePageChange = useCallback(
     (page: number) => updateUrlParams(page, pageSize, activeType),
     [updateUrlParams, pageSize, activeType]
   );
 
-  /**
-   * Обработка изменения поискового запроса
-   * @param value - Значение поискового запроса
-   */
   const handleSearchChange = useCallback(
     (value: string) => {
       setSearchQuery(value);
@@ -109,39 +76,27 @@ export const TagPageClient: FC<TagPageClientProps> = ({
     [updateUrlParams, pageSize, activeType]
   );
 
-  /**
-   * Обработка изменения типа фильма
-   * @param value - Значение типа фильма
-   */
   const handleTypeChange = useCallback(
     (value: string) => updateUrlParams(1, pageSize, value),
     [updateUrlParams, pageSize]
   );
 
-  /**
-   * Обработка изменения размера страницы
-   * @param size - Размер страницы
-   */
   const handlePageSizeChange = useCallback(
     (size: number) => updateUrlParams(1, size, activeType),
     [updateUrlParams, activeType]
   );
 
-  /**
-   * Сброс всех фильтров и параметров URL
-   */
   const handleReset = useCallback(() => {
     setSearchQuery('');
-    router.replace(`/reviews/tags/${tagSlug}`, { scroll: false });
-  }, [router, tagSlug]);
+    router.replace(`/reviews/franchises/${encodeURIComponent(franchise)}`, {
+      scroll: false,
+    });
+  }, [router, franchise]);
 
-  // Фильтрация (данные уже по тегу, фильтруем по типу/поиску)
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      // Фильтр по типу
       if (activeType !== ALL_VALUE && item.type !== activeType) return false;
 
-      // Поиск по названию
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const titleMatch = item.title?.toLowerCase().includes(q);
@@ -153,7 +108,6 @@ export const TagPageClient: FC<TagPageClientProps> = ({
     });
   }, [items, activeType, searchQuery]);
 
-  // Пагинация
   const totalPages = Math.ceil(filteredItems.length / pageSize);
   const paginatedItems = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -164,44 +118,43 @@ export const TagPageClient: FC<TagPageClientProps> = ({
     <section className="container mx-auto px-4 py-8 pt-24">
       {/* Заголовок и кнопка назад */}
       <div className="mb-8">
-        {/* Кнопка назад */}
         <button
           onClick={() => router.back()}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-foreground"
+          className="mb-4 inline-flex cursor-pointer items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-foreground"
         >
           <ArrowLeft size={14} />
-          Каталог
+          Назад
         </button>
 
-        {/* Заголовок */}
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Tag size={20} className="text-muted-foreground" />
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-              #{originalTag}
-            </h1>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-none border border-orange-500/25 bg-orange-500/10">
+            <Layers size={20} className="text-orange-400" />
           </div>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            {items.length}{' '}
-            {items.length === 1
-              ? 'запись'
-              : items.length < 5
-                ? 'записи'
-                : 'записей'}{' '}
-            с тегом «{originalTag}»
-          </p>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+              {franchise}
+            </h1>
+            <p className="mt-1 text-zinc-500 dark:text-zinc-400">
+              {items.length}{' '}
+              {items.length === 1
+                ? 'запись'
+                : items.length < 5
+                  ? 'записи'
+                  : 'записей'}{' '}
+              во франшизе
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Фильтры */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* Табы по типу */}
         <Tabs
           value={activeType}
           onValueChange={handleTypeChange}
           className="flex justify-center"
         >
-          <TabsList className="flex h-auto justify-center max-w-max">
+          <TabsList className="flex h-auto max-w-max justify-center">
             {TYPE_TABS.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.label}
@@ -210,9 +163,8 @@ export const TagPageClient: FC<TagPageClientProps> = ({
           </TabsList>
         </Tabs>
 
-        {/* Поиск и кнопка сброса */}
         <div className="flex items-center gap-2">
-          <div className="relative sm:max-w-[290px] w-full">
+          <div className="relative w-full sm:max-w-[290px]">
             <Search
               size={14}
               className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
@@ -243,7 +195,7 @@ export const TagPageClient: FC<TagPageClientProps> = ({
 
       {/* Грид карточек */}
       {paginatedItems.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {paginatedItems.map((item) => (
             <div key={item.id}>
               <MovieCard item={item} />
@@ -257,7 +209,7 @@ export const TagPageClient: FC<TagPageClientProps> = ({
           <p className="mt-1 text-sm">
             {searchQuery
               ? 'Попробуйте изменить поисковый запрос'
-              : 'С этим тегом пока нет записей'}
+              : 'В этой франшизе пока нет записей'}
           </p>
         </div>
       )}

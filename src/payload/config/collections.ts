@@ -26,7 +26,7 @@ import {
 import { formatVisualTags } from '@/payload/hooks/formatVisualTags';
 import { ABOUT_BLOCK, HERO_BLOCK } from '@/payload/config/blocks';
 
-export const MIME_TYPES = [
+const MIME_TYPES = [
   'image/*',
   'video/*',
   'application/pdf',
@@ -39,7 +39,7 @@ export const MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ];
 
-export const IMAGE_SIZES = [
+const IMAGE_SIZES = [
   {
     name: 'thumbnail',
     width: 400,
@@ -475,7 +475,15 @@ export const TITLES_COLLECTION = {
         position: 'sidebar',
       },
     },
-
+    {
+      name: 'franchise',
+      type: 'text',
+      label: 'Франшиза',
+      admin: {
+        position: 'sidebar',
+        description: 'Например: Гарри Поттер, Звездные войны, Крик',
+      },
+    },
     {
       name: 'collections',
       type: 'relationship',

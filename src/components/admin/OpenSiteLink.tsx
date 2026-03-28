@@ -2,6 +2,7 @@
 
 import { ExternalLink } from 'lucide-react';
 import { FC, JSX } from 'react';
+import Link from 'next/link';
 
 /**
  * Компонент для открытия сайта из админ-панели
@@ -9,7 +10,7 @@ import { FC, JSX } from 'react';
  */
 const OpenSiteLink: FC = (): JSX.Element => {
   return (
-    <a
+    <Link
       href="/"
       target="_blank"
       rel="noopener noreferrer"
@@ -36,7 +37,7 @@ const OpenSiteLink: FC = (): JSX.Element => {
     >
       <ExternalLink size={14} />
       Открыть сайт
-    </a>
+    </Link>
   );
 };
 

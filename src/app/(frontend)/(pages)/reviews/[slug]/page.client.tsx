@@ -219,7 +219,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                     <span className="opacity-40">•</span>
                   )}
                   {directors.map((director: string, index: number) => (
-                    <span key={`${director}-${index}`}>
+                    <span key={director}>
                       {director}
                       {index < directors.length - 1 && ', '}
                     </span>
@@ -468,9 +468,9 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   title="Визуальные теги"
                   contentClassName="flex flex-wrap gap-1.5"
                 >
-                  {visualTags.map((tag: string, index: number) => (
+                  {visualTags.map((tag: string) => (
                     <Link
-                      key={`vtag-${index}-${tag}`}
+                      key={tag}
                       href={`/reviews/tags/${formatSlugString(tag)}`}
                     >
                       <Badge

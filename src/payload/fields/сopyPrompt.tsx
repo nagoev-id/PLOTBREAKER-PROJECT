@@ -178,4 +178,3 @@ export const CopyPromptButton = () => {
   );
 };
 
-export default CopyPromptButton;

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, JSX, useMemo, useState, useCallback, useEffect } from 'react';
+import { FC, JSX, useMemo, useState, useCallback } from 'react';
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, FileText, Search, X, Tag } from 'lucide-react';
@@ -33,23 +33,13 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
   // Параметры поиска
   const searchParams = useSearchParams();
 
-  // Поисковый запрос
   const [searchQuery, setSearchQuery] = useState('');
-  // Текущая страница
-  const [currentPage, setCurrentPage] = useState(() => {
-    const pageParam = searchParams.get('page');
-    return pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1;
-  });
-  // Размер страницы
-  const [pageSize, setPageSize] = useState(() => {
-    const sizeParam = searchParams.get('size');
-    return sizeParam
-      ? Math.max(
-          1,
-          parseInt(sizeParam, 10) || PAGINATION_CONFIG.defaultPageSize
-        )
-      : PAGINATION_CONFIG.defaultPageSize;
-  });
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+  const pageSize = PAGINATION_CONFIG.pageSizeOptions.includes(
+    Number(searchParams.get('size'))
+  )
+    ? Number(searchParams.get('size'))
+    : PAGINATION_CONFIG.defaultPageSize;
 
   /**
    * Обновление параметров в URL
@@ -82,10 +72,7 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
    * @param page - Номер страницы
    */
   const handlePageChange = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-      updateUrlParams(page, pageSize);
-    },
+    (page: number) => updateUrlParams(page, pageSize),
     [updateUrlParams, pageSize]
   );
 
@@ -96,7 +83,6 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
   const handleSearchChange = useCallback(
     (value: string) => {
       setSearchQuery(value);
-      setCurrentPage(1);
       updateUrlParams(1, pageSize);
     },
     [updateUrlParams, pageSize]
@@ -107,11 +93,7 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
    * @param size - Размер страницы
    */
   const handlePageSizeChange = useCallback(
-    (size: number) => {
-      setPageSize(size);
-      setCurrentPage(1);
-      updateUrlParams(1, size);
-    },
+    (size: number) => updateUrlParams(1, size),
     [updateUrlParams]
   );
 
@@ -120,28 +102,8 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
    */
   const handleReset = useCallback(() => {
     setSearchQuery('');
-    setCurrentPage(1);
-    setPageSize(PAGINATION_CONFIG.defaultPageSize);
     router.replace(`/blog/tags/${tag}`, { scroll: false });
   }, [router, tag]);
-
-  // Сброс при смене тега
-  useEffect(() => {
-    const pageParam = searchParams.get('page');
-    const sizeParam = searchParams.get('size');
-    const initialPage = pageParam
-      ? Math.max(1, parseInt(pageParam, 10) || 1)
-      : 1;
-    const initialSize = sizeParam
-      ? Math.max(
-          1,
-          parseInt(sizeParam, 10) || PAGINATION_CONFIG.defaultPageSize
-        )
-      : PAGINATION_CONFIG.defaultPageSize;
-    setCurrentPage(initialPage);
-    setPageSize(initialSize);
-    setSearchQuery('');
-  }, [tag, searchParams]);
 
   // Фильтрация по поиску (данные уже по тегу)
   const filteredPosts = useMemo(() => {
@@ -258,4 +220,3 @@ export const BlogTagPageClient: FC<BlogTagPageClientProps> = ({
   );
 };
 
-export default BlogTagPageClient;

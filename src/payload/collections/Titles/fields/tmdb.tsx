@@ -251,6 +251,7 @@ export const TmdbSearch = () => {
       style={{ marginBottom: '20px' }}
     >
       <label
+        htmlFor="tmdb-search-input"
         className="field-label"
         style={{ marginBottom: '8px', display: 'block' }}
       >
@@ -320,6 +321,7 @@ export const TmdbSearch = () => {
 
       <div style={{ marginBottom: '10px', display: 'flex', gap: '10px' }}>
         <input
+          id="tmdb-search-input"
           type="text"
           className="payload-text-input"
           style={{
@@ -476,4 +478,3 @@ export const TmdbSearch = () => {
   );
 };
 
-export default TmdbSearch;

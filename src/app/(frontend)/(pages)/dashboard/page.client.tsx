@@ -301,6 +301,7 @@ const DashboardCollectionsClient: FC<DashboardCollectionsClientProps> = ({
 
       {/* Диалог создания/редактирования */}
       <CollectionFormDialog
+        key={editingCollection?.id ?? 'new'}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         collection={editingCollection}

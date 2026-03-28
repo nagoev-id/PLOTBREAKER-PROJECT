@@ -68,7 +68,7 @@ export const RenderBlocks: FC<RenderBlocksProps> = ({ blocks }) => {
 
             return (
               <HeroBlock
-                key={index}
+                key={block.id || index}
                 {...block}
                 fullHeight={Boolean(videoUrl)}
                 backgroundVideoSrc={videoUrl}
@@ -77,7 +77,7 @@ export const RenderBlocks: FC<RenderBlocksProps> = ({ blocks }) => {
             );
           }
           case 'about':
-            return <AboutBlock key={index} {...block} />;
+            return <AboutBlock key={block.id || index} {...block} />;
           default:
             return null;
         }

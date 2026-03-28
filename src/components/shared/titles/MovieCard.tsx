@@ -22,6 +22,7 @@ import axios from 'axios';
 
 import { OPINION_CONFIG } from '@/lib/constants';
 import { cn, getGenreLabel, getPosterUrl } from '@/lib/utils';
+import { formatSlug } from '@/payload/utilities/utils';
 import type { Title } from '@/payload-types';
 import { AdminActions } from '@/components/shared';
 import { useAuth } from '@/components/context';
@@ -63,9 +64,7 @@ const TYPE_META: Record<
 /**
  * Проверяет, содержит ли Lexical rich text поле реальный контент
  */
-const hasRichTextContent = (
-  field?: Title['review'] | null,
-): boolean => {
+const hasRichTextContent = (field?: Title['review'] | null): boolean => {
   if (!field?.root?.children) return false;
   return field.root.children.some((child) => {
     if (child.type !== 'paragraph') return true;
@@ -74,7 +73,7 @@ const hasRichTextContent = (
     if (!Array.isArray(nested) || nested.length === 0) return false;
     return nested.some(
       (c: Record<string, unknown>) =>
-        typeof c.text === 'string' && c.text.trim().length > 0,
+        typeof c.text === 'string' && c.text.trim().length > 0
     );
   });
 };
@@ -238,10 +237,10 @@ export const MovieCard: FC<Props> = ({
             )}
           </div>
 
-          <div className="absolute bottom-2 left-2 z-20 flex items-center gap-1.5">
+          <div className="absolute bottom-2 left-2 z-20 flex flex-wrap items-center gap-1.5">
             <div
               className={cn(
-                'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold tracking-[0.04em] uppercase',
+                'inline-flex items-center gap-1 rounded-full border border-blue-500/35 bg-blue-500/40 px-2 py-1 text-[10px] font-semibold tracking-[0.04em] uppercase text-blue-300',
                 typeMeta.className
               )}
             >
@@ -250,9 +249,31 @@ export const MovieCard: FC<Props> = ({
             </div>
 
             {hasReview && (
-              <div className="inline-flex items-center gap-1 rounded-full border border-emerald-500/35 bg-emerald-500/12 px-2 py-1 text-[10px] font-semibold tracking-[0.04em] text-emerald-300 uppercase">
+              <div className="inline-flex items-center gap-1 rounded-full border border-emerald-500/35 bg-emerald-500/40 px-2 py-1 text-[10px] font-semibold tracking-[0.04em] text-emerald-300 uppercase">
                 <MessageSquareText className="size-3" />
                 Обзор
+              </div>
+            )}
+            {item.franchise && (
+              <div
+                role="link"
+                tabIndex={0}
+                className="pointer-events-auto inline-flex cursor-pointer items-center gap-1 rounded-full border border-orange-500/35 bg-orange-500/40 px-2 py-1 text-[10px] font-semibold tracking-[0.04em] text-orange-300 uppercase transition-colors hover:bg-orange-500/55"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.location.href = `/reviews/franchises/${formatSlug(item.franchise!)}`;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.location.href = `/reviews/franchises/${formatSlug(item.franchise!)}`;
+                  }
+                }}
+              >
+                <MessageSquareText className="size-3" />
+                Франшиза
               </div>
             )}
           </div>

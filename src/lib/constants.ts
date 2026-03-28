@@ -180,31 +180,6 @@ export const GENRES = [
   { label: 'Анимация', value: 'animation' },
 ] as const;
 
-export const GENRE_MAPPING_TMDB: Record<string, string> = {
-  боевик: 'action',
-  приключения: 'adventure',
-  мультфильм: 'animation',
-  комедия: 'comedy',
-  криминал: 'crime',
-  документальный: 'documentary',
-  драма: 'drama',
-  семейный: 'family',
-  фэнтези: 'fantasy',
-  история: 'history',
-  ужасы: 'horror',
-  музыка: 'music',
-  мюзикл: 'musical',
-  детектив: 'mystery',
-  мелодрама: 'romance',
-  фантастика: 'sci-fi',
-  триллер: 'thriller',
-  военный: 'war',
-  вестерн: 'western',
-  биография: 'biography',
-  мистика: 'mystic',
-  спорт: 'sport',
-  короткометражка: 'short',
-};
 
 // ============================================================================
 // Константы для коллекций - Lists (бывш. Collections)

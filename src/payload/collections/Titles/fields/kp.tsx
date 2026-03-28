@@ -364,6 +364,7 @@ export const KpSearch = () => {
       style={{ marginBottom: '20px' }}
     >
       <label
+        htmlFor="kp-search-input"
         className="field-label"
         style={{ marginBottom: '8px', display: 'block' }}
       >
@@ -407,6 +408,7 @@ export const KpSearch = () => {
       {/* Поле ввода и кнопка */}
       <div style={{ marginBottom: '10px', display: 'flex', gap: '10px' }}>
         <input
+          id="kp-search-input"
           type="text"
           className="payload-text-input"
           style={{
@@ -598,4 +600,3 @@ export const KpSearch = () => {
   );
 };
 
-export default KpSearch;

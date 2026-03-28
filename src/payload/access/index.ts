@@ -1,2 +1,1 @@
-export { anyone, admin, adminOnly, adminField } from './isAdmin';
-export { authenticated } from './authenticated';
+export { anyone, admin } from './isAdmin';

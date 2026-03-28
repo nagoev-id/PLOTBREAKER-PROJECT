@@ -128,7 +128,7 @@ export const PaginationControls: FC<PaginationControlsProps> = ({
 
             {getPageNumbers(currentPage, totalPages).map((pageNum, idx) =>
               pageNum === 'ellipsis' ? (
-                <PaginationItem key={`ellipsis-${idx}`}>
+                <PaginationItem key={idx === 1 ? 'ellipsis-start' : 'ellipsis-end'}>
                   <PaginationEllipsis />
                 </PaginationItem>
               ) : (

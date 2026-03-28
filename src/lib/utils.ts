@@ -75,13 +75,7 @@ export const formatDate = (dateString: string | null | undefined): string => {
   }
 };
 
-/**
- * Получает ключ типа контента из строки или объекта.
- */
-export const getTypeKey = (type?: string | null): string => {
-  if (!type) return 'film';
-  return type;
-};
+
 
 /**
  * Получает локализованный label жанра по его value.
@@ -111,17 +105,7 @@ export const configCollection = (titleOrSlug: string, slug?: string | null) => {
   return { type: config, TypeIcon: config.icon };
 };
 
-/**
- * Форматирует длительность в минутах в читабельный формат (1ч 30мин).
- */
-export const formatDuration = (minutes: number | null | undefined): string => {
-  if (!minutes) return '';
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  if (hours === 0) return `${mins}мин`;
-  if (mins === 0) return `${hours}ч`;
-  return `${hours}ч ${mins}мин`;
-};
+
 
 /**
  * Получает URL постера с фоллбэком.
@@ -138,17 +122,7 @@ export const getPosterUrl = (item: {
   return posterSrc || null;
 };
 
-/**
- * Массив доступных годов фильтрации (от текущего года до 1990).
- */
-export const getAvailableYears = (): number[] => {
-  const currentYear = new Date().getFullYear();
-  const years: number[] = [];
-  for (let year = currentYear; year >= 1990; year--) {
-    years.push(year);
-  }
-  return years;
-};
+
 
 // ============================================================================
 // Дополнительные утилиты
@@ -176,7 +150,7 @@ export const matchesRating = (
 /**
  * Извлекает уникальные годы из записей, сортирует по убыванию.
  */
-export const extractYears = (
+const extractYears = (
   items: Title[],
   getter: (item: Title) => number | null | undefined
 ): number[] => {
@@ -188,10 +162,10 @@ export const extractYears = (
   return Array.from(years).sort((a, b) => b - a);
 };
 
-export const releaseYears = (items: Title[]) =>
+const releaseYears = (items: Title[]) =>
   extractYears(items, (i) => i.releaseYear);
 
-export const watchYears = (items: Title[]) =>
+const watchYears = (items: Title[]) =>
   extractYears(items, (i) => i.watchYear);
 
 /**

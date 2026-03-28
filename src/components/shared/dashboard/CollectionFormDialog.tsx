@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, FormEvent, useState, useEffect } from 'react';
+import { FC, FormEvent, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -30,21 +30,9 @@ export const CollectionFormDialog: FC<CollectionFormDialogProps> = ({
 }) => {
   const isEditing = !!collection;
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState('');
-  const [isPublic, setIsPublic] = useState(true);
-  const [isTheme, setIsTheme] = useState(false);
-
-  useEffect(() => {
-    if (collection) {
-      setTitle(collection.title);
-      setIsPublic(collection.isPublic ?? true);
-      setIsTheme(collection.isTheme ?? false);
-    } else {
-      setTitle('');
-      setIsPublic(true);
-      setIsTheme(false);
-    }
-  }, [collection, open]);
+  const [title, setTitle] = useState(collection?.title ?? '');
+  const [isPublic, setIsPublic] = useState(collection?.isPublic ?? true);
+  const [isTheme, setIsTheme] = useState(collection?.isTheme ?? false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -81,7 +69,6 @@ export const CollectionFormDialog: FC<CollectionFormDialogProps> = ({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Введите название списка"
               required
-              autoFocus
             />
           </div>
           <div className="flex items-center justify-between">

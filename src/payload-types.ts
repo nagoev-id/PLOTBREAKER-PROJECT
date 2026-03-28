@@ -555,6 +555,10 @@ export interface Title {
   seasonCount?: number | null;
   episodeCount?: number | null;
   kinopoiskId?: string | null;
+  /**
+   * Например: Гарри Поттер, Звездные войны, Крик
+   */
+  franchise?: string | null;
   collections?: (number | List)[] | null;
   updatedAt: string;
   createdAt: string;
@@ -1101,6 +1105,7 @@ export interface TitlesSelect<T extends boolean = true> {
   seasonCount?: T;
   episodeCount?: T;
   kinopoiskId?: T;
+  franchise?: T;
   collections?: T;
   updatedAt?: T;
   createdAt?: T;

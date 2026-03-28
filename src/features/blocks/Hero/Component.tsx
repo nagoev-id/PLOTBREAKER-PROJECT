@@ -97,6 +97,10 @@ export const HeroBlock: FC<HeroBlockProps> = ({
     <section
       ref={sectionRef}
       onClick={toggleMute}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') toggleMute();
+      }}
+      role="presentation"
       className={`relative grid place-items-center overflow-hidden px-6 text-center bg-foreground/2 ${
         fullHeight
           ? 'min-h-svh py-10 md:py-12 xl:py-18'
@@ -125,6 +129,8 @@ export const HeroBlock: FC<HeroBlockProps> = ({
           hasVideoBg ? 'text-white' : ''
         }`}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="presentation"
       >
         {heroTitle && (
           /**
@@ -172,7 +178,7 @@ export const HeroBlock: FC<HeroBlockProps> = ({
                   ].join(' ')
                 : undefined;
 
-              return <CMSLink key={i} {...link} className={heroButtonClass} />;
+              return <CMSLink key={link.url || link.label || String(i)} {...link} className={heroButtonClass} />;
             })}
           </div>
         )}

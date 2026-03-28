@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, FormEvent, useState, useEffect, useCallback } from 'react';
+import { FC, FormEvent, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
@@ -101,34 +101,7 @@ export const EntryForm: FC<EntryFormProps> = ({ entry, collections }) => {
   const [watchDate, setWatchDate] = useState(entry?.watchDate?.split('T')[0] || '');
   const [visualTags, setVisualTags] = useState(entry?.visualTags || '');
 
-  useEffect(() => {
-    if (entry) {
-      console.log(entry);
-      setTitle(entry.title || '');
-      setOriginalTitle(entry.originalTitle || '');
-      setSynopsis(entry.synopsis || '');
-      setType(entry.type || 'film');
-      setStatus(entry.status ?? 'planned');
-      setPersonalOpinion(entry.personalOpinion ?? 'neutral');
-      setPosterUrl(entry.posterUrl || '');
-      setDirector(entry.director || '');
-      setReleaseYear(entry.releaseYear?.toString() || '');
 
-      setSelectedGenres(entry.genres || []);
-      setTmdbRating(entry.tmdbRating?.toString() || '');
-      setKpRating(entry.kpRating?.toString() || '');
-      setKinopoiskId(entry.kinopoiskId || '');
-      setIsPublished(entry.isPublished ?? false);
-      setWatchDate(entry.watchDate?.split('T')[0] || '');
-      setVisualTags(entry.visualTags || '');
-
-      // Коллекции могут быть ID или объектами
-      const collIds = (entry.collections || []).map((c: number | Collection) =>
-        typeof c === 'number' ? String(c) : String(c.id)
-      );
-      setSelectedCollections(collIds);
-    }
-  }, [entry]);
 
   const handleGenreToggle = (genre: string) => {
     setSelectedGenres((prev) =>

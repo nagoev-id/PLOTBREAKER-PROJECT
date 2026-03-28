@@ -20,33 +20,33 @@ export const SearchModal: FC<SearchModalProps> = ({
   setIsSearchOpen,
 }): JSX.Element | null => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Title[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [searchState, setSearchState] = useState<{
+    results: Title[];
+    isLoading: boolean;
+  }>({ results: [], isLoading: false });
 
   // Debounce поиска
   useEffect(() => {
     if (!query.trim()) {
-      setResults([]);
+      setSearchState({ results: [], isLoading: false });
       return;
     }
 
-    setIsLoading(true);
+    setSearchState((prev) => ({ ...prev, isLoading: true }));
 
     const timer = setTimeout(async () => {
       try {
         const data = await searchMedia(query);
-        setResults(data);
+        setSearchState({ results: data, isLoading: false });
       } catch (error) {
         console.error('Search error:', error);
-        setResults([]);
-      } finally {
-        setIsLoading(false);
+        setSearchState({ results: [], isLoading: false });
       }
     }, 300);
 
     return () => {
       clearTimeout(timer);
-      setIsLoading(false);
+      setSearchState((prev) => ({ ...prev, isLoading: false }));
     };
   }, [query]);
 
@@ -69,7 +69,7 @@ export const SearchModal: FC<SearchModalProps> = ({
 
   const handleClose = useCallback(() => {
     setQuery('');
-    setResults([]);
+    setSearchState({ results: [], isLoading: false });
     setIsSearchOpen(false);
   }, [setIsSearchOpen]);
 
@@ -79,22 +79,28 @@ export const SearchModal: FC<SearchModalProps> = ({
     <div
       className="fixed inset-0 z-100 flex items-start justify-center bg-black/60 backdrop-blur-sm sm:items-center"
       onClick={handleClose}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') handleClose();
+      }}
+      role="presentation"
     >
       <div
         className="h-full w-full sm:mt-20 sm:h-auto sm:max-w-2xl sm:px-4"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="presentation"
       >
         <div className="bg-background sm:border-border flex h-full flex-col overflow-hidden rounded-none border-0 shadow-2xl sm:rounded-lg sm:border">
           <SearchForm
             query={query}
             onQueryChange={setQuery}
-            isLoading={isLoading}
+            isLoading={searchState.isLoading}
             onClose={handleClose}
           />
           <SearchResults
-            results={results}
+            results={searchState.results}
             query={query}
-            isLoading={isLoading}
+            isLoading={searchState.isLoading}
             onClose={handleClose}
           />
         </div>

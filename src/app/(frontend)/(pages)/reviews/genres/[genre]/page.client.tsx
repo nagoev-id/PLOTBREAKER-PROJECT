@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, JSX, useMemo, useState, useCallback, useEffect } from 'react';
+import { FC, JSX, useMemo, useState, useCallback } from 'react';
 
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -35,27 +35,15 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
   // Текст жанра
   const label = getGenreLabel(genre);
   // Тип фильма
-  const [activeType, setActiveType] = useState(() => {
-    const typeParam = searchParams.get('type');
-    return typeParam || ALL_VALUE;
-  });
-  // Поисковый запрос
+  const activeType = searchParams.get('type') || ALL_VALUE;
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+  const pageSize = PAGINATION_CONFIG.pageSizeOptions.includes(
+    Number(searchParams.get('size'))
+  )
+    ? Number(searchParams.get('size'))
+    : PAGINATION_CONFIG.defaultPageSize;
+
   const [searchQuery, setSearchQuery] = useState('');
-  // Текущая страница
-  const [currentPage, setCurrentPage] = useState(() => {
-    const pageParam = searchParams.get('page');
-    return pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1;
-  });
-  // Размер страницы
-  const [pageSize, setPageSize] = useState(() => {
-    const sizeParam = searchParams.get('size');
-    return sizeParam
-      ? Math.max(
-          1,
-          parseInt(sizeParam, 10) || PAGINATION_CONFIG.defaultPageSize
-        )
-      : PAGINATION_CONFIG.defaultPageSize;
-  });
 
   /**
    * Обновление параметров в URL
@@ -94,10 +82,7 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
    * @param page - Номер страницы
    */
   const handlePageChange = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-      updateUrlParams(page, pageSize, activeType);
-    },
+    (page: number) => updateUrlParams(page, pageSize, activeType),
     [updateUrlParams, pageSize, activeType]
   );
 
@@ -108,7 +93,6 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
   const handleSearchChange = useCallback(
     (value: string) => {
       setSearchQuery(value);
-      setCurrentPage(1);
       updateUrlParams(1, pageSize, activeType);
     },
     [updateUrlParams, pageSize, activeType]
@@ -119,11 +103,7 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
    * @param value - Значение типа фильма
    */
   const handleTypeChange = useCallback(
-    (value: string) => {
-      setActiveType(value);
-      setCurrentPage(1);
-      updateUrlParams(1, pageSize, value);
-    },
+    (value: string) => updateUrlParams(1, pageSize, value),
     [updateUrlParams, pageSize]
   );
 
@@ -132,11 +112,7 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
    * @param size - Размер страницы
    */
   const handlePageSizeChange = useCallback(
-    (size: number) => {
-      setPageSize(size);
-      setCurrentPage(1);
-      updateUrlParams(1, size, activeType);
-    },
+    (size: number) => updateUrlParams(1, size, activeType),
     [updateUrlParams, activeType]
   );
 
@@ -144,32 +120,9 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
    * Сброс всех фильтров и параметров URL
    */
   const handleReset = useCallback(() => {
-    setActiveType(ALL_VALUE);
     setSearchQuery('');
-    setCurrentPage(1);
-    setPageSize(PAGINATION_CONFIG.defaultPageSize);
     router.replace(`/reviews/genres/${genre}`, { scroll: false });
   }, [router, genre]);
-
-  // Сброс при смене жанра
-  useEffect(() => {
-    const pageParam = searchParams.get('page');
-    const sizeParam = searchParams.get('size');
-    const typeParam = searchParams.get('type');
-    const initialPage = pageParam
-      ? Math.max(1, parseInt(pageParam, 10) || 1)
-      : 1;
-    const initialSize = sizeParam
-      ? Math.max(
-          1,
-          parseInt(sizeParam, 10) || PAGINATION_CONFIG.defaultPageSize
-        )
-      : PAGINATION_CONFIG.defaultPageSize;
-    setCurrentPage(initialPage);
-    setPageSize(initialSize);
-    setActiveType(typeParam || ALL_VALUE);
-    setSearchQuery('');
-  }, [genre, searchParams]);
 
   // Фильтрация фильмов (данные уже по жанру, фильтруем по типу/поиску)
   const filteredItems = useMemo(() => {
@@ -312,4 +265,3 @@ export const GenrePageClient: FC<GenrePageClientProps> = ({
   );
 };
 
-export default GenrePageClient;

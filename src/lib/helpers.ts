@@ -38,7 +38,7 @@ export const getCachedPageBySlug = (
 // Titles (бывш. MediaContents)
 // ============================================================================
 
-export const getTitles = async (): Promise<Title[]> => {
+const getTitles = async (): Promise<Title[]> => {
   try {
     const payload = await getPayload({ config: configPromise });
     const result = await payload.find({
@@ -66,6 +66,7 @@ export const getTitles = async (): Promise<Title[]> => {
         status: true,
         collections: true,
         visualTags: true,
+        franchise: true,
       },
     });
     return result.docs as Title[];
@@ -109,46 +110,13 @@ export const getCachedGlobal = (
     revalidate: 60,
   });
 
-export const getMultipleGlobals = async (
-  slugs: Global[],
-  depth: number = 0
-): Promise<Record<string, unknown>> => {
-  try {
-    const results = await Promise.all(
-      slugs.map((slug) => getGlobal(slug, depth))
-    );
-    return slugs.reduce(
-      (acc, slug, index) => {
-        acc[slug] = results[index];
-        return acc;
-      },
-      {} as Record<string, unknown>
-    );
-  } catch (error) {
-    console.error(
-      'Ошибка при получении множественных глобальных настроек:',
-      error
-    );
-    throw new Error('Не удалось загрузить глобальные настройки');
-  }
-};
-
-export const getCachedMultipleGlobals = (
-  slugs: Global[],
-  depth: number = 0
-): (() => Promise<Record<string, unknown>>) =>
-  unstable_cache(
-    async (): Promise<Record<string, unknown>> =>
-      getMultipleGlobals(slugs, depth),
-    ['globals_multiple', ...slugs],
-    { tags: slugs.map((slug) => `global_${slug}`), revalidate: 60 }
-  );
+// getMultipleGlobals removed to fix lint.
 
 // ============================================================================
 // Lists (бывш. Collections)
 // ============================================================================
 
-export const getLists = async (): Promise<List[]> => {
+const getLists = async (): Promise<List[]> => {
   try {
     const payload = await getPayload({ config: configPromise });
     const result = await payload.find({
@@ -181,7 +149,7 @@ export const getCachedLists = (): (() => Promise<List[]>) =>
     revalidate: 60,
   });
 
-export const getListBySlug = async (slug: string): Promise<List | null> => {
+const getListBySlug = async (slug: string): Promise<List | null> => {
   const payload = await getPayload({ config: configPromise });
   const result = await payload.find({
     collection: COLLECTION_SLUGS.lists,
@@ -198,86 +166,63 @@ export const getListBySlug = async (slug: string): Promise<List | null> => {
   return (result.docs[0] as List) ?? null;
 };
 
+/**
+ * Для больших коллекций результат может превышать лимит кэша Next.js (2MB).
+ * Вместо unstable_cache полагаемся на `revalidate` страницы.
+ */
 export const getCachedListBySlug = (
   slug: string
 ): (() => Promise<List | null>) =>
-  unstable_cache(async () => getListBySlug(slug), [`list_${slug}`], {
-    tags: ['lists', `list_${slug}`],
-    revalidate: 60,
-  });
+  () => getListBySlug(slug);
 
 // ============================================================================
 // Titles по тегу / жанру / slug
 // ============================================================================
 
-export const getTitlesByTag = async (tagSlug: string): Promise<Title[]> => {
-  try {
-    const payload = await getPayload({ config: configPromise });
-    const result = await payload.find({
-      collection: COLLECTION_SLUGS.titles,
-      sort: '-createdAt',
-      limit: 0,
-      depth: 1,
-      where: {
-        and: [
-          { visualTags: { exists: true } },
-          // { isPublished: { equals: true } },
-        ],
-      },
-    });
-    const docs = result.docs as Title[];
-    return docs.filter((item) => {
-      if (!item.visualTags) return false;
-      const tags = item.visualTags
-        .split(',')
-        .map((t: string) => formatSlug(t.trim()));
-      return tags.includes(tagSlug);
-    });
-  } catch (error) {
-    console.error(`Ошибка при получении записей по тегу "${tagSlug}":`, error);
-    throw new Error(`Не удалось загрузить записи по тегу "${tagSlug}"`);
-  }
-};
-
-export const getCachedTitlesByTag = (tag: string): (() => Promise<Title[]>) =>
-  unstable_cache(
-    async (): Promise<Title[]> => getTitlesByTag(tag),
-    [`titles_tag_${tag}`],
-    { tags: ['titles'], revalidate: 60 }
-  );
-
-export const getTitlesByGenre = async (genre: string): Promise<Title[]> => {
-  try {
-    const payload = await getPayload({ config: configPromise });
-    const result = await payload.find({
-      collection: COLLECTION_SLUGS.titles,
-      sort: '-createdAt',
-      limit: 0,
-      depth: 1,
-      where: {
-        and: [
-          { genres: { contains: genre } },
-          // { isPublished: { equals: true } },
-        ],
-      },
-    });
-    return result.docs as Title[];
-  } catch (error) {
-    console.error(`Ошибка при получении записей по жанру "${genre}":`, error);
-    throw new Error(`Не удалось загрузить записи по жанру "${genre}"`);
-  }
+export const getCachedTitlesByTag = (
+  tagSlug: string
+): (() => Promise<Title[]>) => async () => {
+  const titles = await getCachedTitles()();
+  return titles.filter((item) => {
+    if (!item.visualTags) return false;
+    const tags = item.visualTags
+      .split(',')
+      .map((t: string) => formatSlug(t.trim()));
+    return tags.includes(tagSlug);
+  });
 };
 
 export const getCachedTitlesByGenre = (
   genre: string
-): (() => Promise<Title[]>) =>
-  unstable_cache(
-    async (): Promise<Title[]> => getTitlesByGenre(genre),
-    [`titles_genre_${genre}`],
-    { tags: ['titles'], revalidate: 60 }
-  );
+): (() => Promise<Title[]>) => async () => {
+  const titles = await getCachedTitles()();
+  return titles.filter((item) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return item.genres?.includes(genre as any);
+  });
+};
 
-export const getTitleBySlug = async (slug: string): Promise<Title | null> => {
+type FranchiseResult = {
+  franchiseName: string;
+  items: Title[];
+};
+
+export const getCachedTitlesByFranchiseSlug = (
+  slug: string
+): (() => Promise<FranchiseResult | null>) => async () => {
+  const titles = await getCachedTitles()();
+  const matched = titles.filter(
+    (item) => item.franchise && formatSlug(item.franchise) === slug
+  );
+  if (matched.length === 0) return null;
+  // Make sure we return the exact franchise string casing from the first item
+  return {
+    franchiseName: matched[0].franchise!,
+    items: matched,
+  };
+};
+
+const getTitleBySlug = async (slug: string): Promise<Title | null> => {
   const payload = await getPayload({ config: configPromise });
   const result = await payload.find({
     collection: COLLECTION_SLUGS.titles,
@@ -298,45 +243,13 @@ export const getCachedTitleBySlug = (
     revalidate: 60,
   });
 
-export const getTitleMetadata = async (
-  slug: string
-): Promise<{ title: string; description: string | null } | null> => {
-  try {
-    const payload = await getPayload({ config: configPromise });
-    const result = await payload.find({
-      collection: COLLECTION_SLUGS.titles,
-      where: {
-        and: [
-          { slug: { equals: slug } } /* { isPublished: { equals: true } } */,
-        ],
-      },
-      limit: 1,
-      depth: 1,
-      select: { title: true, synopsis: true },
-    });
-    const item = result.docs[0] as Title | undefined;
-    if (!item) return null;
-    return { title: item.title, description: item.synopsis || null };
-  } catch (error) {
-    console.error(`Ошибка при получении метаданных для "${slug}":`, error);
-    return null;
-  }
-};
-
-export const getCachedTitleMetadata = (
-  slug: string
-): (() => Promise<{ title: string; description: string | null } | null>) =>
-  unstable_cache(
-    async () => getTitleMetadata(slug),
-    [`title_metadata_${slug}`],
-    { tags: ['titles'], revalidate: 60 }
-  );
+// Title metadata cache removed to fix lint.
 
 // ============================================================================
 // Posts
 // ============================================================================
 
-export const getPosts = async (): Promise<Post[]> => {
+const getPosts = async (): Promise<Post[]> => {
   try {
     const payload = await getPayload({ config: configPromise });
     const result = await payload.find({

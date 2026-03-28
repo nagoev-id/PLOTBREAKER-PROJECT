@@ -44,10 +44,12 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [_isScrolled, setIsScrolled] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  useEffect(() => {
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setIsMenuOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -91,7 +93,7 @@ export const HeaderClient: FC<HeaderClientProps> = ({ data, user }) => {
 
     return (
       <CMSLink
-        key={`nav-${i}`}
+        key={link.url || link.label || `nav-${i}`}
         {...link}
         appearance="inline"
         className={isActive ? 'text-foreground' : ''}

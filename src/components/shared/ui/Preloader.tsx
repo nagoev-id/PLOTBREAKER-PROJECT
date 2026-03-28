@@ -1,37 +1,28 @@
 'use client';
 
-import { FC, JSX, useEffect, useState } from 'react';
+import { type FC, type JSX, useEffect, useState } from 'react';
 
 /**
  * Прелоадер сайта с анимированным SVG-логотипом и текстом "ПРОСМОТРЕНО".
  * Показывается при первой загрузке, затем плавно исчезает.
  */
 const Preloader: FC = (): JSX.Element | null => {
-  const [isVisible, setIsVisible] = useState(true);
-  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [phase, setPhase] = useState<'visible' | 'fading' | 'done'>('visible');
 
   useEffect(() => {
-    // Запускаем фазу исчезновения через 2.4 секунды
-    const fadeTimer = setTimeout(() => {
-      setIsFadingOut(true);
-    }, 2400);
-
-    // Полностью убираем прелоадер после завершения анимации
-    const removeTimer = setTimeout(() => {
-      setIsVisible(false);
-    }, 3200);
-
+    const fadeTimer = setTimeout(() => setPhase('fading'), 2400);
+    const removeTimer = setTimeout(() => setPhase('done'), 3200);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
     };
   }, []);
 
-  if (!isVisible) return null;
+  if (phase === 'done') return null;
 
   return (
     <div
-      className={`preloader ${isFadingOut ? 'preloader--hidden' : ''}`}
+      className={`preloader ${phase === 'fading' ? 'preloader--hidden' : ''}`}
       aria-hidden="true"
     >
       {/* Фоновые декоративные элементы */}
@@ -66,7 +57,7 @@ const Preloader: FC = (): JSX.Element | null => {
         <div className="preloader__text">
           {'ПРОСМОТРЕНО'.split('').map((char, i) => (
             <span
-              key={i}
+              key={`char-${i}`}
               className="preloader__char"
               style={{ animationDelay: `${0.8 + i * 0.06}s` }}
             >

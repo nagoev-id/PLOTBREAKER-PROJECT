@@ -12,7 +12,6 @@ export { AdminActions } from './ui/AdminActions';
 export { Preloader } from './ui/Preloader';
 
 export { SidebarSection } from './titles/SidebarSection';
-export { SynopsisBlock } from './titles/SynopsisBlock';
 export { ExternalLinks } from './titles/ExternalLinks';
 export { KinoBdContainer } from './titles/KinoBdContainer';
 export { MovieCard } from './titles/MovieCard';

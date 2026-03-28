@@ -22,7 +22,6 @@ export const SearchForm: FC<SearchFormProps> = ({
       onChange={(e) => onQueryChange(e.target.value)}
       placeholder="Поиск по названию..."
       className="placeholder:text-muted-foreground flex-1 bg-transparent text-base outline-none sm:text-lg"
-      autoFocus
     />
     {isLoading && (
       <Loader2

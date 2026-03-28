@@ -15,6 +15,28 @@ type SharedLink = {
  * Компонент для кнопки "Поделиться"
  * @returns {JSX.Element}
  */
+type SharedLinkContentProps = {
+  copied: boolean;
+  showText: boolean;
+};
+
+const SharedLinkContent: FC<SharedLinkContentProps> = ({ copied, showText }): JSX.Element => {
+  if (copied) {
+    return (
+      <>
+        <Check size={14} />
+        <span className={!showText ? 'sr-only' : ''}>Скопировано</span>
+      </>
+    );
+  }
+  return (
+    <>
+      <Share2 size={14} />
+      <span className={!showText ? 'sr-only' : ''}>Поделиться</span>
+    </>
+  );
+};
+
 export const SharedLink: FC<SharedLink> = ({
   className,
   showText = false,
@@ -38,27 +60,6 @@ export const SharedLink: FC<SharedLink> = ({
     }
   }, []);
 
-  /**
-   * Рендерит содержимое кнопки
-   * @returns {JSX.Element} - содержимое кнопки
-   */
-  const renderContent = (): JSX.Element => {
-    if (copied) {
-      return (
-        <>
-          <Check size={14} />
-          <span className={!showText ? 'sr-only' : ''}>Скопировано</span>
-        </>
-      );
-    }
-    return (
-      <>
-        <Share2 size={14} />
-        <span className={!showText ? 'sr-only' : ''}>Поделиться</span>
-      </>
-    );
-  };
-
   return (
     <div className={className}>
       <Button
@@ -67,7 +68,7 @@ export const SharedLink: FC<SharedLink> = ({
         onClick={handleShare}
         className="inline-flex w-full"
       >
-        {renderContent()}
+        <SharedLinkContent copied={copied} showText={showText} />
       </Button>
     </div>
   );

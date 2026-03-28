@@ -73,31 +73,19 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Состояния для фильтров
+  // searchQuery — локальное состояние для debounce ввода
   const [searchQuery, setSearchQuery] = useState(
     () => searchParams.get('q') || ''
   );
-  const [activeType, setActiveType] = useState(
-    () => searchParams.get('type') || ALL_VALUE
-  );
-  const [selectedGenre, setSelectedGenre] = useState(
-    () => searchParams.get('genre') || ALL_VALUE
-  );
-  const [selectedReleaseYear, setSelectedReleaseYear] = useState(
-    () => searchParams.get('year') || ALL_VALUE
-  );
-  const [selectedOpinion, setSelectedOpinion] = useState(
-    () => searchParams.get('opinion') || ALL_VALUE
-  );
-  const [selectedStatus, setSelectedStatus] = useState(
-    () => searchParams.get('status') || 'watched'
-  );
-  const [selectedRating, setSelectedRating] = useState(
-    () => searchParams.get('rating') || ALL_VALUE
-  );
-  const [selectedWatchYear, setSelectedWatchYear] = useState(
-    () => searchParams.get('watchYear') || ALL_VALUE
-  );
+
+  // Фильтры вычисляются напрямую из searchParams (single source of truth)
+  const activeType = searchParams.get('type') || ALL_VALUE;
+  const selectedGenre = searchParams.get('genre') || ALL_VALUE;
+  const selectedReleaseYear = searchParams.get('year') || ALL_VALUE;
+  const selectedOpinion = searchParams.get('opinion') || ALL_VALUE;
+  const selectedStatus = searchParams.get('status') || 'watched';
+  const selectedRating = searchParams.get('rating') || ALL_VALUE;
+  const selectedWatchYear = searchParams.get('watchYear') || ALL_VALUE;
 
   // Пагинация
   const currentPage = Number(searchParams.get('page')) || 1;
@@ -107,16 +95,9 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
     ? Number(searchParams.get('size'))
     : PAGINATION_CONFIG.defaultPageSize;
 
-  // Синхронизация при изменении searchParams (back/forward браузера)
+  // Синхронизация searchQuery при навигации back/forward
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
-    setActiveType(searchParams.get('type') || ALL_VALUE);
-    setSelectedGenre(searchParams.get('genre') || ALL_VALUE);
-    setSelectedReleaseYear(searchParams.get('year') || ALL_VALUE);
-    setSelectedOpinion(searchParams.get('opinion') || ALL_VALUE);
-    setSelectedStatus(searchParams.get('status') || 'watched');
-    setSelectedRating(searchParams.get('rating') || ALL_VALUE);
-    setSelectedWatchYear(searchParams.get('watchYear') || ALL_VALUE);
   }, [searchParams]);
 
   useEffect(
@@ -295,10 +276,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
    * @param value - Новый тип
    */
   const handleTypeChange = useCallback(
-    (value: string) => {
-      setActiveType(value);
-      updateParams({ page: 1, type: value });
-    },
+    (value: string) => updateParams({ page: 1, type: value }),
     [updateParams]
   );
 
@@ -307,14 +285,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
    */
   const resetFilters = useCallback(() => {
     setSearchQuery('');
-    setActiveType(ALL_VALUE);
-    setSelectedGenre(ALL_VALUE);
-    setSelectedReleaseYear(ALL_VALUE);
-    setSelectedOpinion(ALL_VALUE);
-    setSelectedStatus('watched');
-    setSelectedRating(ALL_VALUE);
-    setSelectedWatchYear(ALL_VALUE);
-    router.replace('/', { scroll: false });
+    router.replace('/reviews', { scroll: false });
   }, [router]);
 
   /**
@@ -546,10 +517,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                 <CustomSelect
                   label="Жанр"
                   value={selectedGenre}
-                  onValueChange={(v) => {
-                    setSelectedGenre(v);
-                    updateParams({ page: 1, genre: v });
-                  }}
+                  onValueChange={(v) => updateParams({ page: 1, genre: v })}
                   options={genreFilterOptions}
                   placeholder="Все жанры"
                 />
@@ -557,10 +525,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                 <CustomSelect
                   label="Год выхода"
                   value={selectedReleaseYear}
-                  onValueChange={(v) => {
-                    setSelectedReleaseYear(v);
-                    updateParams({ page: 1, year: v });
-                  }}
+                  onValueChange={(v) => updateParams({ page: 1, year: v })}
                   options={releaseYearFilterOptions}
                   placeholder="Год выхода"
                 />
@@ -568,10 +533,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                 <CustomSelect
                   label="Личная оценка"
                   value={selectedOpinion}
-                  onValueChange={(v) => {
-                    setSelectedOpinion(v);
-                    updateParams({ page: 1, opinion: v });
-                  }}
+                  onValueChange={(v) => updateParams({ page: 1, opinion: v })}
                   options={HOMEPAGE_FILTERS.opinions}
                   placeholder="Впечатление"
                 />
@@ -579,10 +541,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                 <CustomSelect
                   label="Статус"
                   value={selectedStatus}
-                  onValueChange={(v) => {
-                    setSelectedStatus(v);
-                    updateParams({ page: 1, status: v });
-                  }}
+                  onValueChange={(v) => updateParams({ page: 1, status: v })}
                   options={HOMEPAGE_FILTERS.statuses}
                   placeholder="Статус"
                 />
@@ -590,10 +549,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                 <CustomSelect
                   label="Рейтинг КП/IMDB"
                   value={selectedRating}
-                  onValueChange={(v) => {
-                    setSelectedRating(v);
-                    updateParams({ page: 1, rating: v });
-                  }}
+                  onValueChange={(v) => updateParams({ page: 1, rating: v })}
                   options={HOMEPAGE_FILTERS.ratings}
                   placeholder="Рейтинг КП"
                 />
@@ -601,10 +557,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                 <CustomSelect
                   label="Год просмотра"
                   value={selectedWatchYear}
-                  onValueChange={(v) => {
-                    setSelectedWatchYear(v);
-                    updateParams({ page: 1, watchYear: v });
-                  }}
+                  onValueChange={(v) => updateParams({ page: 1, watchYear: v })}
                   options={watchYearFilterOptions}
                   placeholder="Год просмотра"
                 />

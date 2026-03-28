@@ -10,7 +10,7 @@ export const GLOBAL_SLUGS = {
   footer: 'footer',
 } as const;
 
-export const LOGO_FIELDS = {
+const LOGO_FIELDS = {
   name: 'logo',
   label: 'Логотип',
   type: 'group',
