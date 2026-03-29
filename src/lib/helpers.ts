@@ -67,6 +67,9 @@ const getTitles = async (): Promise<Title[]> => {
         collections: true,
         visualTags: true,
         franchise: true,
+        review: true,
+        seasons: true,
+        isPublished: true,
       },
     });
     return result.docs as Title[];

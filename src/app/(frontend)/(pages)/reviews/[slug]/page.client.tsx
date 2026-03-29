@@ -5,7 +5,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { ArrowLeft, CalendarDays, Minus, Plus, Star, Type } from 'lucide-react';
+import {
+  List,
+  ArrowLeft,
+  CalendarDays,
+  Minus,
+  Plus,
+  Star,
+  Type,
+} from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -231,7 +239,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   {typeConfig && (
                     <Badge
                       variant="secondary"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1 text-xs sm:text-sm dark:bg-zinc-900/80"
+                      className="inline-flex items-center gap-1.5 rounded-full border-transparent bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:text-zinc-100 dark:hover:bg-zinc-700"
                     >
                       {TypeIcon && (
                         <TypeIcon size={14} className={typeConfig.color} />
@@ -242,14 +250,15 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
 
                   {/* Рейтинг */}
                   {typeof item.kpRating === 'number' && (
-                    <Badge className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-amber-900 dark:text-amber-300">
+                    <Badge 
+                      variant="outline"
+                      className="inline-flex items-center gap-1.5 rounded-full border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900 shadow-none hover:bg-amber-100 dark:border-amber-900/50 dark:bg-amber-500/10 dark:text-amber-200"
+                    >
                       <Star
                         size={14}
-                        className="fill-amber-400 text-amber-400"
+                        className="fill-amber-500 text-amber-500"
                       />
-                      <span className="font-semibold">
-                        {item.kpRating.toFixed(1)}
-                      </span>
+                      {item.kpRating.toFixed(1)}
                     </Badge>
                   )}
 
@@ -257,7 +266,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   {opinionConfig && OpinionIcon && (
                     <Badge
                       variant="outline"
-                      className="inline-flex items-center gap-1.5 rounded-full border-border/70 bg-background/70 px-3 py-1 dark:bg-zinc-900/70"
+                      className="inline-flex items-center gap-1.5 rounded-full border-zinc-200/80 bg-background/50 px-3 py-1 text-xs font-medium text-zinc-800 shadow-none hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-900/50"
                     >
                       <OpinionIcon size={14} className={opinionConfig.color} />
                       <span>{opinionConfig.label}</span>
@@ -268,12 +277,28 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                   {item.watchDate && (
                     <Badge
                       variant="outline"
-                      className="inline-flex items-center gap-1.5 rounded-full border-border/70 bg-background/70 px-3 py-1 dark:bg-zinc-900/70"
+                      className="inline-flex items-center gap-1.5 rounded-full border-zinc-200/80 bg-background/50 px-3 py-1 text-xs font-medium text-zinc-800 shadow-none hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-900/50"
                     >
-                      <CalendarDays size={14} />
+                      <CalendarDays size={14} className="text-zinc-500" />
                       <span>{formatDate(item.watchDate)}</span>
                     </Badge>
                   )}
+
+                  {/* Входит в список */}
+                  {item.collections?.map((collection) => {
+                    if (typeof collection !== 'object' || collection === null || !('slug' in collection)) return null;
+                    return (
+                      <Link key={collection.slug} href={`/collections/${collection.slug}`}>
+                        <Badge
+                          variant="outline"
+                          className="inline-flex items-center gap-1.5 rounded-full border-zinc-200/80 bg-background/50 px-3 py-1 text-xs font-medium text-zinc-800 shadow-none transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-900/50"
+                        >
+                          <List size={14} className="text-zinc-500" />
+                          <span>{collection.title}</span>
+                        </Badge>
+                      </Link>
+                    );
+                  })}
                 </div>
 
                 {/* Синопсис */}
@@ -453,7 +478,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                     <Link key={genre} href={`/reviews/genres/${genre}`}>
                       <Badge
                         variant="outline"
-                        className="cursor-pointer rounded-full border-zinc-300/90 bg-white/80 px-3 py-1 text-xs transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/70 dark:hover:bg-zinc-800/90"
+                        className="cursor-pointer rounded-sm border-zinc-200/80 bg-zinc-50/50 px-2.5 py-0.5 text-xs font-medium text-zinc-700 shadow-none transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-300 dark:hover:bg-zinc-800/80"
                       >
                         {getGenreLabel(genre)}
                       </Badge>
@@ -475,7 +500,7 @@ const ReviewDetailClient: FC<ReviewDetailClientProps> = ({
                     >
                       <Badge
                         variant="outline"
-                        className="cursor-pointer rounded-full border-zinc-300/90 bg-white/80 px-3 py-1 text-xs transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/70 dark:hover:bg-zinc-800/90"
+                        className="cursor-pointer rounded-sm border-zinc-200/80 bg-zinc-50/50 px-2.5 py-0.5 text-xs font-medium text-zinc-700 shadow-none transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-300 dark:hover:bg-zinc-800/80"
                       >
                         #{tag}
                       </Badge>

@@ -15,7 +15,10 @@ export const FeatureCards: FC<Props> = ({ items }): JSX.Element => {
       {items?.map((item: FeaturesItem) => (
         <div key={item.id} className="group flex flex-col items-start">
           {item.icon && (
-            <div className="bg-primary/10 group-hover:bg-primary/20 mb-6 flex h-10 w-10 items-center justify-center rounded-sm border border-primary/20 transition-colors">
+          <div className="bg-primary/10 group-hover:bg-primary/20 mb-6 flex h-10 w-10 items-center justify-center rounded-sm border border-primary/20 transition-colors">
+              {/* Безопасно: контент приходит только из Payload CMS (admin-only),
+                  не из пользовательского ввода. Замена на <img> невозможна — поле
+                  хранит произвольный SVG-код (не URL). */}
               <div
                 className="text-primary h-7 w-7 flex justify-center items-center"
                 dangerouslySetInnerHTML={{ __html: item.icon }}

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ChangeEvent, useState, useCallback } from 'react';
+import { FC, ChangeEvent, useReducer, useCallback } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
 import { Search, Loader2, Film, Tv } from 'lucide-react';
@@ -124,6 +124,59 @@ const mapKpType = (
   return 'film';
 };
 
+// --- Reducer для KpSearchDashboard ---
+
+type KpState = {
+  query: string;
+  results: KPSearchResult[];
+  loading: boolean;
+  error: string | null;
+  typeFilter: SearchTypeFilter;
+  isOpen: boolean;
+};
+
+type KpAction =
+  | { type: 'OPEN' }
+  | { type: 'CLOSE' }
+  | { type: 'SET_QUERY'; payload: string }
+  | { type: 'SET_TYPE_FILTER'; payload: SearchTypeFilter }
+  | { type: 'SEARCH_START' }
+  | { type: 'SEARCH_SUCCESS'; payload: KPSearchResult[] }
+  | { type: 'SEARCH_ERROR'; payload: string }
+  | { type: 'FILL_SUCCESS' };
+
+const kpInitialState: KpState = {
+  query: '',
+  results: [],
+  loading: false,
+  error: null,
+  typeFilter: 'ALL',
+  isOpen: false,
+};
+
+function kpReducer(state: KpState, action: KpAction): KpState {
+  switch (action.type) {
+    case 'OPEN':
+      return { ...state, isOpen: true };
+    case 'CLOSE':
+      return { ...state, isOpen: false, results: [] };
+    case 'SET_QUERY':
+      return { ...state, query: action.payload };
+    case 'SET_TYPE_FILTER':
+      return { ...state, typeFilter: action.payload };
+    case 'SEARCH_START':
+      return { ...state, loading: true, error: null };
+    case 'SEARCH_SUCCESS':
+      return { ...state, loading: false, results: action.payload };
+    case 'SEARCH_ERROR':
+      return { ...state, loading: false, error: action.payload };
+    case 'FILL_SUCCESS':
+      return { ...state, loading: false, results: [], query: '', isOpen: false };
+    default:
+      return state;
+  }
+}
+
 /**
  * Компонент поиска в Кинопоиск для dashboard.
  */
@@ -131,36 +184,28 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
   onFill,
   originalTitle,
 }) => {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<KPSearchResult[]>([]);
-  const [status, setStatus] = useState<'idle' | 'loading'>('idle');
-  const [error, setError] = useState<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState<SearchTypeFilter>('ALL');
-  const [isOpen, setIsOpen] = useState(false);
+  const [state, dispatch] = useReducer(kpReducer, kpInitialState);
+  const { query, results, loading, error, typeFilter, isOpen } = state;
 
   const handleSearch = useCallback(
     async (queryOverride?: string) => {
       const searchQuery = queryOverride ?? query;
       if (!searchQuery.trim()) return;
-      setStatus('loading');
-      setError(null);
+      dispatch({ type: 'SEARCH_START' });
       try {
         const response = await axios.get<{ items: KPSearchResult[] }>(
           `/api/kp?query=${encodeURIComponent(searchQuery)}&type=${typeFilter}`
         );
-        setResults(response.data.items || []);
+        dispatch({ type: 'SEARCH_SUCCESS', payload: response.data.items || [] });
       } catch {
-        setError('Ошибка при поиске в Кинопоиск');
-      } finally {
-        setStatus('idle');
+        dispatch({ type: 'SEARCH_ERROR', payload: 'Ошибка при поиске в Кинопоиск' });
       }
     },
     [query, typeFilter]
   );
 
   const handleFill = async (item: KPSearchResult) => {
-    setStatus('loading');
-    setError(null);
+    dispatch({ type: 'SEARCH_START' });
     try {
       const filmId = item.kinopoiskId;
       const contentType = mapKpType(item.type, item.genres);
@@ -168,17 +213,13 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
         .map((g) => genreMapping[g.genre.toLowerCase()])
         .filter((v): v is string => !!v);
 
-      const isSeries = ['TV_SERIES', 'TV_SHOW', 'MINI_SERIES'].includes(
-        item.type
-      );
+      const isSeries = ['TV_SERIES', 'TV_SHOW', 'MINI_SERIES'].includes(item.type);
 
       const [detailsRes, staffRes, seasonsRes] = await Promise.all([
         axios.get<KPDetails>(`/api/kp?id=${filmId}`),
         axios.get<KPStaffMember[]>(`/api/kp?id=${filmId}&endpoint=staff`),
         isSeries
-          ? axios.get<KPSeasonsResponse>(
-              `/api/kp?id=${filmId}&endpoint=seasons`
-            )
+          ? axios.get<KPSeasonsResponse>(`/api/kp?id=${filmId}&endpoint=seasons`)
           : null,
       ]);
 
@@ -192,10 +233,7 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
       const fillData: SearchFillData = {
         title: item.nameRu || item.nameEn || undefined,
         originalTitle:
-          details?.nameOriginal ||
-          item.nameEn ||
-          item.nameOriginal ||
-          undefined,
+          details?.nameOriginal || item.nameEn || item.nameOriginal || undefined,
         posterUrl: details?.posterUrl || item.posterUrl || undefined,
         releaseYear: details?.year || item.year || undefined,
         synopsis: details?.description || undefined,
@@ -220,19 +258,15 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
       }
 
       onFill(fillData);
-      setResults([]);
-      setQuery('');
-      setIsOpen(false);
+      dispatch({ type: 'FILL_SUCCESS' });
     } catch {
-      setError('Ошибка при получении деталей из Кинопоиск');
-    } finally {
-      setStatus('idle');
+      dispatch({ type: 'SEARCH_ERROR', payload: 'Ошибка при получении деталей из Кинопоиск' });
     }
   };
 
   const handleFillFromOriginalTitle = () => {
     if (!originalTitle?.trim()) return;
-    setQuery(originalTitle);
+    dispatch({ type: 'SET_QUERY', payload: originalTitle });
     handleSearch(originalTitle);
   };
 
@@ -247,7 +281,7 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
       <Button
         type="button"
         variant="outline"
-        onClick={() => setIsOpen(true)}
+        onClick={() => dispatch({ type: 'OPEN' })}
         className="gap-2"
       >
         🎬 Поиск в Кинопоиск
@@ -263,10 +297,7 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => {
-            setIsOpen(false);
-            setResults([]);
-          }}
+          onClick={() => dispatch({ type: 'CLOSE' })}
         >
           ✕
         </Button>
@@ -284,7 +315,7 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
               name="kp-dash-filter"
               value={f.value}
               checked={typeFilter === f.value}
-              onChange={() => setTypeFilter(f.value)}
+              onChange={() => dispatch({ type: 'SET_TYPE_FILTER', payload: f.value })}
               className="cursor-pointer"
             />
             {f.label}
@@ -297,7 +328,7 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
         <Input
           value={query}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setQuery(e.target.value)
+            dispatch({ type: 'SET_QUERY', payload: e.target.value })
           }
           onKeyDown={(e) =>
             e.key === 'Enter' && (e.preventDefault(), handleSearch())
@@ -308,10 +339,10 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
         <Button
           type="button"
           onClick={() => handleSearch()}
-          disabled={status === 'loading'}
+          disabled={loading}
           size="sm"
         >
-          {status === 'loading' ? (
+          {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <Search className="h-4 w-4" />
@@ -323,7 +354,7 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
             variant="outline"
             size="sm"
             onClick={handleFillFromOriginalTitle}
-            disabled={status === 'loading'}
+            disabled={loading}
           >
             ⬆ Из оригинала
           </Button>
@@ -342,7 +373,7 @@ export const KpSearchDashboard: FC<ExternalSearchProps> = ({
               onClick={() => handleFill(film)}
               className="flex flex-col gap-1.5 rounded-lg border p-2 text-left transition-colors hover:bg-accent"
             >
-              <div className="relative aspect-[2/3] w-full overflow-hidden rounded bg-muted">
+              <div className="relative aspect-2/3 w-full overflow-hidden rounded bg-muted">
                 {film.posterUrlPreview ? (
                   <Image
                     src={film.posterUrlPreview}
@@ -400,36 +431,81 @@ type TMDBDetails = TMDBMovie & {
   credits: { crew: { job: string; name: string }[] };
 };
 
+// --- Reducer для TmdbSearchDashboard ---
+
+type TmdbState = {
+  query: string;
+  results: TMDBMovie[];
+  loading: boolean;
+  error: string | null;
+  contentType: 'movie' | 'tv';
+  isOpen: boolean;
+};
+
+type TmdbAction =
+  | { type: 'OPEN' }
+  | { type: 'CLOSE' }
+  | { type: 'SET_QUERY'; payload: string }
+  | { type: 'SET_CONTENT_TYPE'; payload: 'movie' | 'tv' }
+  | { type: 'SEARCH_START' }
+  | { type: 'SEARCH_SUCCESS'; payload: TMDBMovie[] }
+  | { type: 'SEARCH_ERROR'; payload: string }
+  | { type: 'FILL_SUCCESS' };
+
+const tmdbInitialState: TmdbState = {
+  query: '',
+  results: [],
+  loading: false,
+  error: null,
+  contentType: 'movie',
+  isOpen: false,
+};
+
+function tmdbReducer(state: TmdbState, action: TmdbAction): TmdbState {
+  switch (action.type) {
+    case 'OPEN':
+      return { ...state, isOpen: true };
+    case 'CLOSE':
+      return { ...state, isOpen: false, results: [] };
+    case 'SET_QUERY':
+      return { ...state, query: action.payload };
+    case 'SET_CONTENT_TYPE':
+      return { ...state, contentType: action.payload, results: [] };
+    case 'SEARCH_START':
+      return { ...state, loading: true, error: null };
+    case 'SEARCH_SUCCESS':
+      return { ...state, loading: false, results: action.payload };
+    case 'SEARCH_ERROR':
+      return { ...state, loading: false, error: action.payload };
+    case 'FILL_SUCCESS':
+      return { ...state, loading: false, results: [], query: '', isOpen: false };
+    default:
+      return state;
+  }
+}
+
 /**
  * Компонент поиска в TMDB для dashboard.
  */
 export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<TMDBMovie[]>([]);
-  const [status, setStatus] = useState<'idle' | 'loading'>('idle');
-  const [error, setError] = useState<string | null>(null);
-  const [contentType, setContentType] = useState<'movie' | 'tv'>('movie');
-  const [isOpen, setIsOpen] = useState(false);
+  const [state, dispatch] = useReducer(tmdbReducer, tmdbInitialState);
+  const { query, results, loading, error, contentType, isOpen } = state;
 
   const handleSearch = useCallback(async () => {
     if (!query.trim()) return;
-    setStatus('loading');
-    setError(null);
+    dispatch({ type: 'SEARCH_START' });
     try {
       const response = await axios.get<{ results: TMDBMovie[] }>(
         `/api/tmdb?query=${encodeURIComponent(query)}&type=${contentType}`
       );
-      setResults(response.data.results || []);
+      dispatch({ type: 'SEARCH_SUCCESS', payload: response.data.results || [] });
     } catch {
-      setError('Ошибка при поиске в TMDB');
-    } finally {
-      setStatus('idle');
+      dispatch({ type: 'SEARCH_ERROR', payload: 'Ошибка при поиске в TMDB' });
     }
   }, [query, contentType]);
 
   const handleFill = async (item: TMDBMovie) => {
-    setStatus('loading');
-    setError(null);
+    dispatch({ type: 'SEARCH_START' });
     try {
       const title = item.title || item.name || '';
       const releaseDate = item.release_date || item.first_air_date || '';
@@ -454,15 +530,11 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
         posterUrl: item.poster_path
           ? `https://image.tmdb.org/t/p/original${item.poster_path}`
           : undefined,
-        releaseYear: releaseDate
-          ? parseInt(releaseDate.split('-')[0])
-          : undefined,
+        releaseYear: releaseDate ? parseInt(releaseDate.split('-')[0]) : undefined,
         synopsis: item.overview || undefined,
-        duration:
-          details?.runtime || details?.episode_run_time?.[0] || undefined,
+        duration: details?.runtime || details?.episode_run_time?.[0] || undefined,
         director: director || undefined,
-        genres:
-          mappedGenres && mappedGenres.length > 0 ? mappedGenres : undefined,
+        genres: mappedGenres && mappedGenres.length > 0 ? mappedGenres : undefined,
         type: typeValue,
         tmdbRating: item.vote_average || undefined,
       };
@@ -473,13 +545,9 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
       }
 
       onFill(fillData);
-      setResults([]);
-      setQuery('');
-      setIsOpen(false);
+      dispatch({ type: 'FILL_SUCCESS' });
     } catch {
-      setError('Ошибка при получении деталей из TMDB');
-    } finally {
-      setStatus('idle');
+      dispatch({ type: 'SEARCH_ERROR', payload: 'Ошибка при получении деталей из TMDB' });
     }
   };
 
@@ -488,7 +556,7 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
       <Button
         type="button"
         variant="outline"
-        onClick={() => setIsOpen(true)}
+        onClick={() => dispatch({ type: 'OPEN' })}
         className="gap-2"
       >
         🌐 Поиск в TMDB
@@ -504,10 +572,7 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => {
-            setIsOpen(false);
-            setResults([]);
-          }}
+          onClick={() => dispatch({ type: 'CLOSE' })}
         >
           ✕
         </Button>
@@ -520,10 +585,7 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
             type="radio"
             name="tmdb-dash-type"
             checked={contentType === 'movie'}
-            onChange={() => {
-              setContentType('movie');
-              setResults([]);
-            }}
+            onChange={() => dispatch({ type: 'SET_CONTENT_TYPE', payload: 'movie' })}
           />
           <Film className="h-3.5 w-3.5" /> Фильмы
         </label>
@@ -532,10 +594,7 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
             type="radio"
             name="tmdb-dash-type"
             checked={contentType === 'tv'}
-            onChange={() => {
-              setContentType('tv');
-              setResults([]);
-            }}
+            onChange={() => dispatch({ type: 'SET_CONTENT_TYPE', payload: 'tv' })}
           />
           <Tv className="h-3.5 w-3.5" /> Сериалы
         </label>
@@ -546,7 +605,7 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
         <Input
           value={query}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setQuery(e.target.value)
+            dispatch({ type: 'SET_QUERY', payload: e.target.value })
           }
           onKeyDown={(e) =>
             e.key === 'Enter' && (e.preventDefault(), handleSearch())
@@ -557,10 +616,10 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
         <Button
           type="button"
           onClick={handleSearch}
-          disabled={status === 'loading'}
+          disabled={loading}
           size="sm"
         >
-          {status === 'loading' ? (
+          {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <Search className="h-4 w-4" />
@@ -580,7 +639,7 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
               onClick={() => handleFill(movie)}
               className="flex flex-col gap-1.5 rounded-lg border p-2 text-left transition-colors hover:bg-accent"
             >
-              <div className="relative aspect-[2/3] w-full overflow-hidden rounded bg-muted">
+              <div className="relative aspect-2/3 w-full overflow-hidden rounded bg-muted">
                 {movie.poster_path ? (
                   <Image
                     src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
@@ -600,9 +659,7 @@ export const TmdbSearchDashboard: FC<ExternalSearchProps> = ({ onFill }) => {
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground">
                 <span>
-                  {(movie.release_date || movie.first_air_date || '').split(
-                    '-'
-                  )[0] || '—'}
+                  {(movie.release_date || movie.first_air_date || '').split('-')[0] || '—'}
                 </span>
                 {movie.vote_average > 0 && (
                   <span>★ {movie.vote_average.toFixed(1)}</span>

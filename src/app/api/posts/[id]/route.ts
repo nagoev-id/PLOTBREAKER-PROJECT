@@ -1,3 +1,4 @@
+import { revalidateTag } from 'next/cache';
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
 import { COLLECTION_SLUGS } from '@/lib/constants';
@@ -37,6 +38,7 @@ export async function DELETE(
       id,
     });
 
+    revalidateTag('posts');
     return Response.json({ success: true });
   } catch (err) {
     console.error('Ошибка при удалении поста:', err);

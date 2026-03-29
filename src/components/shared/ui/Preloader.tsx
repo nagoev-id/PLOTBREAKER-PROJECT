@@ -3,7 +3,17 @@
 import { type FC, type JSX, useEffect, useState } from 'react';
 
 /**
- * Прелоадер сайта с анимированным SVG-логотипом и текстом "ПРОСМОТРЕНО".
+ * Предвычисленный массив символов прелоадера со стабильными ключами.
+ * Вынесен за пределы компонента, чтобы не пересоздаваться при рендере.
+ */
+const PRELOADER_CHARS = 'ПРОСМОТРЕНО'.split('').map((char, i) => ({
+  char,
+  key: `preloader-char-${char}-${i}`,
+  delay: `${0.8 + i * 0.06}s`,
+}));
+
+/**
+ * Прелоадер сайта с анимированным SVG-логотипом и текстом «ПРОСМОТРЕНО».
  * Показывается при первой загрузке, затем плавно исчезает.
  */
 const Preloader: FC = (): JSX.Element | null => {
@@ -53,13 +63,13 @@ const Preloader: FC = (): JSX.Element | null => {
           </svg>
         </div>
 
-        {/* Текст */}
+        {/* Текст — массив предвычислен, ключи стабильны */}
         <div className="preloader__text">
-          {'ПРОСМОТРЕНО'.split('').map((char, i) => (
+          {PRELOADER_CHARS.map(({ char, key, delay }) => (
             <span
-              key={`char-${i}`}
+              key={key}
               className="preloader__char"
-              style={{ animationDelay: `${0.8 + i * 0.06}s` }}
+              style={{ animationDelay: delay }}
             >
               {char}
             </span>

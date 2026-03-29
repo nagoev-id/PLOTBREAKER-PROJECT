@@ -44,7 +44,7 @@ export const HeroBlock: FC<HeroBlockProps> = ({
   enableAudioToggle = false,
 }) => {
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
+  const isHomePage = pathname === '/' || pathname === '/about';
   const [isMuted, setIsMuted] = useState(true);
   const [isHeroInView, setIsHeroInView] = useState(true);
   const hasVideoBg = Boolean(backgroundVideoSrc);
@@ -178,7 +178,13 @@ export const HeroBlock: FC<HeroBlockProps> = ({
                   ].join(' ')
                 : undefined;
 
-              return <CMSLink key={link.url || link.label || String(i)} {...link} className={heroButtonClass} />;
+              return (
+                <CMSLink
+                  key={link.url || link.label || String(i)}
+                  {...link}
+                  className={heroButtonClass}
+                />
+              );
             })}
           </div>
         )}

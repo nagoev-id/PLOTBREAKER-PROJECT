@@ -44,19 +44,19 @@ const TYPE_META: Record<
   film: {
     label: 'Фильм',
     Icon: Film,
-    className: 'border border-sky-500/35 bg-sky-500/12 text-sky-300',
+    className: 'border-sky-500/40 bg-sky-500/20 text-sky-100',
     placeholderGradient: 'from-sky-700 to-sky-950',
   },
   series: {
     label: 'Сериал',
     Icon: Tv2,
-    className: 'border border-violet-500/35 bg-violet-500/12 text-violet-300',
+    className: 'border-violet-500/40 bg-violet-500/20 text-violet-100',
     placeholderGradient: 'from-violet-700 to-violet-950',
   },
   cartoon: {
     label: 'Мультфильм',
     Icon: Clapperboard,
-    className: 'border border-rose-500/35 bg-rose-500/12 text-rose-300',
+    className: 'border-rose-500/40 bg-rose-500/20 text-rose-100',
     placeholderGradient: 'from-rose-700 to-rose-950',
   },
 };
@@ -218,20 +218,25 @@ export const MovieCard: FC<Props> = ({
 
           <div className="absolute top-2 right-2 z-20 flex flex-col items-end gap-1.5">
             {item.kpRating && (
-              <div className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/75 px-2 py-1 text-[11px] font-semibold text-foreground backdrop-blur">
-                <Star size={10} className="fill-amber-400 text-amber-400" />
+              <div className="inline-flex items-center gap-1 rounded-full border border-black/5 bg-white/95 px-2 py-0.5 text-[11px] font-bold text-black shadow-xs backdrop-blur-md dark:border-white/10 dark:bg-black/80 dark:text-white">
+                <Star size={11} className="fill-amber-500 text-amber-500" />
                 {item.kpRating.toFixed(1)}
               </div>
             )}
 
             {StatusIcon && statusLabel && (
-              <div
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold backdrop-blur',
-                  statusClassName
-                )}
-              >
-                <StatusIcon className={cn('size-3.5', statusIconClassName)} />
+              <div className="inline-flex items-center gap-1 rounded-full border border-black/5 bg-white/95 px-2 py-0.5 text-[11px] font-bold text-black shadow-xs backdrop-blur-md dark:border-white/10 dark:bg-black/80 dark:text-white">
+                <StatusIcon
+                  className={cn(
+                    'size-3',
+                    opinionConfig?.color ||
+                      (isPlanned
+                        ? 'text-sky-500'
+                        : item.status === 'watching'
+                          ? 'text-emerald-500'
+                          : 'text-zinc-500')
+                  )}
+                />
                 <span>{statusLabel}</span>
               </div>
             )}
@@ -240,16 +245,16 @@ export const MovieCard: FC<Props> = ({
           <div className="absolute bottom-2 left-2 z-20 flex flex-wrap items-center gap-1.5">
             <div
               className={cn(
-                'inline-flex items-center gap-1 rounded-full border border-blue-500/35 bg-blue-500/40 px-2 py-1 text-[10px] font-semibold tracking-[0.04em] uppercase text-blue-300',
+                'inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase backdrop-blur-md shadow-xs',
                 typeMeta.className
               )}
             >
-              <typeMeta.Icon className="size-3.5" />
+              <typeMeta.Icon className="size-3" />
               {typeMeta.label}
             </div>
 
             {hasReview && (
-              <div className="inline-flex items-center gap-1 rounded-full border border-emerald-500/35 bg-emerald-500/40 px-2 py-1 text-[10px] font-semibold tracking-[0.04em] text-emerald-300 uppercase">
+              <div className="inline-flex items-center gap-1 rounded-sm border border-emerald-500/40 bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-emerald-100 uppercase backdrop-blur-md shadow-xs">
                 <MessageSquareText className="size-3" />
                 Обзор
               </div>
@@ -258,7 +263,7 @@ export const MovieCard: FC<Props> = ({
               <div
                 role="link"
                 tabIndex={0}
-                className="pointer-events-auto inline-flex cursor-pointer items-center gap-1 rounded-full border border-orange-500/35 bg-orange-500/40 px-2 py-1 text-[10px] font-semibold tracking-[0.04em] text-orange-300 uppercase transition-colors hover:bg-orange-500/55"
+                className="pointer-events-auto inline-flex cursor-pointer items-center gap-1 rounded-sm border border-orange-500/40 bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-orange-100 uppercase backdrop-blur-md shadow-xs transition-colors hover:bg-orange-500/40"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
