@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, JSX, useCallback, useMemo } from 'react';
+import { FC, JSX, useCallback } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -15,6 +15,11 @@ import { PAGINATION_CONFIG } from '@/lib/constants';
 // Описание типов пропсов
 type CollectionDetailClientProps = {
   collection: List;
+  currentPage: number;
+  items: Title[];
+  pageSize: number;
+  totalDocs: number;
+  totalPages: number;
 };
 
 /**
@@ -23,35 +28,19 @@ type CollectionDetailClientProps = {
  */
 const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
   collection,
+  currentPage,
+  items,
+  pageSize,
+  totalDocs,
+  totalPages,
 }): JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // Элементы коллекции (из join)
-  const allItems = useMemo(() => {
-    const items = (
-      collection as List & {
-        items?: { docs?: Title[] };
-      }
-    ).items?.docs;
-    return (items || []).filter(
-      (item: unknown): item is Title =>
-        typeof item === 'object' && item !== null
-    );
-  }, [collection]);
 
   const { type, TypeIcon } = configCollection(
     collection.title,
     collection.slug
   );
-
-  // Читаем состояние пагинации из URL
-  const currentPage = Number(searchParams.get('page')) || 1;
-  const pageSize = PAGINATION_CONFIG.pageSizeOptions.includes(
-    Number(searchParams.get('size'))
-  )
-    ? Number(searchParams.get('size'))
-    : PAGINATION_CONFIG.defaultPageSize;
 
   // Обновление URL с новыми параметрами пагинации
   const updateParams = useCallback(
@@ -72,15 +61,6 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
     },
     [router, searchParams]
   );
-
-  // Подсчёт общего количества страниц
-  const totalPages = Math.ceil(allItems.length / pageSize);
-
-  // Записи для текущей страницы
-  const paginatedItems = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return allItems.slice(start, start + pageSize);
-  }, [allItems, currentPage, pageSize]);
 
   // Обработчики пагинации
   const handlePageChange = useCallback(
@@ -120,10 +100,10 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
           </div>
           <h1 className="text-xl font-bold lg:text-2xl">{collection.title}</h1>
           <Badge className="text-xs sm:text-sm font-medium">
-            {allItems.length}{' '}
-            {allItems.length === 1
+            {totalDocs}{' '}
+            {totalDocs === 1
               ? 'запись'
-              : allItems.length < 5
+              : totalDocs < 5
                 ? 'записи'
                 : 'записей'}
           </Badge>
@@ -133,7 +113,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
       <Separator />
 
       {/* Пагинация */}
-      {allItems.length > 10 && (
+      {totalDocs > 10 && (
         <div className="container mx-auto px-2 sm:px-4">
           <PaginationControls
             currentPage={currentPage}
@@ -148,8 +128,8 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
 
       {/* Карточки контента */}
       <div className="container mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 px-2 sm:px-4">
-        {paginatedItems.length > 0 ? (
-          paginatedItems.map((item: Title, index: number) => {
+        {items.length > 0 ? (
+          items.map((item: Title, index: number) => {
             return (
               <div key={item.id}>
                 <MovieCard item={item} priority={index < 10} />
@@ -165,7 +145,7 @@ const CollectionDetailClient: FC<CollectionDetailClientProps> = ({
         )}
       </div>
       {/* Пагинация */}
-      {allItems.length > 10 && (
+      {totalDocs > 10 && (
         <div className="container mx-auto px-2 sm:px-4">
           <PaginationControls
             currentPage={currentPage}

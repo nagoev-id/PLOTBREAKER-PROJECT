@@ -39,12 +39,23 @@ import {
   HOMEPAGE_FILTERS,
 } from '@/lib/constants';
 import type { Title } from '@/payload-types';
-import {
-  genreOptions,
-  matchesRating,
-  releaseYearOptions,
-  watchYearOptions,
-} from '@/lib/utils';
+import type {
+  ReviewsFilterOptions,
+  ReviewsFilters,
+  ReviewsStats,
+} from '@/lib/helpers';
+import { genreOptions } from '@/lib/utils';
+
+type ReviewsPageClientProps = {
+  currentPage: number;
+  filterOptions: ReviewsFilterOptions;
+  filters: ReviewsFilters;
+  items: Title[];
+  pageSize: number;
+  stats: ReviewsStats;
+  totalDocs: number;
+  totalPages: number;
+};
 
 /**
  * Клиентский компонент главной страницы.
@@ -52,18 +63,36 @@ import {
  * @param items - Массив медиа-контента
  * @returns {JSX.Element}
  */
-const ReviewsPageClient: FC<{ items: Title[] }> = ({
-  items: itemsProp,
+const ReviewsPageClient: FC<ReviewsPageClientProps> = ({
+  currentPage,
+  filterOptions,
+  filters,
+  items,
+  pageSize,
+  stats,
+  totalDocs,
+  totalPages,
 }): JSX.Element => {
-  const items = useMemo(() => itemsProp ?? [], [itemsProp]);
   const genreFilterOptions = useMemo(() => genreOptions(), []);
   const releaseYearFilterOptions = useMemo(
-    () => releaseYearOptions(items),
-    [items]
+    () => [
+      { label: 'Все годы', value: ALL_VALUE },
+      ...filterOptions.releaseYears.map((year) => ({
+        label: String(year),
+        value: String(year),
+      })),
+    ],
+    [filterOptions.releaseYears]
   );
   const watchYearFilterOptions = useMemo(
-    () => watchYearOptions(items),
-    [items]
+    () => [
+      { label: 'Все годы', value: ALL_VALUE },
+      ...filterOptions.watchYears.map((year) => ({
+        label: String(year),
+        value: String(year),
+      })),
+    ],
+    [filterOptions.watchYears]
   );
 
   // Ref для debounce поиска
@@ -75,25 +104,22 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
 
   // searchQuery — локальное состояние для debounce ввода
   const [searchQuery, setSearchQuery] = useState(
-    () => searchParams.get('q') || ''
+    () => searchParams.get('q') || filters.q || ''
   );
 
   // Фильтры вычисляются напрямую из searchParams (single source of truth)
-  const activeType = searchParams.get('type') || ALL_VALUE;
-  const selectedGenre = searchParams.get('genre') || ALL_VALUE;
-  const selectedReleaseYear = searchParams.get('year') || ALL_VALUE;
-  const selectedOpinion = searchParams.get('opinion') || ALL_VALUE;
-  const selectedStatus = searchParams.get('status') || 'watched';
-  const selectedRating = searchParams.get('rating') || ALL_VALUE;
-  const selectedWatchYear = searchParams.get('watchYear') || ALL_VALUE;
-
-  // Пагинация
-  const currentPage = Number(searchParams.get('page')) || 1;
-  const pageSize = PAGINATION_CONFIG.pageSizeOptions.includes(
-    Number(searchParams.get('size'))
-  )
-    ? Number(searchParams.get('size'))
-    : PAGINATION_CONFIG.defaultPageSize;
+  const activeType = searchParams.get('type') || filters.type || ALL_VALUE;
+  const selectedGenre = searchParams.get('genre') || filters.genre || ALL_VALUE;
+  const selectedReleaseYear =
+    searchParams.get('year') || filters.year || ALL_VALUE;
+  const selectedOpinion =
+    searchParams.get('opinion') || filters.opinion || ALL_VALUE;
+  const selectedStatus =
+    searchParams.get('status') || filters.status || 'watched';
+  const selectedRating =
+    searchParams.get('rating') || filters.rating || ALL_VALUE;
+  const selectedWatchYear =
+    searchParams.get('watchYear') || filters.watchYear || ALL_VALUE;
 
   // Синхронизация searchQuery при навигации back/forward
   useEffect(() => {
@@ -150,7 +176,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
       if (q) p.set('q', q);
 
       const qs = p.toString();
-      router.replace(qs ? `?${qs}` : '/', { scroll: false });
+      router.replace(qs ? `/reviews?${qs}` : '/reviews', { scroll: false });
     },
     [
       router,
@@ -166,92 +192,6 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
       searchQuery,
     ]
   );
-
-  /**
-   * Фильтрует медиа-контент по заданным критериям
-   * @returns {MediaContent[]} - Отфильтрованный массив медиа-контента
-   */
-  const filteredItems = useMemo(() => {
-    const query = searchQuery.toLowerCase().trim();
-
-    return items.filter((item) => {
-      // Тип контента
-      if (activeType !== ALL_VALUE && item.type !== activeType) return false;
-
-      // Поиск по тексту
-      if (query) {
-        const titleMatch = item.title?.toLowerCase().includes(query);
-        const originalMatch = item.originalTitle?.toLowerCase().includes(query);
-        const directorMatch = item.director?.toLowerCase().includes(query);
-        if (!titleMatch && !originalMatch && !directorMatch) return false;
-      }
-
-      // Жанр
-      if (
-        selectedGenre !== ALL_VALUE &&
-        !item.genres?.includes(
-          selectedGenre as Title['genres'] extends (infer U)[] | null
-            ? U
-            : never
-        )
-      )
-        return false;
-
-      // Год выхода
-      if (
-        selectedReleaseYear !== ALL_VALUE &&
-        item.releaseYear !== Number(selectedReleaseYear)
-      )
-        return false;
-
-      // Впечатление
-      if (
-        selectedOpinion !== ALL_VALUE &&
-        item.personalOpinion !== selectedOpinion
-      )
-        return false;
-
-      // Статус
-      if (selectedStatus !== ALL_VALUE && item.status !== selectedStatus)
-        return false;
-
-      // Рейтинг КП
-      if (selectedRating !== ALL_VALUE) {
-        if (!matchesRating(item.kpRating, selectedRating)) return false;
-      }
-
-      // Год просмотра
-      if (
-        selectedWatchYear !== ALL_VALUE &&
-        item.watchYear !== Number(selectedWatchYear)
-      )
-        return false;
-
-      return true;
-    });
-  }, [
-    items,
-    searchQuery,
-    activeType,
-    selectedGenre,
-    selectedReleaseYear,
-    selectedOpinion,
-    selectedStatus,
-    selectedRating,
-    selectedWatchYear,
-  ]);
-
-  // Вычисляет общее количество страниц
-  const totalPages = Math.ceil(filteredItems.length / pageSize);
-
-  /**
-   * Получает отфильтрованные элементы для текущей страницы
-   * @returns {MediaContent[]} - Отфильтрованные элементы
-   */
-  const paginatedItems = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredItems.slice(start, start + pageSize);
-  }, [filteredItems, currentPage, pageSize]);
 
   /**
    * Обработчик смены страницы
@@ -303,19 +243,6 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
     selectedWatchYear !== ALL_VALUE ||
     currentPage > 1 ||
     pageSize !== PAGINATION_CONFIG.defaultPageSize;
-
-  const dashboardStats = useMemo(() => {
-    const planned = items.filter((item) => item.status === 'planned').length;
-    const liked = items.filter(
-      (item) => item.personalOpinion === 'like'
-    ).length;
-
-    return {
-      total: items.length,
-      planned,
-      liked,
-    };
-  }, [items]);
 
   const activeFilterChips = useMemo(() => {
     const chips: { key: string; label: string; value: string }[] = [];
@@ -442,7 +369,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                   Всего записей
                 </div>
                 <div className="text-2xl font-semibold">
-                  {dashboardStats.total}
+                  {stats.total}
                 </div>
               </div>
               <div className="rounded-sm border border-white/15 bg-white/10 p-3 backdrop-blur dark:border-white/10 dark:bg-white/6">
@@ -451,7 +378,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                   Найдено сейчас
                 </div>
                 <div className="text-2xl font-semibold">
-                  {filteredItems.length}
+                  {totalDocs}
                 </div>
               </div>
               <div className="rounded-sm border border-white/15 bg-white/10 p-3 backdrop-blur dark:border-white/10 dark:bg-white/6">
@@ -460,7 +387,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                   Понравилось
                 </div>
                 <div className="text-2xl font-semibold">
-                  {dashboardStats.liked}
+                  {stats.liked}
                 </div>
               </div>
               <div className="rounded-sm border border-white/15 bg-white/10 p-3 backdrop-blur dark:border-white/10 dark:bg-white/6">
@@ -469,7 +396,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
                   Запланировано
                 </div>
                 <div className="text-2xl font-semibold">
-                  {dashboardStats.planned}
+                  {stats.planned}
                 </div>
               </div>
             </div>
@@ -611,13 +538,13 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
 
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <Badge className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white sm:text-sm dark:bg-zinc-100 dark:text-zinc-900">
-                  Найдено: {filteredItems.length}
+                  Найдено: {totalDocs}
                 </Badge>
                 <Badge
                   variant="secondary"
                   className="rounded-full px-3 py-1 text-xs font-medium dark:bg-zinc-800 dark:text-zinc-100"
                 >
-                  На странице: {paginatedItems.length}
+                  На странице: {items.length}
                 </Badge>
                 {activeFilterChips.map((chip) => (
                   <Badge
@@ -632,8 +559,8 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {paginatedItems.length > 0 ? (
-                paginatedItems.map((item, index) => (
+              {items.length > 0 ? (
+                items.map((item, index) => (
                   <div key={item.id}>
                     <MovieCard item={item} priority={index < 8} />
                   </div>
@@ -649,7 +576,7 @@ const ReviewsPageClient: FC<{ items: Title[] }> = ({
               )}
             </div>
 
-            {filteredItems.length > pageSize && (
+            {totalDocs > pageSize && (
               <div className="rounded-sm border border-zinc-200/80 bg-card/90 p-3 shadow-xs backdrop-blur supports-backdrop-filter:bg-card/70 dark:border-zinc-700/80 dark:bg-zinc-850/75 dark:shadow-black/30 sm:p-4">
                 <PaginationControls
                   currentPage={currentPage}

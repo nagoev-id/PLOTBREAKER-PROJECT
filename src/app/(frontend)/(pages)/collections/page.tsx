@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 
 import { RenderBlocks } from '@/features/blocks/RenderBlocks';
 import { LoadingSpinner } from '@/components/shared';
-import { getPageBySlug, getCachedLists } from '@/lib/helpers';
+import { getPageBySlug, getCachedLists, getAuthUser } from '@/lib/helpers';
 import CollectionsPageClient from '@/app/(frontend)/(pages)/collections/page.client';
 import type { List } from '@/payload-types';
 
@@ -33,8 +33,11 @@ const CollectionsPage = async () => {
     return notFound();
   }
 
-  const collections = await getCachedLists()();
+  const user = await getAuthUser();
+  const isAdmin = !!user;
 
+  const collections = await getCachedLists(isAdmin)();
+  console.log('collections', collections);
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <RenderBlocks blocks={page.layout} />

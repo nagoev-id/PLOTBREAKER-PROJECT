@@ -95,10 +95,7 @@ export const MovieCard: FC<Props> = ({
   const reviewHref = item.slug ? `/reviews/${item.slug}` : undefined;
   const typeMeta = TYPE_META[item.type];
 
-  const hasReview =
-    item.isPublished &&
-    (hasRichTextContent(item.review) ||
-      item.seasons?.some((s) => hasRichTextContent(s.review)));
+  const hasReview = item.isPublished;
 
   const opinionConfig = item.personalOpinion
     ? OPINION_CONFIG[item.personalOpinion]
@@ -118,17 +115,6 @@ export const MovieCard: FC<Props> = ({
       : item.status === 'abandoned'
         ? 'Брошено'
         : opinionConfig?.label;
-  const statusClassName = isPlanned
-    ? 'border border-sky-500/35 bg-sky-500/12 text-sky-200'
-    : item.status === 'watching'
-      ? 'border border-emerald-500/35 bg-emerald-500/12 text-emerald-200'
-      : item.status === 'abandoned'
-        ? 'border border-zinc-500/45 bg-zinc-500/12 text-zinc-200'
-        : 'border border-border/75 bg-background/75 text-foreground/90';
-  const statusIconClassName =
-    isPlanned || item.status === 'watching' || item.status === 'abandoned'
-      ? 'text-white'
-      : opinionConfig?.color || 'text-white';
 
   /**
    * Обработчик удаления фильма
@@ -253,10 +239,15 @@ export const MovieCard: FC<Props> = ({
               {typeMeta.label}
             </div>
 
-            {hasReview && (
+            {hasReview ? (
               <div className="inline-flex items-center gap-1 rounded-sm border border-emerald-500/40 bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-emerald-100 uppercase backdrop-blur-md shadow-xs">
                 <MessageSquareText className="size-3" />
                 Обзор
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-1 rounded-sm border border-slate-500/40 bg-slate-500/20 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-slate-100 uppercase backdrop-blur-md shadow-xs">
+                <MessageSquareText className="size-3" />
+                Без обзора
               </div>
             )}
             {item.franchise && (

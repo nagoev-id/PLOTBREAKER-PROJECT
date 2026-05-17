@@ -8,6 +8,7 @@ import { ArrowLeft, Film, Search, X, Layers } from 'lucide-react';
 import { MovieCard, PaginationControls } from '@/components/shared';
 import { ALL_VALUE, TYPE_TABS, PAGINATION_CONFIG } from '@/lib/constants';
 import { Input, Tabs, TabsList, TabsTrigger } from '@/components/ui';
+import { formatSlug } from '@/payload/utilities/utils';
 
 import type { Title } from '@/payload-types';
 
@@ -56,7 +57,7 @@ export const FranchisePageClient: FC<FranchisePageClientProps> = ({
       }
       const qs = params.toString();
       router.replace(
-        `/reviews/franchises/${encodeURIComponent(franchise)}${qs ? `?${qs}` : ''}`,
+        `/reviews/franchises/${formatSlug(franchise)}${qs ? `?${qs}` : ''}`,
         { scroll: false }
       );
     },
@@ -88,7 +89,7 @@ export const FranchisePageClient: FC<FranchisePageClientProps> = ({
 
   const handleReset = useCallback(() => {
     setSearchQuery('');
-    router.replace(`/reviews/franchises/${encodeURIComponent(franchise)}`, {
+    router.replace(`/reviews/franchises/${formatSlug(franchise)}`, {
       scroll: false,
     });
   }, [router, franchise]);
